@@ -9,7 +9,8 @@ const publicRoutes = [
     '/cookies',
     '/cookie-policy',
     '/api/set-consent',
-    '/api/analytics/duration'
+    '/api/analytics/duration',
+    '/api/check-key'
 ];
 
 router.use((req, res, next) => {

@@ -131,7 +131,7 @@ mainFrame.Parent = screenGui
 		local keyValue = KeyInput.Text
 		if keyValue ~= "" then
 			local result = request({
-				Url = "http://localhost:3000/api/check-key?key=" .. keyValue .. "&userId=" .. LocalPlayer.UserId,
+				Url = "https://axiomhub.eu/api/check-key?key=" .. keyValue .. "&userId=" .. LocalPlayer.UserId,
 				Method = "GET"
 			}).Body
 			
