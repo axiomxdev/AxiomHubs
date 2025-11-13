@@ -13,6 +13,7 @@ export const emailPass = process.env.EMAIL_PASS;
 export const imapHost = process.env.IMAP_HOST;
 export const imapPort = process.env.IMAP_PORT;
 export const mailWebhookUrl = process.env.MAIL_WEBHOOK_URL;
+export const DBUri = process.env.DB_PATH;
 
 import express from 'express';
 import path from 'path';

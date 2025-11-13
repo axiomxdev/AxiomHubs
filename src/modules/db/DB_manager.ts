@@ -10,6 +10,8 @@ import {
     Stat,
 } from '../../types/db';
 
+import { DBUri } from '../../server';
+
 import { RobloxClient } from '../../types/roblox_client';
 
 export class DBManager implements DBManagerInterface {
@@ -435,5 +437,5 @@ export class DBManager implements DBManagerInterface {
 
 // Export singleton instance
 export const dbManager = new DBManager({
-    filename: path.join(__dirname, '..', '..', 'db', 'axiomhub.db'),
+    filename: String(DBUri),
 });
