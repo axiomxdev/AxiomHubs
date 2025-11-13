@@ -1,0 +1,129 @@
+.cookie-popup {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #1f1f1f;
+    border-top: 2px solid #667eea;
+    padding: 1.5rem 2rem;
+    z-index: 1000;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.cookie-popup-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.cookie-popup-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.cookie-popup-text {
+    flex: 1;
+    min-width: 250px;
+}
+
+.cookie-popup-text strong {
+    color: #ffffff;
+    font-size: 1.2rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.cookie-popup-text p {
+    color: #d1d5db;
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.cookie-popup-actions {
+    display: flex;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.cookie-accept-btn,
+.cookie-decline-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cookie-accept-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+}
+
+.cookie-accept-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.cookie-decline-btn {
+    background: transparent;
+    color: #9ca3af;
+    border: 1px solid #374151;
+}
+
+.cookie-decline-btn:hover {
+    background: #374151;
+    color: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .cookie-popup {
+        padding: 1rem;
+    }
+
+    .cookie-popup-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .cookie-popup-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .cookie-accept-btn,
+    .cookie-decline-btn {
+        flex: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}

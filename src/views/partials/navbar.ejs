@@ -1,0 +1,19 @@
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="nav-brand">
+            <h1>
+                <a href="/" style="text-decoration: none;">Axiom Hub's</a>
+            </h1>
+        </div>
+        <div class="nav-links">
+            <a href="https://discord.com/invite/wx9gV9Z7Yy" class="nav-link" target="_blank">Join Discord</a>
+            <a href="/status" class="nav-link">Status</a>
+            <%if (connected) { %>
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <% } else { %>
+                    <a href="/login" class="nav-link">Login</a>
+                    <% } %>
+        </div>
+    </div>
+</nav>

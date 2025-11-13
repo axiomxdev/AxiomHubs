@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Cookie Policy & GDPR Compliance — Axiom Hub's</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="/assets/axioms.ico">
+    <meta name="description" content="Complete Cookie Policy and GDPR Compliance Information">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/cookie-policy.css">
+</head>
+
+<body>
+    <%- include('partials/navbar') %>
+
+        <main class="policy-section">
+            <div class="policy-container">
+                <h1 class="policy-title">Cookie Policy & GDPR Compliance</h1>
+
+                <p class="policy-intro">
+                    Welcome to Axiom Hub's Cookie Policy. We are committed to protecting your privacy and complying
+                    with the General Data Protection Regulation (GDPR) of the European Union. This policy explains
+                    in detail how we use cookies and process your personal data.
+                </p>
+
+                <div class="highlight-box">
+                    <p><strong>Last Updated:</strong> November 13, 2025</p>
+                    <p><strong>Data Controller:</strong> Axiom Hub's</p>
+                    <p><strong>Contact:</strong> contact@axiomhub.eu | Discord: https://discord.gg/wx9gV9Z7Yy</p>
+                </div>
+
+                <!-- Section 1: What is a Cookie -->
+                <h2 class="policy-section-title">1. What is a Cookie?</h2>
+                <div class="policy-content">
+                    <p>
+                        A cookie is a small text file stored on your device (computer, tablet, smartphone) when you
+                        visit a website. Cookies allow the website to remember your actions and preferences over a
+                        period of time, so you don't have to re-enter them each time you visit or navigate between
+                        pages.
+                    </p>
+                    <p>
+                        Cookies can be "session cookies" (deleted when you close your browser) or "persistent cookies"
+                        (remain on your device until expiration or manual deletion).
+                    </p>
+                </div>
+
+                <!-- Section 2: Complete Cookie List -->
+                <h2 class="policy-section-title">2. Complete List of Cookies We Use</h2>
+                <div class="policy-content">
+                    <p>
+                        Axiom Hub's uses both essential and functional cookies to provide and improve our services.
+                        Below is the complete list of all cookies set by our website:
+                    </p>
+
+                    <table class="policy-table">
+                        <thead>
+                            <tr>
+                                <th>Cookie Name</th>
+                                <th>Type</th>
+                                <th>Duration</th>
+                                <th>Purpose</th>
+                                <th>Legal Basis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>consent</strong></td>
+                                <td>Strictly Necessary</td>
+                                <td>1 year</td>
+                                <td>Records your consent to use cookies (GDPR compliance)</td>
+                                <td>Legal obligation (Art. 6(1)(c) GDPR)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>auth-token</strong></td>
+                                <td>Authentication</td>
+                                <td>30 days</td>
+                                <td>Maintains your authenticated session (JWT token)</td>
+                                <td>Contract performance (Art. 6(1)(b) GDPR)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>logged</strong></td>
+                                <td>Functional</td>
+                                <td>30 days</td>
+                                <td>Indicates login status for UI rendering</td>
+                                <td>Legitimate interest (Art. 6(1)(f) GDPR)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>sessionID</strong></td>
+                                <td>Analytics</td>
+                                <td>Session (browser close)</td>
+                                <td>Tracks unique sessions for analytics (server-side, HttpOnly)</td>
+                                <td>Consent (Art. 6(1)(a) GDPR)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>sessionID_client</strong></td>
+                                <td>Analytics</td>
+                                <td>Session (browser close)</td>
+                                <td>Client-side session tracking for page duration analytics</td>
+                                <td>Consent (Art. 6(1)(a) GDPR)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3 class="policy-subsection-title">2.1. Strictly Necessary Cookies</h3>
+
+                    <h4>consent (1 year)</h4>
+                    <p>
+                        <strong>Purpose:</strong> This cookie is absolutely essential for GDPR compliance. It stores
+                        your explicit consent to use cookies on our website.
+                    </p>
+                    <p>
+                        <strong>Data Stored:</strong> Boolean value ("true") indicating consent acceptance.
+                    </p>
+                    <p>
+                        <strong>Legal Basis:</strong> Legal obligation under GDPR Article 7 (Conditions for consent).
+                    </p>
+                    <p>
+                        <strong>Security:</strong> HttpOnly, Secure (HTTPS), SameSite=Strict/Lax.
+                    </p>
+
+                    <h3 class="policy-subsection-title">2.2. Authentication Cookies</h3>
+
+                    <h4>auth-token (30 days)</h4>
+                    <p>
+                        <strong>Purpose:</strong> Maintains your authenticated session. Contains a JSON Web Token (JWT)
+                        that proves your identity without requiring repeated logins.
+                    </p>
+                    <p>
+                        <strong>Data Stored:</strong> Encrypted JWT containing user ID, email, and expiration timestamp.
+                        No password is stored.
+                    </p>
+                    <p>
+                        <strong>Legal Basis:</strong> Necessary for contract performance (providing authentication
+                        services) under GDPR Article 6(1)(b).
+                    </p>
+                    <p>
+                        <strong>Security:</strong> HttpOnly (prevents JavaScript access), Secure (HTTPS only),
+                        SameSite=Strict (prevents CSRF attacks).
+                    </p>
+                    <p>
+                        <strong>Expiration:</strong> 30 days from creation, or upon manual logout.
+                    </p>
+
+                    <h4>logged (30 days)</h4>
+                    <p>
+                        <strong>Purpose:</strong> Boolean flag indicating whether user is logged in. Used for UI
+                        rendering (showing/hiding login buttons, user menu, etc.).
+                    </p>
+                    <p>
+                        <strong>Data Stored:</strong> String value "true" or absence of cookie.
+                    </p>
+                    <p>
+                        <strong>Legal Basis:</strong> Legitimate interest in providing functional user interface under
+                        GDPR Article 6(1)(f).
+                    </p>
+                    <p>
+                        <strong>Security:</strong> HttpOnly, Secure, SameSite=Strict/Lax.
+                    </p>
+
+                    <h3 class="policy-subsection-title">2.3. Analytics Cookies</h3>
+
+                    <h4>sessionID (Session)</h4>
+                    <p>
+                        <strong>Purpose:</strong> Generates a unique identifier for your browsing session. Used to track
+                        unique visitors, page views, and user behavior patterns without identifying you personally.
+                    </p>
+                    <p>
+                        <strong>Data Stored:</strong> UUID v4 (Universally Unique Identifier) - e.g.,
+                        "a3d5f8e2-4b1c-4d7e-9f2a-1c8b5e3d4f6a".
+                    </p>
+                    <p>
+                        <strong>Data Collected:</strong>
+                    </p>
+                    <ul>
+                        <li>Pages visited (URL paths)</li>
+                        <li>Visit timestamps</li>
+                        <li>Page duration (time spent on page)</li>
+                        <li>Browser name and version (User-Agent parsing)</li>
+                        <li>Referrer (previous website/page)</li>
+                        <li>IP address (for unique visitor counting, not stored long-term)</li>
+                        <li>Device type (parsed from User-Agent)</li>
+                    </ul>
+                    <p>
+                        <strong>Legal Basis:</strong> Your explicit consent under GDPR Article 6(1)(a).
+                    </p>
+                    <p>
+                        <strong>Security:</strong> HttpOnly (server-side only), Session cookie (deleted on browser
+                        close).
+                    </p>
+                    <p>
+                        <strong>Retention:</strong> Analytics data retained for 24 months maximum for statistical
+                        analysis.
+                    </p>
+
+                    <h4>sessionID_client (Session)</h4>
+                    <p>
+                        <strong>Purpose:</strong> Client-side duplicate of sessionID. Allows JavaScript to send page
+                        duration data when you leave a page (using Navigator.sendBeacon API).
+                    </p>
+                    <p>
+                        <strong>Data Stored:</strong> Same UUID as sessionID.
+                    </p>
+                    <p>
+                        <strong>Why Needed:</strong> HttpOnly cookies cannot be read by JavaScript. This cookie enables
+                        accurate page duration tracking by sending data on page unload.
+                    </p>
+                    <p>
+                        <strong>Legal Basis:</strong> Your explicit consent under GDPR Article 6(1)(a).
+                    </p>
+                    <p>
+                        <strong>Security:</strong> NOT HttpOnly (readable by JavaScript), but contains no personal
+                        information - only a random session identifier.
+                    </p>
+
+                    <h3 class="policy-subsection-title">2.4. What We DON'T Use</h3>
+                    <p>
+                        Axiom Hub's does <strong>NOT</strong> use:
+                    </p>
+                    <ul>
+                        <li>❌ Third-party advertising cookies</li>
+                        <li>❌ Social media tracking cookies (Facebook Pixel, Twitter, etc.)</li>
+                        <li>❌ Third-party analytics (Google Analytics, etc.)</li>
+                        <li>❌ Behavioral tracking across websites</li>
+                        <li>❌ Cookies for profiling or automated decision-making</li>
+                        <li>❌ Roblox username storage in cookies (this was mentioned in old policy but is NOT
+                            implemented)</li>
+                    </ul>
+                    <p>
+                        All cookies are first-party (set by axiomhub.eu domain only) and under our exclusive control.
+                    </p>
+                </div>
+
+                <!-- Section 3: Legal Basis (GDPR) -->
+                <h2 class="policy-section-title">3. Legal Basis for Processing (GDPR)</h2>
+                <div class="policy-content">
+                    <p>
+                        Under GDPR Article 6, we process your personal data based on the following legal grounds:
+                    </p>
+
+                    <h3 class="policy-subsection-title">3.1. Consent (Article 6(1)(a))</h3>
+                    <p>
+                        You provide explicit, informed, and freely given consent by clicking "Accept & Continue" on our
+                        cookie banner. This consent covers:
+                    </p>
+                    <ul>
+                        <li>Analytics cookies (sessionID, sessionID_client)</li>
+                        <li>Collection of browsing behavior data</li>
+                        <li>Page duration tracking</li>
+                    </ul>
+                    <p>
+                        You can withdraw consent at any time by deleting cookies or contacting us.
+                    </p>
+
+                    <h3 class="policy-subsection-title">3.2. Contract Performance (Article 6(1)(b))</h3>
+                    <p>
+                        Authentication cookies (auth-token) are necessary to perform our contract with you - providing
+                        access to authenticated areas and personalized services.
+                    </p>
+
+                    <h3 class="policy-subsection-title">3.3. Legal Obligation (Article 6(1)(c))</h3>
+                    <p>
+                        The consent cookie is required to comply with ePrivacy Directive and GDPR requirements to obtain
+                        and record user consent.
+                    </p>
+
+                    <h3 class="policy-subsection-title">3.4. Legitimate Interest (Article 6(1)(f))</h3>
+                    <p>
+                        The "logged" cookie serves our legitimate interest in providing a functional user interface,
+                        which does not override your fundamental rights and freedoms.
+                    </p>
+                </div>
+
+                <!-- Section 4: Your GDPR Rights -->
+                <h2 class="policy-section-title">4. Your Rights Under GDPR</h2>
+                <div class="policy-content">
+                    <p>
+                        As a data subject, you have the following rights under the GDPR:
+                    </p>
+
+                    <h3 class="policy-subsection-title">Right of Access (Article 15)</h3>
+                    <p>
+                        You can request a copy of all personal data we hold about you, including analytics data
+                        associated with your session.
+                    </p>
+
+                    <h3 class="policy-subsection-title">Right to Rectification (Article 16)</h3>
+                    <p>
+                        You can request correction of inaccurate or incomplete personal data.
+                    </p>
+
+                    <h3 class="policy-subsection-title">Right to Erasure / "Right to be Forgotten" (Article 17)</h3>
+                    <p>
+                        You can request deletion of your personal data in the following circumstances:
+                    </p>
+                    <ul>
+                        <li>Data no longer necessary for original purpose</li>
+                        <li>You withdraw consent and no other legal basis exists</li>
+                        <li>You object to processing and no overriding legitimate grounds exist</li>
+                        <li>Data processed unlawfully</li>
+                        <li>Legal obligation requires erasure</li>
+                    </ul>
+
+                    <h3 class="policy-subsection-title">Right to Restriction of Processing (Article 18)</h3>
+                    <p>
+                        You can request temporary suspension of data processing while we verify accuracy or assess
+                        legitimate grounds.
+                    </p>
+
+                    <h3 class="policy-subsection-title">Right to Data Portability (Article 20)</h3>
+                    <p>
+                        You can receive your personal data in a structured, machine-readable format (CSV, JSON) and
+                        transmit it to another controller.
+                    </p>
+
+                    <h3 class="policy-subsection-title">Right to Object (Article 21)</h3>
+                    <p>
+                        You can object to processing based on legitimate interests or for direct marketing purposes.
+                        We will cease processing unless we demonstrate compelling legitimate grounds.
+                    </p>
+
+                    <h3 class="policy-subsection-title">Right to Withdraw Consent (Article 7(3))</h3>
+                    <p>
+                        You can withdraw consent at any time by:
+                    </p>
+                    <ul>
+                        <li>Deleting cookies from your browser settings</li>
+                        <li>Contacting us at contact@axiomhub.eu</li>
+                    </ul>
+                    <p>
+                        Withdrawal does not affect the lawfulness of processing before withdrawal.
+                    </p>
+
+                    <h3 class="policy-subsection-title">Right to Lodge a Complaint (Article 77)</h3>
+                    <p>
+                        You have the right to lodge a complaint with your supervisory authority:
+                    </p>
+                    <ul>
+                        <li><strong>France (CNIL):</strong> https://www.cnil.fr/</li>
+                        <li><strong>UK (ICO):</strong> https://ico.org.uk/</li>
+                        <li><strong>Germany (BfDI):</strong> https://www.bfdi.bund.de/</li>
+                        <li>Find your country's authority: https://edpb.europa.eu/about-edpb/board/members_en</li>
+                    </ul>
+
+                    <div class="highlight-box">
+                        <p>
+                            <strong>How to Exercise Your Rights:</strong>
+                        </p>
+                        <ul>
+                            <li>Email: contact@axiomhub.eu</li>
+                            <li>Discord: https://discord.gg/wx9gV9Z7Yy</li>
+                            <li>Response time: Within 30 days (extendable to 60 days for complex requests)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Section 5: Data Retention -->
+                <h2 class="policy-section-title">5. Data Retention Periods</h2>
+                <div class="policy-content">
+                    <p>
+                        In accordance with GDPR Article 5(1)(e) (storage limitation principle), we retain your data only
+                        as long as necessary:
+                    </p>
+
+                    <table class="policy-table">
+                        <thead>
+                            <tr>
+                                <th>Data Type</th>
+                                <th>Retention Period</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Consent cookie</td>
+                                <td>1 year</td>
+                                <td>Legal requirement to maintain consent records</td>
+                            </tr>
+                            <tr>
+                                <td>Authentication cookies (auth-token, logged)</td>
+                                <td>30 days or until logout</td>
+                                <td>Session management and security</td>
+                            </tr>
+                            <tr>
+                                <td>Session cookies (sessionID, sessionID_client)</td>
+                                <td>Until browser close</td>
+                                <td>Session tracking during visit only</td>
+                            </tr>
+                            <tr>
+                                <td>Analytics database records</td>
+                                <td>24 months maximum</td>
+                                <td>Statistical analysis and service improvement</td>
+                            </tr>
+                            <tr>
+                                <td>User account data</td>
+                                <td>Until account deletion request</td>
+                                <td>Providing ongoing service</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p>
+                        After expiration, cookies are automatically deleted from your browser. Database records are
+                        automatically purged after 24 months or upon explicit deletion request.
+                    </p>
+                </div>
+
+                <!-- Section 6: Data Security -->
+                <h2 class="policy-section-title">6. Security Measures (Article 32 GDPR)</h2>
+                <div class="policy-content">
+                    <p>
+                        We implement appropriate technical and organizational measures to ensure a level of security
+                        appropriate to the risk:
+                    </p>
+
+                    <h3 class="policy-subsection-title">Technical Measures:</h3>
+                    <ul>
+                        <li><strong>HTTPS/TLS Encryption:</strong> All data transmission encrypted (TLS 1.2+)</li>
+                        <li><strong>Secure Cookie Flags:</strong>
+                            <ul>
+                                <li><code>Secure</code>: Cookies only sent over HTTPS</li>
+                                <li><code>HttpOnly</code>: Prevents JavaScript access (XSS protection)</li>
+                                <li><code>SameSite=Strict/Lax</code>: CSRF attack prevention</li>
+                            </ul>
+                        </li>
+                        <li><strong>JWT Token Security:</strong> Signed tokens with 30-day expiration</li>
+                        <li><strong>Database Security:</strong> SQLite with Write-Ahead Logging (WAL), encrypted
+                            connections</li>
+                        <li><strong>Password Hashing:</strong> Argon2id (memory-hard, resistant to GPU attacks)</li>
+                        <li><strong>Input Validation:</strong> Server-side validation and sanitization</li>
+                    </ul>
+
+                    <h3 class="policy-subsection-title">Organizational Measures:</h3>
+                    <ul>
+                        <li>Access controls and authentication</li>
+                        <li>Regular security audits</li>
+                        <li>Data breach response procedures</li>
+                        <li>Staff training on data protection</li>
+                        <li>Privacy by design and by default</li>
+                    </ul>
+
+                    <h3 class="policy-subsection-title">Data Breach Notification:</h3>
+                    <p>
+                        In the event of a personal data breach, we will:
+                    </p>
+                    <ul>
+                        <li>Notify the supervisory authority within 72 hours (Article 33 GDPR)</li>
+                        <li>Notify affected data subjects without undue delay if high risk (Article 34 GDPR)</li>
+                        <li>Document all breaches in our breach register</li>
+                    </ul>
+                </div>
+
+                <!-- Section 7: International Transfers -->
+                <h2 class="policy-section-title">7. International Data Transfers</h2>
+                <div class="policy-content">
+                    <p>
+                        <strong>Cookie Storage:</strong> All cookies are stored locally on your device. No data is
+                        automatically transferred to servers outside your control.
+                    </p>
+                    <p>
+                        <strong>Server Location:</strong> Our servers are located within the European Union. We do not
+                        transfer personal data to third countries outside the EEA without appropriate safeguards.
+                    </p>
+                    <p>
+                        <strong>Third-Party Services:</strong> We do not use third-party services that transfer data
+                        outside the EU. All processing is done on our own infrastructure.
+                    </p>
+                    <p>
+                        If we ever need to transfer data outside the EEA, we will use:
+                    </p>
+                    <ul>
+                        <li>EU Commission adequacy decisions (Article 45)</li>
+                        <li>Standard Contractual Clauses (Article 46(2)(c))</li>
+                        <li>Binding Corporate Rules (Article 47)</li>
+                        <li>Explicit consent where appropriate</li>
+                    </ul>
+                </div>
+
+                <!-- Section 8: Analytics Details -->
+                <h2 class="policy-section-title">8. Analytics and Tracking</h2>
+                <div class="policy-content">
+                    <h3 class="policy-subsection-title">8.1. What We Track</h3>
+                    <p>
+                        Our first-party analytics system collects the following data:
+                    </p>
+                    <ul>
+                        <li><strong>Page views:</strong> URLs visited, timestamps</li>
+                        <li><strong>Session data:</strong> Unique session ID, duration</li>
+                        <li><strong>User behavior:</strong> Page navigation, time on page</li>
+                        <li><strong>Technical data:</strong> Browser type, device type (parsed from User-Agent)</li>
+                        <li><strong>Referrer:</strong> Previous page/website (if provided by browser)</li>
+                        <li><strong>IP address:</strong> Used for unique visitor counting, anonymized after 30 days</li>
+                    </ul>
+
+                    <h3 class="policy-subsection-title">8.2. How We Use Analytics</h3>
+                    <ul>
+                        <li>Understand how visitors use our website</li>
+                        <li>Improve user experience and navigation</li>
+                        <li>Identify popular content and features</li>
+                        <li>Detect technical issues and errors</li>
+                        <li>Plan infrastructure and capacity</li>
+                    </ul>
+
+                    <h3 class="policy-subsection-title">8.3. IP Address Processing</h3>
+                    <p>
+                        IP addresses are personal data under GDPR. We process them as follows:
+                    </p>
+                    <ul>
+                        <li><strong>Purpose:</strong> Count unique visitors, prevent analytics inflation</li>
+                        <li><strong>Storage:</strong> Stored with analytics records for up to 24 months</li>
+                        <li><strong>Anonymization:</strong> After 30 days, last octet removed (e.g., 192.168.1.xxx)</li>
+                        <li><strong>No Sharing:</strong> Never shared with third parties</li>
+                        <li><strong>No Profiling:</strong> Not used for automated decision-making or user profiling</li>
+                    </ul>
+
+                    <h3 class="policy-subsection-title">8.4. Visit Deduplication</h3>
+                    <p>
+                        To prevent analytics inflation from page refreshes:
+                    </p>
+                    <ul>
+                        <li>Same page visit within 30 seconds = counted once</li>
+                        <li>Cached in memory (Map), cleared after 30 seconds</li>
+                        <li>Improves data accuracy without tracking individual users</li>
+                    </ul>
+
+                    <h3 class="policy-subsection-title">8.5. Page Duration Tracking</h3>
+                    <p>
+                        We measure how long you spend on each page using:
+                    </p>
+                    <ul>
+                        <li><strong>Method:</strong> JavaScript timer from page load to page unload</li>
+                        <li><strong>Sending:</strong> Navigator.sendBeacon API (reliable even on page close)</li>
+                        <li><strong>Events tracked:</strong> beforeunload, unload, visibilitychange (tab switch)</li>
+                        <li><strong>Periodic updates:</strong> Every 30 seconds for long sessions</li>
+                    </ul>
+                </div>
+
+                <!-- Section 9: Children's Privacy -->
+                <h2 class="policy-section-title">9. Children's Privacy (Article 8 GDPR)</h2>
+                <div class="policy-content">
+                    <p>
+                        Our service is not directed at children under 16 years of age. We do not knowingly collect
+                        personal data from children.
+                    </p>
+                    <p>
+                        <strong>Roblox Integration:</strong> While Roblox is popular with younger users, our service
+                        provides scripts and tools intended for users 16+. Authentication via Discord also requires
+                        users to be 13+ (Discord ToS) or 16+ in the EU.
+                    </p>
+                    <p>
+                        If we discover we have collected personal data from a child under 16 without parental consent,
+                        we will delete it immediately.
+                    </p>
+                    <p>
+                        <strong>Parents:</strong> If you believe your child has provided personal data to us, please
+                        contact us immediately at contact@axiomhub.eu.
+                    </p>
+                </div>
+
+                <!-- Section 10: Third Parties -->
+                <h2 class="policy-section-title">10. Third-Party Services and Data Sharing</h2>
+                <div class="policy-content">
+                    <h3 class="policy-subsection-title">10.1. Services We Use</h3>
+                    <p>
+                        We use the following third-party services (data processors under GDPR Article 28):
+                    </p>
+
+                    <ul>
+                        <li><strong>Discord OAuth:</strong> For optional authentication
+                            <ul>
+                                <li>Data shared: Discord user ID, email, username (with your consent)</li>
+                                <li>Privacy policy: https://discord.com/privacy</li>
+                                <li>Location: USA (Standard Contractual Clauses)</li>
+                            </ul>
+                        </li>
+                        <li><strong>Email Service:</strong> For password reset emails
+                            <ul>
+                                <li>Provider: [Your SMTP provider]</li>
+                                <li>Data shared: Email address, reset tokens (temporary)</li>
+                                <li>Retention: Email logs deleted after 30 days</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3 class="policy-subsection-title">10.2. We DO NOT Share Data With:</h3>
+                    <ul>
+                        <li>❌ Advertising networks</li>
+                        <li>❌ Data brokers</li>
+                        <li>❌ Social media platforms (except Discord OAuth with consent)</li>
+                        <li>❌ Analytics companies</li>
+                        <li>❌ Marketing companies</li>
+                        <li>❌ Any other third party without explicit consent</li>
+                    </ul>
+
+                    <h3 class="policy-subsection-title">10.3. Legal Disclosures</h3>
+                    <p>
+                        We may disclose personal data if required by law:
+                    </p>
+                    <ul>
+                        <li>Court orders or legal process</li>
+                        <li>Law enforcement requests (with valid legal basis)</li>
+                        <li>Protection of our rights, property, or safety</li>
+                        <li>Prevention of fraud or illegal activity</li>
+                    </ul>
+                    <p>
+                        We will notify you of legal requests unless prohibited by law.
+                    </p>
+                </div>
+
+                <!-- Section 11: Cookie Management -->
+                <h2 class="policy-section-title">11. How to Manage and Delete Cookies</h2>
+                <div class="policy-content">
+                    <p>
+                        You have full control over cookies. Here's how to manage them:
+                    </p>
+
+                    <h3 class="policy-subsection-title">11.1. Browser Settings</h3>
+
+                    <h4>Google Chrome</h4>
+                    <ul>
+                        <li>Settings → Privacy and security → Cookies and other site data → See all cookies and site
+                            data</li>
+                        <li>Search for "axiomhub.eu" and delete individual cookies</li>
+                        <li>Or: Settings → Privacy → Clear browsing data → Cookies and site data</li>
+                    </ul>
+
+                    <h4>Mozilla Firefox</h4>
+                    <ul>
+                        <li>Settings → Privacy & Security → Cookies and Site Data → Manage Data</li>
+                        <li>Search for "axiomhub.eu" and remove</li>
+                        <li>Or: History → Clear Recent History → Cookies</li>
+                    </ul>
+
+                    <h4>Microsoft Edge</h4>
+                    <ul>
+                        <li>Settings → Cookies and site permissions → Manage and delete cookies and site data</li>
+                        <li>Search for "axiomhub.eu"</li>
+                    </ul>
+
+                    <h4>Safari (macOS)</h4>
+                    <ul>
+                        <li>Preferences → Privacy → Manage Website Data</li>
+                        <li>Search for "axiomhub.eu" and Remove</li>
+                    </ul>
+
+                    <h4>Safari (iOS)</h4>
+                    <ul>
+                        <li>Settings → Safari → Advanced → Website Data → Remove All Website Data</li>
+                    </ul>
+
+                    <h3 class="policy-subsection-title">11.2. Blocking Cookies</h3>
+                    <p>
+                        You can configure your browser to block all cookies or only third-party cookies. However:
+                    </p>
+                    <ul>
+                        <li>⚠️ Blocking all cookies will prevent you from using our service</li>
+                        <li>⚠️ Blocking strictly necessary cookies may break functionality</li>
+                        <li>✅ You can block analytics cookies while keeping authentication cookies</li>
+                    </ul>
+
+                    <h3 class="policy-subsection-title">11.3. Consequences of Deleting Cookies</h3>
+                    <p>
+                        If you delete cookies:
+                    </p>
+                    <ul>
+                        <li>You will be logged out and need to sign in again</li>
+                        <li>You will need to accept the cookie banner again</li>
+                        <li>Your preferences will be reset</li>
+                        <li>Analytics session will be reset (counted as new visitor)</li>
+                    </ul>
+
+                    <div class="highlight-box">
+                        <p>
+                            <strong>Recommended:</strong> Use your browser's "Clear cookies when closing" feature if you
+                            want fresh sessions each time while allowing functionality during browsing.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Section 12: Updates to Policy -->
+                <h2 class="policy-section-title">12. Changes to This Policy</h2>
+                <div class="policy-content">
+                    <p>
+                        We reserve the right to update this Cookie Policy at any time. Changes will be effective
+                        immediately upon posting.
+                    </p>
+                    <p>
+                        <strong>Material Changes:</strong> If we make material changes (e.g., new cookies, new purposes,
+                        new third parties), we will:
+                    </p>
+                    <ul>
+                        <li>Update the "Last Updated" date at the top</li>
+                        <li>Notify you via email (if you have an account)</li>
+                        <li>Display a prominent notice on our website</li>
+                        <li>Request renewed consent if required by law</li>
+                    </ul>
+                    <p>
+                        <strong>Version History:</strong> Previous versions available upon request.
+                    </p>
+                    <p>
+                        <strong>Notification:</strong> Subscribe to updates via our Discord server for policy change
+                        announcements.
+                    </p>
+                </div>
+
+                <!-- Section 13: Contact and DPO -->
+                <h2 class="policy-section-title">13. Contact Information</h2>
+                <div class="policy-content">
+                    <h3 class="policy-subsection-title">Data Controller:</h3>
+                    <p>
+                        <strong>Axiom Hub's</strong><br>
+                        Website: https://axiomhub.eu<br>
+                        Email: contact@axiomhub.eu<br>
+                        Discord: https://discord.gg/wx9gV9Z7Yy
+                    </p>
+
+                    <h3 class="policy-subsection-title">Data Protection Officer (if applicable):</h3>
+                    <p>
+                        For data protection inquiries: dpo@axiomhub.eu (if DPO appointed)
+                    </p>
+
+                    <h3 class="policy-subsection-title">Response Times:</h3>
+                    <ul>
+                        <li>General inquiries: Within 5 business days</li>
+                        <li>GDPR rights requests: Within 30 days (may extend to 60 days for complex requests)</li>
+                        <li>Data breach notifications: Within 72 hours of discovery</li>
+                    </ul>
+
+                    <h3 class="policy-subsection-title">Supervisory Authority:</h3>
+                    <p>
+                        You have the right to lodge a complaint with a supervisory authority:
+                    </p>
+                    <ul>
+                        <li><strong>France (CNIL):</strong>
+                            <ul>
+                                <li>Website: https://www.cnil.fr/</li>
+                                <li>Address: 3 Place de Fontenoy, TSA 80715, 75334 Paris Cedex 07, France</li>
+                                <li>Phone: +33 1 53 73 22 22</li>
+                            </ul>
+                        </li>
+                        <li><strong>European Data Protection Board:</strong> https://edpb.europa.eu/</li>
+                        <li><strong>Find your authority:</strong>
+                            https://edpb.europa.eu/about-edpb/board/members_en</li>
+                    </ul>
+
+                    <div class="highlight-box">
+                        <p>
+                            <strong>How to Contact Us:</strong>
+                        </p>
+                        <ul>
+                            <li><strong>For general questions:</strong> Discord or email</li>
+                            <li><strong>For GDPR requests:</strong> Email contact@axiomhub.eu with subject "GDPR
+                                Request"
+                            </li>
+                            <li><strong>For complaints:</strong> Email or supervisory authority</li>
+                            <li><strong>For security issues:</strong> Email security@axiomhub.eu (if available) or
+                                contact@axiomhub.eu</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Section 14: Legal Framework -->
+                <h2 class="policy-section-title">14. Applicable Law and Jurisdiction</h2>
+                <div class="policy-content">
+                    <p>
+                        This Cookie Policy is governed by:
+                    </p>
+                    <ul>
+                        <li><strong>GDPR:</strong> Regulation (EU) 2016/679</li>
+                        <li><strong>ePrivacy Directive:</strong> Directive 2002/58/EC (as amended)</li>
+                        <li><strong>French Data Protection Act:</strong> Loi Informatique et Libertés (if applicable)
+                        </li>
+                        <li><strong>CNIL Guidelines:</strong> French supervisory authority guidance</li>
+                    </ul>
+                    <p>
+                        This policy is governed by French law. Any disputes shall be subject to the exclusive
+                        jurisdiction of French courts, without prejudice to your right to lodge a complaint with a
+                        supervisory authority.
+                    </p>
+                </div>
+
+                <!-- Final Summary -->
+                <div class="highlight-box"
+                    style="margin-top: 3rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h3 style="color: white; margin-top: 0;">Summary of Your Rights</h3>
+                    <p>Under GDPR, you have the right to:</p>
+                    <ul style="margin-bottom: 0;">
+                        <li>✓ Know what data we collect and why</li>
+                        <li>✓ Access your personal data</li>
+                        <li>✓ Correct inaccurate data</li>
+                        <li>✓ Delete your data ("right to be forgotten")</li>
+                        <li>✓ Restrict processing</li>
+                        <li>✓ Data portability</li>
+                        <li>✓ Object to processing</li>
+                        <li>✓ Withdraw consent anytime</li>
+                        <li>✓ Lodge a complaint with CNIL or your supervisory authority</li>
+                    </ul>
+                </div>
+
+                <p class="last-updated" style="text-align: center; margin-top: 3rem; font-size: 0.9rem; color: #888;">
+                    <strong>Axiom Hub's</strong> — GDPR Compliant • CNIL Guidelines Compliant<br>
+                    Last Updated: November 13, 2025<br>
+                    Version: 2.0
+                </p>
+            </div>
+        </main>
+
+        <%- include('partials/footer') %>
+</body>
+
+</html>

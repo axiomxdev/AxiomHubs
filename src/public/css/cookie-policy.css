@@ -1,0 +1,113 @@
+.policy-section {
+    background: #0a0a0a;
+    color: #ffffff;
+    min-height: 90vh;
+    padding: 3rem 1rem;
+}
+
+.policy-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.policy-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.policy-intro {
+    color: #d1d5db;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.policy-section-title {
+    color: #667eea;
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.policy-subsection-title {
+    color: #8b5cf6;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.policy-content {
+    background: #1f1f1f;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.policy-content p {
+    color: #d1d5db;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+}
+
+.policy-content ul {
+    color: #d1d5db;
+    line-height: 1.7;
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.policy-content li {
+    margin-bottom: 0.5rem;
+}
+
+.policy-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.policy-table th,
+.policy-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border: 1px solid #374151;
+}
+
+.policy-table th {
+    background: #374151;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.policy-table td {
+    background: #1f1f1f;
+    color: #d1d5db;
+}
+
+.highlight-box {
+    background: rgba(102, 126, 234, 0.1);
+    border-left: 4px solid #667eea;
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: 8px;
+}
+
+.highlight-box p {
+    color: #e5e7eb;
+    margin: 0;
+}
+
+.last-updated {
+    color: #9ca3af;
+    font-size: 0.9rem;
+    margin-top: 3rem;
+    text-align: center;
+}

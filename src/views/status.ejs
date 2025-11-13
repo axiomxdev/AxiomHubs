@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <title>Status — Axiom Hub's</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="/assets/axioms.ico">
+    <meta name="description" content="List of games">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <%- include('partials/navbar') %>
+
+        <main class="hero-section">
+            <div class="hero-container">
+
+                <!-- Working -->
+                <h2 class="section-title">Working</h2>
+                <p class="code-description">
+                    A Hero's Destiny
+                </p>
+
+                <!-- Upcoming -->
+                <h2 class="section-title">Upcoming</h2>
+                <p class="code-description">
+                    Bee Swarm Simulator
+                </p>
+                <p class="code-description">
+                    Black Hawk Rescue Mission
+                </p>
+
+                <!-- Outdated -->
+                <h2 class="section-title">Outdated</h2>
+                <p class="code-description">
+                    Bougnoule Simulator
+                </p>
+            </div>
+        </main>
+
+        <%- include('partials/footer') %>
+            <%- include('partials/cookies_popup') %>
+
+                <script type="module" src="/js/home.js"></script>
+</body>
+
+</html>

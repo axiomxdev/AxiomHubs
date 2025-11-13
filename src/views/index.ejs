@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Axiom Hub's</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="/assets/axioms.ico">
+  <meta name="description" content="Application pour l'analyse de fichiers avec IA">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+  <%- include('partials/navbar') %>
+
+    <!-- Hero Section -->
+    <main class="hero-section">
+      <div class="hero-container">
+        <h1 class="hero-title">Welcome to Axiom Hub's</h1>
+        <p class="hero-description">
+          Dive into the world of cutting-edge gaming scripts and cheats. Our premium tools
+          transform your gaming experience with unmatched performance and reliability.
+        </p>
+
+        <!-- Universal Loader Section -->
+        <div class="code-section">
+          <div class="code-block">
+            <code id="script-code" style="white-space: normal; overflow-x: hidden;">
+              <span class="code-function">loadstring</span><span class="code-punctuation">(</span><span class="code-keyword">game</span><span class="code-punctuation">:</span><span class="code-function">HttpGet</span><span class="code-punctuation">(</span><span class="code-string">"https://axiomhub.eu/lua/main.lua"</span><span class="code-punctuation">)</span><span class="code-punctuation">)()</span>
+            </code>
+            <button class="copy-btn" onclick="copyMainScript()" title="Copy universal loader">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+              </svg>
+            </button>
+          </div>
+          <p class="code-description">
+            Paste this universal loader into your executor to access all Axiom Hub's features.
+          </p>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="features-section">
+          <h2 class="section-title">Why Choose Axiom Hub's Scripts ?</h2>
+          <div class="features-grid">
+            <div class="feature-card">
+              <div class="feature-icon">⚡</div>
+              <h3>High Performance</h3>
+              <p>Optimized scripts with minimal impact on game performance</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🔄</div>
+              <h3>Regular Updates</h3>
+              <p>Constantly updated to work with the latest game versions</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🛠️</div>
+              <h3>24/7 Support</h3>
+              <p>Active Discord community with dedicated support team</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('partials/footer') %>
+      <%- include('partials/cookies_popup') %>
+
+        <script type="module" src="/js/home.js"></script>
+</body>
+
+</html>

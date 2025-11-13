@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <title>Admin Dashboard — Axiom Hub's</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="/assets/axioms.ico">
+    <meta name="description" content="Admin Dashboard - Axiom Hub's">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/dashboard-admin.css">
+</head>
+
+<body>
+    <%- include('partials/navbar') %>
+
+        <main class="dashboard-section">
+            <div class="dashboard-container admin-container">
+
+                <!-- Header -->
+                <div class="admin-header">
+                    <div>
+                        <h1 class="dashboard-title">Admin Dashboard</h1>
+                        <p class="dashboard-description">
+                            Complete analytics and management of Axiom Hub's platform
+                        </p>
+                    </div>
+                    <button class="admin-logout-btn" id="logout-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+
+                <!-- Loading State -->
+                <div class="loading-container" id="loading" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <p class="loading-text">Loading statistics...</p>
+                </div>
+
+                <!-- Admin Content -->
+                <div class="admin-content" id="admin-content">
+
+                    <!-- Quick Stats Cards -->
+                    <div class="stats-grid">
+                        <!-- Total Users -->
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Total Users</p>
+                                <h3 class="stat-value">
+                                    <%= usersStats.totalUsers %>
+                                </h3>
+                                <p class="stat-change <%= usersStats.usersGrowth >= 0 ? 'positive' : 'negative' %>">
+                                    <%= usersStats.usersGrowth>= 0 ? '+' : '' %><%= usersStats.usersGrowth %>% from last
+                                            month
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Total Visits -->
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Total Visits</p>
+                                <h3 class="stat-value">
+                                    <%= analytics.totalVisits %>
+                                </h3>
+                                <p class="stat-change">
+                                    <%= analytics.uniqueIPs %> unique IPs
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Average Duration -->
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Avg. Duration</p>
+                                <h3 class="stat-value">
+                                    <%= analytics.avgDuration %>s
+                                </h3>
+                                <p class="stat-change">Per visit</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Tables -->
+                    <div class="tables-grid">
+                        <!-- Top Pages -->
+                        <div class="table-card">
+                            <div class="table-header">
+                                <h3 class="table-title">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                    Top Pages
+                                </h3>
+                            </div>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Page</th>
+                                            <th>Visits</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (analytics.topPages && analytics.topPages.length> 0) { %>
+                                            <% analytics.topPages.forEach(page=> { %>
+                                                <tr>
+                                                    <td>
+                                                        <%= page.page %>
+                                                    </td>
+                                                    <td>
+                                                        <%= page.visits %>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                                    <% } else { %>
+                                                        <tr>
+                                                            <td colspan="2" class="table-loading">No data available</td>
+                                                        </tr>
+                                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Top Browsers -->
+                        <div class="table-card">
+                            <div class="table-header">
+                                <h3 class="table-title">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <circle cx="12" cy="12" r="4"></circle>
+                                        <line x1="21.17" y1="8" x2="12" y2="8"></line>
+                                        <line x1="3.95" y1="6.06" x2="8.54" y2="14"></line>
+                                        <line x1="10.88" y1="21.94" x2="15.46" y2="14"></line>
+                                    </svg>
+                                    Top Browsers
+                                </h3>
+                            </div>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Browser</th>
+                                            <th>Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (analytics.topBrowsers && analytics.topBrowsers.length> 0) { %>
+                                            <% analytics.topBrowsers.forEach(browser=> { %>
+                                                <tr>
+                                                    <td>
+                                                        <%= browser.browser %>
+                                                    </td>
+                                                    <td>
+                                                        <%= browser.count %>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                                    <% } else { %>
+                                                        <tr>
+                                                            <td colspan="2" class="table-loading">No data available</td>
+                                                        </tr>
+                                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Top Referrers -->
+                        <div class="table-card">
+                            <div class="table-header">
+                                <h3 class="table-title">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                                    </svg>
+                                    Top Referrers
+                                </h3>
+                            </div>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Referrer</th>
+                                            <th>Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (analytics.topReferrers && analytics.topReferrers.length> 0) { %>
+                                            <% analytics.topReferrers.forEach(referrer=> { %>
+                                                <tr>
+                                                    <td>
+                                                        <%= referrer.referrer %>
+                                                    </td>
+                                                    <td>
+                                                        <%= referrer.count %>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                                    <% } else { %>
+                                                        <tr>
+                                                            <td colspan="2" class="table-loading">No referrer data</td>
+                                                        </tr>
+                                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Error State -->
+                <div class="error-container" id="error-container" style="display: none;">
+                    <div class="error-icon">⚠️</div>
+                    <h2 class="error-title">Access Denied</h2>
+                    <p class="error-message" id="error-message">You need admin privileges to access this page.</p>
+                    <a href="/dashboard" class="dashboard-btn dashboard-btn-primary">Go to Dashboard</a>
+                </div>
+
+            </div>
+        </main>
+
+        <%- include('partials/footer') %>
+            <%- include('partials/cookies_popup') %>
+                <script src="/js/dashboard-admin.js"></script>
+
+</body>
+
+</html>

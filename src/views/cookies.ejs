@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <title>Cookie Consent — Axiom Hub's</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="/assets/axioms.ico">
+    <meta name="description" content="Cookie consent required">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/cookies.css">
+</head>
+
+<body>
+    <div class="cookie-consent-overlay">
+        <div class="cookie-consent-container">
+            <div class="cookie-icon">🍪</div>
+            <h1 class="cookie-consent-title">Cookie Consent Required</h1>
+            <p class="cookie-consent-text">
+                We use cookies to personalize your experience and store your Roblox username.
+                To continue, please accept our cookies.
+            </p>
+            <p class="cookie-consent-text" style="font-size: 0.95rem; margin-top: 0.5rem;">
+                <a href="/cookie-policy" style="color: #667eea; text-decoration: underline;">View our detailed Cookie
+                    Policy & GDPR information</a>
+            </p>
+            <button class="cookie-btn" onclick="acceptCookies()">Accept & Continue</button>
+        </div>
+    </div>
+
+    <script>
+        function acceptCookies() {
+            fetch('/api/set-consent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(() => {
+                window.location.href = '<%= redirectTo %>';
+            });
+        }
+
+        const test = '<%= cookies %>';
+    </script>
+
+    <%if (cookies) { %>
+        <script>
+            window.location.href = '<%= redirectTo %>';
+        </script>
+        <% } %>
+</body>
+
+</html>

@@ -1,0 +1,46 @@
+<% if (!cookies) { %>
+    <!-- Cookie Popup Banner -->
+    <div id="cookie-popup" class="cookie-popup">
+        <div class="cookie-popup-content">
+            <div class="cookie-popup-icon">🍪</div>
+            <div class="cookie-popup-text">
+                <strong>We use cookies</strong>
+                <p>We use cookies to save your Roblox username and enhance your experience.
+                    <a href="/cookie-policy" style="color: #667eea; text-decoration: underline;">Learn more</a>
+                </p>
+            </div>
+            <div class="cookie-popup-actions">
+                <button class="cookie-accept-btn" onclick="acceptCookiesPopup()">Accept</button>
+                <button class="cookie-decline-btn" onclick="declineCookiesPopup()">Decline</button>
+            </div>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="/css/cookies_popup.css">
+
+    <script>
+        function acceptCookiesPopup() {
+            fetch('/api/set-consent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            // Hide popup with animation
+            const popup = document.getElementById('cookie-popup');
+            popup.style.animation = 'slideDown 0.3s ease-out';
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 300);
+        }
+
+        function declineCookiesPopup() {
+            const popup = document.getElementById('cookie-popup');
+            popup.style.animation = 'slideDown 0.3s ease-out';
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 300);
+        }
+    </script>
+    <% } %>
