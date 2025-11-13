@@ -28,11 +28,16 @@ RUN npm ci --only=production
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 
-# Create directories for runtime data
-RUN mkdir -p /app/dist/db
+# Create directories for runtime data with proper permissions
+RUN mkdir -p /app/db && \
+    chown -R node:node /app/db && \
+    chmod -R 755 /app/db
 
 # Set environment to production
 ENV NODE_ENV=production
+
+# Switch to non-root user
+USER node
 
 # Expose port (adjust if needed)
 EXPOSE 3000
