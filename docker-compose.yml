@@ -25,7 +25,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./src/db:/app/dist/db
+      - axiomhub-db:/app/dist/db
     networks:
       - axiomhub-network
     expose:
@@ -34,3 +34,7 @@ services:
 networks:
   axiomhub-network:
     driver: bridge
+
+volumes:
+  axiomhub-db:
+    driver: local
