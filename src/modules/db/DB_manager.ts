@@ -27,6 +27,7 @@ export class DBManager implements DBManagerInterface {
      * Open database connection and initialize tables
      */
     async open(): Promise<void> {
+        console.log(`Opening database at path: ${this.dbPath}`);
         return new Promise((resolve, reject) => {
             this.db = new sqlite3.Database(
                 this.dbPath,
