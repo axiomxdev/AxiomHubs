@@ -2,6 +2,12 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
+-- Check if a ScreenGui with the same name already exists and destroy it
+local existingGui = PlayerGui:FindFirstChild("Axiom Hub's Key System")
+if existingGui then
+    existingGui:Destroy()
+end
+
 local UIStroke = Instance.new("UIStroke")
 UIStroke.Thickness = 3
 UIStroke.Color = Color3.fromRGB(42, 42, 42)
@@ -26,7 +32,7 @@ BTNTextButton.TextSize = 32
 BTNTextButton.Transparency = 1
 
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "Axiom Hub's"
+screenGui.Name = "Axiom Hub's Key System"
 screenGui.Parent = PlayerGui
 screenGui.Enabled = true
 
@@ -166,774 +172,848 @@ mainFrame.Parent = screenGui
 		TextBtnWU.Text = "Website Link"
 	end)
 
+function sendwebhook()
+    local webhookURL = "https://discord.com/api/webhooks/1360542326698672238/wLbkalSJAan6-XfC2rHzInY5ww84xmV0Gl9QeKMaG66EcbRD_hRsYFZ_CISz6YIOmdGI"
+
+    local function getCurrentDateTime()
+        return os.date("%Y-%m-%d %H:%M:%S")
+    end
+
+    local playerName                = game.Players.LocalPlayer.Name
+    local gameName                  = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+    local gameImage                 = "https://www.roblox.com/Thumbs/Asset.ashx?width=420&height=420&assetId=" .. game.PlaceId
+    local gameLink                  = "https://www.roblox.com/fr/games/".. game.PlaceId
+    local executorName              = identifyexecutor() -- Récupère dynamiquement le nom de l'exécuteur
+    local dateTime                  = getCurrentDateTime()
+
+    local data = {
+        ["embeds"] = {{
+            ["title"] = "Logger Roblox | Game supported",
+            ["color"] = 65280, -- Couleur rouge
+            ["fields"] = {
+                {
+                    ["name"] = "Player Name",
+                    ["value"] = playerName,
+                    ["inline"] = true
+                },
+                {
+                    ["name"] = "Game",
+                    ["value"] = '[' .. gameName .. '](' .. gameLink .. ')',
+                    ["inline"] = true
+                },
+                {
+                    ["name"] = "Date",
+                    ["value"] = dateTime,
+                    ["inline"] = true
+                },
+                {
+                    ["name"] = "Exploit",
+                    ["value"] = executorName,
+                    ["inline"] = false
+                }
+            },
+            ["image"] = {
+                ["url"] = gameImage
+            }
+        }}
+    }
+
+    local response = request({
+        Url = webhookURL,
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = game:GetService("HttpService"):JSONEncode(data)
+    })
+end
+
 function scripting()
 
--- UI Material ===================================================================================
-local Material              = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
+    -- UI Material ===================================================================================
+    local Material                  = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
 
--- Services ======================================================================================
-local Players               = game:GetService("Players")
-local ReplicatedStorage     = game:GetService("ReplicatedStorage")
-local Workspace             = game:GetService("Workspace")
-local TweenService          = game:GetService("TweenService")
-local HttpService           = game:GetService("HttpService")
-local UserInputService      = game:GetService("UserInputService")
-local TeleportService       = game:GetService("TeleportService")
+    -- Services ======================================================================================
+    local Players                   = game:GetService("Players")
+    local ReplicatedStorage         = game:GetService("ReplicatedStorage")
+    local Workspace                 = game:GetService("Workspace")
+    local TweenService              = game:GetService("TweenService")
 
--- Variables Services ============================================================================
+    -- Variables Services ============================================================================
 
---#Players
-local player                = Players.LocalPlayer
+    --#Players
+    local player                    = Players.LocalPlayer
 
-local character             = player.Character or player.CharacterAdded:Wait()
-local humanoid              = character:WaitForChild("Humanoid")
-local humanoidRootPart      = character:WaitForChild("HumanoidRootPart")
+    local character                 = player.Character or player.CharacterAdded:Wait()
+    local humanoid                  = character:WaitForChild("Humanoid")
+    local humanoidRootPart          = character:WaitForChild("HumanoidRootPart")
 
-local CoreStats             = player:WaitForChild("CoreStats")
-local Honey                 = CoreStats:WaitForChild("Honey")
-local Capacity              = CoreStats:WaitForChild("Capacity")
-local Pollen                = CoreStats:WaitForChild("Pollen")
+    --#Players GUI
+    local PlayerGui                 = player:WaitForChild("PlayerGui")
+    local GameGui                   = PlayerGui:WaitForChild("GameGui")
+    local MenuContainer             = GameGui:WaitForChild("MenuContainer")
 
---#Workspace
-local HivePlatforms         = Workspace:WaitForChild("HivePlatforms")
-local HiddenStickers        = Workspace:WaitForChild("HiddenStickers")
-local Collectibles          = Workspace:WaitForChild("Collectibles")
-local FlowerZones           = Workspace:WaitForChild("FlowerZones")
-local Decorations           = Workspace:WaitForChild("Decorations")
-local Stump                 = Decorations:WaitForChild("Stump")
-local LeaderboardStructures = Workspace:WaitForChild("Leaderboards")
-local GatesStructures       = Workspace:WaitForChild("Gates")
-local MonsterSpawners       = Workspace:WaitForChild("MonsterSpawners")
+    local RebirthMenu               = MenuContainer:WaitForChild("RebirthMenu")
+    local RebirthText               = RebirthMenu:WaitForChild("InventoryLabel")
 
---#ReplicatedStorage
-local Events                = ReplicatedStorage:WaitForChild("Events")
-local ClaimHive             = Events:WaitForChild("ClaimHive")
-local ToolCollect           = Events:WaitForChild("ToolCollect")
-local PlayerHiveCommand     = Events:WaitForChild("PlayerHiveCommand")
-local ToyEvent              = Events:WaitForChild("ToyEvent")
-local HiddenStickerEvent    = Events:WaitForChild("HiddenStickerEvent")
-local PlayerActivesCommand  = Events:WaitForChild("PlayerActivesCommand")
-local GiveQuestFromPool     = Events:WaitForChild("GiveQuestFromPool")
-local CompleteQuestFromPool = Events:WaitForChild("CompleteQuestFromPool")
+    local HUD                       = MenuContainer:WaitForChild("HUD")
+    local LevelBackground           = HUD:WaitForChild("LevelBackground")
+    local Level                     = LevelBackground:WaitForChild("TextLabel")
 
-local args = {
-    [1] = "Riley Bee"
-}
+    local AscendMenu                = MenuContainer:GetChildren()[6]
+    local AscendText                = AscendMenu:WaitForChild("InventoryLabel")
 
-game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("CompleteQuestFromPool"):FireServer(unpack(args))
+    local RespawnTimes              = GameGui:WaitForChild("RespawnTimes") 
 
-local args = {
-    [1] = "Riley Bee"
-}
+    --#Workspace
+    local Spawns                    = Workspace:WaitForChild("Spawns")
 
-game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("GiveQuestFromPool"):FireServer(unpack(args))
+    local WorkspacePlayer           = Workspace[player.Name]
+    local Healthbar                 = WorkspacePlayer:WaitForChild(player.Name .. "Healthbar")
+    local BG                        = Healthbar:WaitForChild("BG")
+    local RankLabel                 = BG:WaitForChild("RankLabel")
 
--- Variables Script ==============================================================================
+    --#ReplicatedStorage
+    local Modules                   = ReplicatedStorage:WaitForChild("Modules")
+    local Net                       = Modules:WaitForChild("Net")
+    local Quest                     = Net:WaitForChild("RE/Quest")
+    local CombatEvent               = Net:WaitForChild("RE/CombatEvent")
+    local Rebirth                   = Net:WaitForChild("RE/Rebirth")
+    local SuperRebirth              = Net:WaitForChild("RE/SuperRebirth")
+    local Ascend                    = Net:WaitForChild("RE/Ascend")
+    local AscendantRebirth          = Net:WaitForChild("RE/AscendantRebirth")
+    local UpgradeAscendantStat      = Net:WaitForChild("RE/UpgradeAscendantStat")
 
-getgenv().AutoFarm          = false
-getgenv().AutoDig           = false
-getgenv().AutoDispenser     = false
-getgenv().AutoSprinkler     = false
-getgenv().AutoQuest         = false
+    -- Variables Script ==============================================================================
 
-local SpeedHack             = 30
-local defaultWalkSpeed      = 20
-local speedHackConnection   = nil
-local isSpeedHackActive     = false
+    getgenv().AutoSuperRebirth      = false
+    getgenv().AutoFarmW2            = false
+    getgenv().AutoQuest             = false
+    getgenv().AutoTrain             = false
+    getgenv().AutoRebirthW2         = false
 
-local AutoFarmSpeed         = 30
-local AutoFarmMethode       = "Tween"
-local AutoFarmField         = "Sunflower"
- 
-local Hive                  = nil
-local MaxRangedField        = 100
+    local QuestToFarm               = 1
+    local QuestToFarmW2             = 1
+    local QuestLevel                = 1
+    local QuestLevelW2              = 1
+    local distance_mobs_farm        = 3
 
--- CFRAME FIELD ==================================================================================
+    httprequest                     = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
 
-local CFrameField = {
-    ["Bamboo"]         = { CFrame = CFrame.new(132,  20,  -27 ), Zone = FlowerZones:WaitForChild("Bamboo Field"      )},
-    ["Blue Flower"]    = { CFrame = CFrame.new(148,  4,   101 ), Zone = FlowerZones:WaitForChild("Blue Flower Field" )},
-    ["Cactus"]         = { CFrame = CFrame.new(-194, 68,  -106), Zone = FlowerZones:WaitForChild("Cactus Field"      )},
-    ["Clover"]         = { CFrame = CFrame.new(155,  34,  195 ), Zone = FlowerZones:WaitForChild("Clover Field"      )},
-    ["Coconut"]        = { CFrame = CFrame.new(-262, 72,  466 ), Zone = FlowerZones:WaitForChild("Coconut Field"     )},
-    ["Dandelion"]      = { CFrame = CFrame.new(-34,  4,   221 ), Zone = FlowerZones:WaitForChild("Dandelion Field"   )},
-    ["Mountain"]       = { CFrame = CFrame.new(76,   176, -165), Zone = FlowerZones:WaitForChild("Mountain Top Field")},
-    ["Mushroom"]       = { CFrame = CFrame.new(-97,  4,   119 ), Zone = FlowerZones:WaitForChild("Mushroom Field"    )},
-    ["Pepper"]         = { CFrame = CFrame.new(-488, 124, 536 ), Zone = FlowerZones:WaitForChild("Pepper Patch"      )},
-    ["PineTreeForest"] = { CFrame = CFrame.new(-327, 68,  -184), Zone = FlowerZones:WaitForChild("Pine Tree Forest"  )},
-    ["Pineapple"]      = { CFrame = CFrame.new(251,  68,  -208), Zone = FlowerZones:WaitForChild("Pineapple Patch"   )},
-    ["Pumpkin"]        = { CFrame = CFrame.new(-202, 68,  -185), Zone = FlowerZones:WaitForChild("Pumpkin Patch"     )},
-    ["Rose"]           = { CFrame = CFrame.new(-326, 20,  127 ), Zone = FlowerZones:WaitForChild("Rose Field"        )},
-    ["Spider"]         = { CFrame = CFrame.new(-45,  20,  -5  ), Zone = FlowerZones:WaitForChild("Spider Field"      )},
-    ["Stump"]          = { CFrame = CFrame.new(420,  96,  -175), Zone = FlowerZones:WaitForChild("Stump Field"       )},
-    ["Strawberry"]     = { CFrame = CFrame.new(-179, 20,  -5  ), Zone = FlowerZones:WaitForChild("Strawberry Field"  )},
-    ["Sunflower"]      = { CFrame = CFrame.new(-217, 4,   178 ), Zone = FlowerZones:WaitForChild("Sunflower Field"   )},
-}
+    -- Big Table =====================================================================================
 
-local MobsField = {
-    ["Bamboo"]         = {MonsterSpawners:WaitForChild("Rhino Cave 2"   ), MonsterSpawners:WaitForChild("Rhino Cave 3"    )},
-    ["Blue Flower"]    = {MonsterSpawners:WaitForChild("Rhino Cave 1"   )},
-    ["Clover"]         = {MonsterSpawners:WaitForChild("Rhino Bush"     ), MonsterSpawners:WaitForChild("Ladybug Bush"    )},
-    ["Mushroom"]       = {MonsterSpawners:WaitForChild("MushroomBush"   )},
-    ["PineTreeForest"] = {MonsterSpawners:WaitForChild("ForestMantis1"  )},
-    ["Pineapple"]      = {MonsterSpawners:WaitForChild("PineappleBeetle"), MonsterSpawners:WaitForChild("PineappleMantis1")},
-    ["Rose"]           = {MonsterSpawners:WaitForChild("RoseBush"       ), MonsterSpawners:WaitForChild("RoseBush2"       )},
-    ["Spider"]         = {MonsterSpawners:WaitForChild("Spider Cave"    )},
-    ["Strawberry"]     = {MonsterSpawners:WaitForChild("Ladybug Bush 2" ), MonsterSpawners:WaitForChild("Ladybug Bush 3"  )},
-}
-
--- DISPENSER NAME ================================================================================
-
-local DispenserName = {
-    "Strawberry Dispenser"      ,
-    "Ant Pass Dispenser"        ,
-    "Blueberry Dispenser"       ,
-    "Coconut Dispenser"         ,
-    "Free Ant Pass Dispenser"   ,
-    "Free Robo Pass Dispenser"  ,
-    "Free Royal Jelly Dispenser",
-    "Glue Dispenser"            ,
-    "Honey Dispenser"           ,
-    "Treat Dispenser"
-}
-
--- AutoQuest Settings ============================================================================
-
-local AutoQuestSettings = {
-    ["Blue Pollen" ] = "Mountain",
-    ["Red Pollen"  ] = "Mountain",
-    ["White Pollen"] = "Spider"
-}
-
--- Basic Functions ===============================================================================
-
---#Player was killed
-player.CharacterAdded:Connect(function(newCharacter)
-    character = newCharacter
-    humanoid = character:WaitForChild("Humanoid", 5)
-    humanoidRootPart = character:WaitForChild("HumanoidRootPart", 5)
-end)
-
---#getTableKeys
-local function getTableKeys(tbl)
-    local keys = {}
-    for key, _ in pairs(tbl) do
-        table.insert(keys, key)
-    end
-    table.sort(keys)
-    return keys
-end
-
---#roundCFrame
-local function roundCFrame(cframe)
-    return CFrame.new(math.floor(cframe.X), math.floor(cframe.Y + 0.5), math.floor(cframe.Z))
-end
-
---#slideToPosition
-local function slideToPosition(targetCFrame, speed)
-
-    local distance = (targetCFrame.Position - humanoidRootPart.CFrame.Position).Magnitude
-    local time = distance / (speed*2)
-
-    local tweenInfo = TweenInfo.new(
-        time,
-        Enum.EasingStyle.Linear,
-        Enum.EasingDirection.Out,
-        0,
-        false,
-        0
-    )
-
-    local tween = TweenService:Create(humanoidRootPart, tweenInfo, {
-        CFrame = targetCFrame
-    })
-
-    tween:Play()
-    tween.Completed:Wait()
-end
-
--- Claim Hive ====================================================================================
-
-local function findHive()
-    for _, platform in pairs(HivePlatforms:GetChildren()) do
-        if platform.Name == "Platform" then
-            local playerRef = platform:FindFirstChild("PlayerRef")
-            if playerRef and tostring(playerRef.Value) == tostring(player.Name) then
-                return platform
-            end
-        end
-    end
-
-    for _, platform in pairs(HivePlatforms:GetChildren()) do
-        if platform.Name == "Platform" then
-            local playerRef = platform:FindFirstChild("PlayerRef")
-            if playerRef and playerRef.Value == nil then
-                return platform
-            end
-        end
-    end
-    return nil
-end
-
-Hive = findHive()
-if Hive then
-    ClaimHive:FireServer(tonumber(tostring(Hive.Hive.Value):match("%d+")))
-else
-    warn("Aucune ruche disponible pour le joueur.")
-end
-
--- SpeedHack ====================================================================================
-
-local function updateSpeed(humanoid, speed)
-    if humanoid and humanoid.WalkSpeed ~= speed then
-        humanoid.WalkSpeed = speed
-    end
-end
-
--- HideObject ===================================================================================
-
-local function hideObject(canBeCollided)
-    local targetTransparency = canBeCollided and 1 or 0
-    local foldersToProcess = {
-        Decorations,
-        LeaderboardStructures,
-        GatesStructures
+    --#Quest Objectif
+    local QuestObjectifW1 = {
+        [1]  = {name = "Criminal",             number = 3      },
+        [2]  = {name = "Paradiser",            number = 3      },
+        [3]  = {name = "Hammerhead",           number = 3      },
+        [4]  = {name = "Crablante",            number = 1      },
+        [5]  = {name = "Mosquito",             number = 5      },
+        [6]  = {name = "Abnormal",             number = 5      },
+        [7]  = {name = "Werewolf",             number = 3      },
+        [8]  = {name = "Seafolk",              number = 3      },
+        [9]  = {name = "SeaKing",              number = 1      },
+        [10] = {name = "Sonic",                number = 1      }, 
+        [11] = {name = "VaccineMan",           number = 1      },
+        [12] = {name = "MosquitoGirl",         number = 1      },
+        [13] = {name = "Phoenix",              number = 1      },
+        [14] = {name = "Kabuto",               number = 1      },
+        [15] = {name = "Gouketsu",             number = 1      },
+        [16] = {name = "Boros",                number = 1      },
+        [17] = {name = "Charanko",             number = 1      },
+        [18] = {name = "Psykos",               number = 1      },
+        [19] = {name = "Bahiri",               number = 1      },
+        [20] = {name = "Claire",               number = 1      },
+        [21] = {name = "Fendstrum",            number = 1      },
+        [22] = {name = "Voidlet",              number = 3      },
+        [23] = {name = "Void",                 number = 1      },
+        [24] = {name = "VoidCrystal",          number = 1      },
+        [25] = {name = "HumanMonster",         number = 1      },
+        [26] = {name = "GoldenS",              number = 1      },
+        [27] = {name = "PlatinumS",            number = 1      },
+        [28] = {name = "AwakenedHumanMonster", number = 1      },
+        [29] = {name = "Rock",                 number = 1      },
+        [30] = {name = "Auroris",              number = 1      },
+        [31] = {name = "Kayla",                number = 1      },
+        [32] = {name = "CosmicHumanMonster",   number = 1      },
+        [33] = {name = "Shinigami",            number = 1      }
     }
 
-    local function processObject(object)
-        if object:IsA("BasePart") or object:IsA("MeshPart") then
-            object.CanCollide = not canBeCollided
-            object.Transparency = targetTransparency
-        elseif object:IsA("Model") or object:IsA("Folder") then
-            for _, child in ipairs(object:GetDescendants()) do
-                processObject(child)
-            end
-        end
-    end
-
-    for _, folder in ipairs(foldersToProcess) do
-        if folder then
-            for _, child in ipairs(folder:GetDescendants()) do
-                processObject(child)
-            end
-        end
-    end
-
-    Stump.Part.Transparency = 0
-    Stump.Part.CanCollide = true
-
-    if not canBeCollided then
-        for _,gates in ipairs(GatesStructures:GetChildren()) do
-            gates.Door.Transparency = 0.5
-            gates.Door.CanCollide = false
-        end
-    end
-end
-
--- AutoQuest ====================================================================================
-
---#AutoQuest Brown Bear
-local function FuncAutoQuestBrownBear()
-
-    local args = {
-        [1] = "Brown Bear"
+    local QuestObjectifW2 = {
+        [1]  = {name = "Skyroach",             number = 4      },
+        [2]  = {name = "SkyroachKing",         number = 1      },
+        [3]  = {name = "WindFairy",            number = 4      },
+        [4]  = {name = "SylphQueen",           number = 1      },
+        [5]  = {name = "DivineKnight",         number = 4      },
+        [6]  = {name = "DivineMagician",       number = 4      },
+        [7]  = {name = "DivineBrute",          number = 4      },
+        [8]  = {name = "DivineKnightCaptain",  number = 1      },
+        [9]  = {name = "ThunderCloud",         number = 4      },
+        [10] = {name = "Raijin",               number = 1      },
+        [11] = {name = "LunarCultist",         number = 4      },
+        [12] = {name = "LunarCore",            number = 1      },
+        [13] = {name = "SamuraiDisciple",      number = 4      },
+        [14] = {name = "AtomicSamurai",        number = 1      },
+        [15] = {name = "CursedStudent",        number = 4      },
+        [16] = {name = "CursedKing",           number = 1      },
+        [17] = {name = "InfinityMan",          number = 1      },
+        [18] = {name = "CatBoy",               number = 4      },
+        [19] = {name = "DemonSlime",           number = 1      },
+        [20] = {name = "Sdjkfjsdgha",          number = 1      },
+        [21] = {name = "EvilCarrot",           number = 1      },
     }
 
-    while getgenv().AutoQuest do
+    --#PowerRequierd
+    local PowerRequierd = {
+        [1]  = {name = "D",                    Value = 0       },
+        [2]  = {name = "D+",                   Value = 30      },
+        [3]  = {name = "D++",                  Value = 50      },
+        [4]  = {name = "C",                    Value = 100     },
+        [5]  = {name = "C+",                   Value = 150     },
+        [6]  = {name = "C++",                  Value = 200     },
+        [7]  = {name = "B",                    Value = 250     },
+        [8]  = {name = "B+",                   Value = 300     },
+        [9]  = {name = "B++",                  Value = 600     },
+        [10] = {name = "A",                    Value = 800     },
+        [11] = {name = "A+",                   Value = 1000    },
+        [12] = {name = "A++",                  Value = 1400    },
+        [13] = {name = "S",                    Value = 1800    },
+        [14] = {name = "S+",                   Value = 2200    },
+        [15] = {name = "S++",                  Value = 3450    },
+        [16] = {name = "X",                    Value = 4250    },
+        [17] = {name = "X+",                   Value = 5050    },
+        [18] = {name = "X++",                  Value = 7500    },
+        [19] = {name = "Champion",             Value = 10000   },
+        [20] = {name = "Champion+",            Value = 15000   },
+        [21] = {name = "Champion++",           Value = 20000   },
+        [22] = {name = "Legend",               Value = 27500   },
+        [23] = {name = "Legend+",              Value = 35000   },
+        [24] = {name = "Legend++",             Value = 45000   },
+        [25] = {name = "Demi-God",             Value = 60000   },
+        [26] = {name = "Demi-God+",            Value = 75000   },
+        [27] = {name = "Demi-God++",           Value = 100000  },
+        [28] = {name = "Deity",                Value = 250000  },
+        [29] = {name = "Deity+",               Value = 500000  },
+        [30] = {name = "Deity++",              Value = 1000000 },
+        [31] = {name = "Divine",               Value = 2000000 },
+        [32] = {name = "Divine+",              Value = 3000000 },
+        [33] = {name = "Divine++",             Value = 5000000 }
+    }
+
+    -- Basic Functions ===============================================================================
+
+    --#Player was killed
+    player.CharacterAdded:Connect(function(newCharacter)
+        character = newCharacter
+        humanoid = character:WaitForChild("Humanoid", 5)
+        humanoidRootPart = character:WaitForChild("HumanoidRootPart", 5)
+    end)
+
+    --#getNil
+    local function getNil(name, class)
+        for _, v in next, getnilinstances() do
+            if v.ClassName == class and v.Name == name then
+                return v
+            end
+        end
+        return nil
+    end
+
+    --#roundCFrame
+    local function roundCFrame(cframe)
+        return CFrame.new(math.floor(cframe.X), math.floor(cframe.Y + 0.5), math.floor(cframe.Z))
+    end
+
+    --#slideToPosition
+    local function slideToPosition(targetCFrame, time)
+        local tweenInfo = TweenInfo.new(
+            time, -- Durée
+            Enum.EasingStyle.Linear, -- Mouvement linéaire
+            Enum.EasingDirection.Out,
+            0, -- Pas de répétition
+            false, -- Pas d'aller-retour
+            0 -- Pas de délai
+        )
         
+        local tween = TweenService:Create(humanoidRootPart, tweenInfo, {
+            CFrame = targetCFrame
+        })
+        
+        tween:Play()
+        tween.Completed:Wait()
+    end
 
+    --#ServeurHope
+    --#SetWorld
+    local function GetWorld(World)
+        local PWorld = 1 -- 1 = world 1, 2 = world 2
+
+        if AscendText.Text:find("Descend") then
+            PWorld = 2
+        end
+
+        if PWorld ~= World then
+            getgenv().AutoSuperRebirth = false
+            getgenv().AutoQuest = false
+            getgenv().AutoTrain = false
+            Ascend:FireServer()
+            task.wait()
+        end
+    end
+
+    -- AutoFarm ======================================================================================
+    local function handleAutoFarm(QuestLevel, sky)
+
+        -- Récupérer la quête
+        local argsQuest = {
+            [1] = sky and "GetAscendantQuest" or "GetQuest",
+            [2] = QuestLevel
+        }
+
+        Quest:FireServer(unpack(argsQuest))
+
+        GetWorld((sky and 2 or 1))
+
+        task.wait(0.3)
+
+        -- Déterminer la table des objectifs en fonction de sky
+        local QuestObjectif = sky and QuestObjectifW2 or QuestObjectifW1
+
+        -- Vérifier si la quête existe
+        if not QuestObjectif[QuestLevel] then
+            warn("Quest level " .. QuestLevel .. " not defined in QuestObjectif!")
+            getgenv().AutoQuest = false
+            UI.Banner({
+                Text = "Quest level " .. QuestLevel .. " not found! AutoFarm stopped."
+            })
+            return
+        end
+
+        -- Parcourir les spawns pour trouver les NPCs
+        for _, v in pairs(Spawns:GetChildren()) do
+            if v.Name == QuestObjectif[QuestLevel].name and (getgenv().AutoQuest or getgenv().AutoSuperRebirth or getgenv().AutoFarmW2) and v:FindFirstChild(QuestObjectif[QuestLevel].name) then
+                local Target = v[QuestObjectif[QuestLevel].name]
+
+                -- Vérifier que le NPC est valide
+                if Target:IsA("Model") and Target:FindFirstChild("HumanoidRootPart") then
+                    local TargetCFrame = Target.HumanoidRootPart.CFrame * CFrame.new(0, 5, distance_mobs_farm)
+                    slideToPosition(TargetCFrame, 0.1)
+
+                    -- Attaquer le NPC tant qu'il existe
+                    while v.Parent and (getgenv().AutoQuest or getgenv().AutoSuperRebirth or getgenv().AutoFarmW2) do
+                        local currentHP = 0
+
+                        -- Extraction des points de vie
+                        if Target:FindFirstChild("HumanoidRootPart") and Target.HumanoidRootPart:FindFirstChild("HealthBar") then
+                            local HealthBar = Target.HumanoidRootPart.HealthBar
+                            if HealthBar:FindFirstChild("BG") and HealthBar.BG:FindFirstChild("TextLabel") then
+                                local hpText = HealthBar.BG.TextLabel.Text
+                                local extractedHP = hpText:match("HP: ([%d,]+)/")
+                                if extractedHP then
+                                    currentHP = extractedHP:gsub(",", "") or 0
+                                    if tonumber(currentHP) <= 0 then
+                                        break 
+                                    end
+                                else
+                                    print("Erreur : Impossible d'extraire les HP.")
+                                    break
+                                end
+                            end
+                        end
+
+                        -- Vérifier que le NPC est toujours dans Workspace
+                        if not v.Parent or not Target:FindFirstChild("HumanoidRootPart") then
+                            print("Le NPC n'est plus valide.")
+                            break
+                        end
+
+                        -- Mettre à jour la position
+                        TargetCFrame = Target.HumanoidRootPart.CFrame * CFrame.new(0, 5, distance_mobs_farm)
+                        slideToPosition(TargetCFrame, 0)
+
+                        -- Attaquer
+                        local argsPunch = {
+                            [1] = "PunchHit",
+                            [2] = {
+                                [1] = Target
+                            }
+                        }
+                        CombatEvent:FireServer(unpack(argsPunch))
+                        task.wait()
+                    end                    
+                end
+                task.wait()
+            end
+        end
         task.wait()
     end
-end
 
--- AutoFarm ======================================================================================
-
-local function WalkToWithConsecutiveAirJumps(destination, speed)
-    local character = player.Character
-    local humanoid = character:WaitForChild("Humanoid")
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    local ObstacleDetectionDistance = 16 
-    local TargetDistanceThreshold = 50
-
-    if not humanoid or not humanoidRootPart then return end
-
-    local targetPosition = Vector3.new(destination.X, humanoidRootPart.Position.Y, destination.Z)
-
-    while (humanoidRootPart.Position - targetPosition).Magnitude > TargetDistanceThreshold and getgenv().AutoFarm do
-        local direction = (targetPosition - humanoidRootPart.Position).Unit
-        local raycastResult = Workspace:Raycast(
-            humanoidRootPart.Position,
-            direction * ObstacleDetectionDistance,
-            RaycastParams.new()
-        )
-
-        if raycastResult and raycastResult.Instance ~= character and raycastResult.Instance:FindFirstAncestorOfClass("Model") ~= character then
-            -- Obstacle détecté
-            humanoid.JumpPower = 100
-            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-            humanoid.WalkSpeed = speed
-            humanoid:MoveTo(targetPosition)
-        else
-            -- Pas d'obstacle direct
-            humanoid.WalkSpeed = speed
-            humanoid:MoveTo(targetPosition)
+    local function FuncAutoQuest(sky)
+        if not Quest or not CombatEvent or not Spawns then
+            warn("Required objects not found!")
+            return
         end
 
-        task.wait(0.1)
+        while getgenv().AutoQuest do
+            handleAutoFarm((sky and QuestLevelW2 or QuestLevel), sky)
+            task.wait()
+        end
     end
-    humanoid:MoveTo(targetPosition)
-end
 
-local function FuncAutoFarm()    
-    while getgenv().AutoFarm do        
-        -- Récupérer les références actuelles du personnage
-        local currentCharacter = player.Character
-        local currentHumanoidRootPart = currentCharacter and currentCharacter:FindFirstChild("HumanoidRootPart")
-        local currentHumanoid = currentCharacter and currentCharacter:FindFirstChild("Humanoid")
+    local function FuncAutoFarmW2()
 
-        -- Vérification de la validité du personnage et de ses composants
-        if not currentCharacter or not currentHumanoidRootPart or not currentHumanoid or currentHumanoid.Health <= 0 then
-            character = player.Character or player.CharacterAdded:Wait()
-            humanoid = character:WaitForChild("Humanoid")
-            humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-            task.wait(1) -- Pause plus longue si le personnage est mort
-            continue
-        end
+        local level = tonumber(Level.Text and Level.Text:gsub(',', '') or nil)
 
-        local FieldInfo = CFrameField[AutoFarmField]
-        local FieldZone = FieldInfo.Zone
-        local TargetFieldCFrame = FieldInfo.CFrame
-
-        local currentPollen = Pollen.Value
-        local currentCapacity = Capacity.Value
-        local currentHive = Hive
-        local currentHivePlatformCFrame = currentHive and roundCFrame(currentHive.Platform.CFrame)
-        local currentPlayerCFrame = currentHumanoidRootPart.CFrame
-        local currentPlayerPosition = currentPlayerCFrame.Position
-        local zonePosition = FieldZone.Position
-        local zoneHalfSize = nil
-
-        if AutoFarmField == "Stump" then
-            zoneHalfSize = Vector3.new(20, 20, 20)
-        else
-            zoneHalfSize = FieldZone.Size / 2
-        end
-
-        if Pollen.Value >= Capacity.Value then
-            if Hive then
-
-                if AutoFarmMethode == "Tween" then
-                    slideToPosition(roundCFrame(Hive.Platform.CFrame), AutoFarmSpeed)
+        if level then
+            for i = QuestToFarmW2, #PowerRequierd do
+                if PowerRequierd[i].Value <= level then
+                    QuestToFarmW2 = i
                 else
-                    slideToPosition(roundCFrame(Hive.Platform.CFrame), AutoFarmSpeed)
-                    --WalkToWithConsecutiveAirJumps(roundCFrame(Hive.Platform.CFrame), AutoFarmSpeed)
-                end
-
-                task.wait()
-
-                PlayerHiveCommand:FireServer("ToggleHoneyMaking")
-                while Pollen.Value >= 1 and getgenv().AutoFarm do
-                    task.wait()
-                end
-                task.wait(2)
-            end
-        end
-
-        -- Vérifier si nous sommes hors de la zone et nous y rendre si nécessaire
-        local relativePosToZone = currentPlayerPosition - zonePosition
-        if math.abs(relativePosToZone.X) >= zoneHalfSize.X or math.abs(relativePosToZone.Z) >= zoneHalfSize.Z then
-            print("Hors de la zone, retour au champ")
-            local targetPosition = TargetFieldCFrame.Position
-            if AutoFarmMethode == "Tween" then
-                slideToPosition(CFrame.new(targetPosition.X, targetPosition.Y, targetPosition.Z), AutoFarmSpeed)
-            elseif AutoFarmMethode == "Walk" then
-                slideToPosition(CFrame.new(targetPosition.X, targetPosition.Y, targetPosition.Z), AutoFarmSpeed)
-            end
-            continue
-        end
-
-        -- Collecter les collectibles proches
-        for _, collectible in pairs(Collectibles:GetChildren()) do
-            local collectiblePosition = collectible.Position
-            local relativePosToZoneCollectible = collectiblePosition - zonePosition
-
-            if math.abs(relativePosToZoneCollectible.X) <= zoneHalfSize.X and
-               math.abs(relativePosToZoneCollectible.Z) <= zoneHalfSize.Z and
-               math.abs(currentPlayerCFrame.Y - collectible.CFrame.Y) <= 5 then
-
-                local targetCollectiblePosition = Vector3.new(collectiblePosition.X, currentPlayerCFrame.Y, collectiblePosition.Z)
-
-                if AutoFarmMethode == "Tween" then
-                    slideToPosition(CFrame.new(targetCollectiblePosition.X, targetCollectiblePosition.Y, targetCollectiblePosition.Z), AutoFarmSpeed)
-                elseif AutoFarmMethode == "Walk" then
-                    humanoid.WalkSpeed = AutoFarmSpeed
-                    humanoid:MoveTo(targetCollectiblePosition)
-                end
-
-                if not getgenv().AutoFarm then
                     break
                 end
             end
         end
 
-        task.wait()
-    end
-end
-
--- Auto Sprinkler ================================================================================
-
-function FuncAutoSprinkler()
-    while getgenv().AutoSprinkler do
-        local args = {
-            [1] = {
-                ["Name"] = "Sprinkler Builder"
-            }
-        }
-
-        PlayerActivesCommand:FireServer(unpack(args))
-
-        task.wait(2)
-    end
-end
-
--- AutoDig =======================================================================================
-
-function FuncAutoDig()
-    while getgenv().AutoDig do
-        if character and humanoid and humanoid.Health > 0 then
-            ToolCollect:FireServer()
+        if QuestToFarmW2 >= 21 then
+            QuestToFarmW2 = 21
         end
-        task.wait()
-    end
-end
 
--- AutoDispenser =================================================================================
-
-function FuncAutoClaimDispenser()
-    while getgenv().AutoDispenser do
-        for _,v in pairs(DispenserName) do
+        while getgenv().AutoFarmW2 do
+            task.wait()
+            
             local args = {
-                [1] = v
+                [1] = "Authority",
+                [2] = 100000
             }
+            UpgradeAscendantStat:FireServer(unpack(args))
 
-            ToyEvent:FireServer(unpack(args))
-        end
-        task.wait(5)
-    end
-end
+            for i = QuestToFarmW2, #PowerRequierd do
 
--- TakeAllSticker
-
-function FuncTakeAllSticker()
-    for i = 1, 259 do
-
-        local args = {
-            [1] = i
-        }
-
-        HiddenStickerEvent:FireServer(unpack(args))
-    end
-end
-
--- UI Material Create ============================================================================
-
-local UI = Material.Load({
-    Title = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name,
-    Style = 1,
-    SizeX = 500,
-    SizeY = 350,
-    Theme = "Dark" -- Light, Dark, Mocha, Aqua, ou Jester
-})
-
---#AutoFarm
-local AutoFarm = UI.New({ Title = "Auto Farm" })
-
-local AutoFarmField_ = AutoFarm.Dropdown({
-    Text = "Field ",
-    Default = "Sunflower",
-    Options = getTableKeys(CFrameField),
-    Callback = function(value)
-        AutoFarmField = value
-    end
-})
-
-local AutoFarmMethode_ = AutoFarm.Dropdown({
-    Text = "AutoFarm Methode ",
-    Default = "Tween",
-    Options = {"Tween", "Walk"},
-    Callback = function(value)
-        AutoFarmMethode = value
-    end
-})
-
-local AutoFarmToggle = AutoFarm.Toggle({
-    Text = "AutoFarm",
-    Callback = function(value)
-        if getgenv().AutoQuest and value then
-            UI.Banner({
-                Text = "disable auto quest before !"
-            })
-            return
-        end
-        getgenv().AutoFarm = value
-        hideObject(value)
-        if value then
-            spawn( function() FuncAutoFarm() end)
-        end
-    end
-})
-
-local AutoFarmSpeed_ = AutoFarm.Slider({
-    Text = "AutoFarm Speed",
-    Callback = function(value)
-        AutoFarmSpeed = value
-    end,
-    Min = 30,
-    Max = 100,
-    Def = 30,
-})
-
-local AutoDigToggle = AutoFarm.Toggle({
-    Text = "AutoDig",
-    Callback = function(value)
-        getgenv().AutoDig = value
-        if value then
-            FuncAutoDig()
-        end
-    end
-})
-
-local AutoSprinkler = AutoFarm.Toggle({
-    Text = "Auto Sprinkler",
-    Callback = function(value)
-        getgenv().AutoSprinkler = value
-        if value then
-            FuncAutoSprinkler()
-        end
-    end
-})
-
---#Teleport
-local Teleport = UI.New({ Title = "Teleport" })
-
-local TeleportField = Teleport.Dropdown({
-    Text = "Field ",
-    Default = "Sunflower",
-    Options = getTableKeys(CFrameField)
-})
-
-local TeleportToField = Teleport.Button({
-    Text = "Teleport to Field",
-    Callback = function()
-        local selectedField = TeleportField:GetValue()
-        if selectedField and CFrameField[selectedField] then
-            slideToPosition(CFrameField[selectedField].CFrame, 100)
-        else
-            UI.Banner({ Text = "Please select a valid field!" })
-        end
-    end
-})
-
-local TeleportToHive = Teleport.Button({
-    Text = "Teleport to Hive",
-    Callback = function()
-        if Hive then
-            slideToPosition(roundCFrame(Hive.Platform.CFrame), 100)
-        else
-            UI.Banner({
-                Text = "No hive available!"
-            })
-        end
-    end
-})
-
---#AutoQuest
-local AutoQuest = UI.New({
-    Title = "Auto Quest"
-})
-
-local AutoQuestBrownBear = AutoQuest.Toggle({
-    Text = "Auto Quest Brown Bear",
-    Callback = function(value)
-        if getgenv().AutoFarm and value then
-            UI.Banner({
-                Text = "disable auto farm before !"
-            })
-            return
-        end
-        getgenv().AutoQuest = value
-        if value then
-            FuncAutoQuestBrownBear()
-        end
-    end
-})
-
---#Other
-local Other = UI.New({
-    Title = "Other"
-})
-
-local AutoDispenser = Other.Toggle({
-    Text = "Auto Dispenser",
-    Callback = function(value)
-        getgenv().AutoDispenser = value
-        if value then
-            FuncAutoClaimDispenser()
-        end
-    end
-})
-
-local TakeAllSticker = Other.Button({
-    Text = "Take all sticker",
-    Callback = function()
-        FuncTakeAllSticker()
-    end
-})
-
-local AutoSpeedHack = Other.Toggle({
-    Text = "Speed Hack",
-    Callback = function(value)
-        isSpeedHackActive = value
-        if humanoid then
-            if value then
-                if not speedHackConnection then
-                    speedHackConnection = game:GetService("RunService").Heartbeat:Connect(function()
-                        updateSpeed(humanoid, SpeedHack)
-                    end)
+                if QuestToFarmW2 >= 21 or i >= 21 then
+                    QuestToFarmW2 = 21
+                    i             = 21
                 end
-            else
-                updateSpeed(humanoid, defaultWalkSpeed)
-                if speedHackConnection then
-                    speedHackConnection:Disconnect()
-                    speedHackConnection = nil
+
+                local level = tonumber(Level.Text and Level.Text:gsub(',', '') or nil)
+
+                if not getgenv().AutoFarmW2 and getgenv().AutoSuperRebirth then
+                    break
                 end
-            end
-        end
-    end
-})
+                
+                print(i)
+                print(QuestObjectifW2[i].name)
 
-local AutoSpeedHackSpeed = Other.Slider({
-    Text = "Vitesse du Speed Hack",
-    Callback = function(value)
-        SpeedHack = value
-        if humanoid and isSpeedHackActive then
-            updateSpeed(humanoid, SpeedHack)
-        end
-    end,
-    Min = 20,
-    Max = 100,
-    Def = 30,
-})
-
---#Stats
-local Stats = UI.New({
-    Title = "Stats"
-})
-
---#Misc
-local Misc = UI.New({
-    Title = "Misc"
-})
-
-local ServerHop = Misc.Button({
-    Text = " 🔄 Server Hop", -- Icône et texte plus clair
-    Callback = function()
-        local success, result = pcall(function()
-            local servers = {}
-            local placeId = game.PlaceId -- Utilise une variable pour la clarté
-            local url = string.format(
-                "https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true",
-                placeId
-            )
-            local req = httprequest({ Url = url })
-            local body = HttpService:JSONDecode(req.Body)
-
-            if body and body.data then
-                for i, v in next, body.data do
-                    if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= JobId then
-                        table.insert(servers, 1, v.id)
+                if RespawnTimes:FindFirstChild(QuestObjectifW2[i].name) then
+                    local text = RespawnTimes[QuestObjectifW2[i].name].TextLabel.Text
+                    if (text ~= ' 5:00' and text ~= ' 0:00') then
+                        QuestToFarmW2 = i - 1
+                        break
                     end
                 end
-            end
 
-            if #servers > 0 then
-                local randomServerId = servers[math.random(1, #servers)]
-                TeleportService:TeleportToPlaceInstance(placeId, randomServerId, Players.LocalPlayer)
-            else
-                UI.Banner({ Text = "No available servers found." }) -- Message plus précis
-            end
-        end)
+                local v = PowerRequierd[i]
 
-        if success then
-            UI.Banner({ Text = "Attempting to teleport to a new server..." }) -- Indique l'action en cours
-        else
-            UI.Banner({ Text = "Server hop failed! Please try again." }) -- Message d'erreur clair
-            warn("Server Hop Error:", result) -- Affiche l'erreur dans la console
+                if level and v.Value <= level then
+                    QuestToFarmW2 = i
+                    print('a')
+                    handleAutoFarm(i, true)
+                    task.wait()
+                else
+                    print('b')
+                    for j = i - 1, 1, -1 do
+                        if PowerRequierd[j].Value <= level then
+                            QuestToFarmW2 = j
+                            handleAutoFarm(j, true)
+                            task.wait()
+                            break
+                        end
+                    end
+                    break
+                end
+                task.wait()
+            end
+            task.wait()
         end
     end
-})
 
-local AntiAFK = Misc.Button({
-    Text = " 🎮 Anti AFK",
-    Callback = function()
-        local success, result = pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/NoTwistedHere/Roblox/main/AntiAFK.lua"))()
-        end)
-        if not success then
-            UI.Banner({
-                Text = "Failed to load Anti-AFK script ! Try other exploit !"
-            })
-        else
-            UI.Banner({
-                Text = "Anti-AFK script loaded!"
-            })
+    local function FuncAutoSuperRebirth()
+        while getgenv().AutoSuperRebirth do
+            local level = tonumber(Level.Text and Level.Text:gsub(',', '') or nil)
+            local RankLevel = tonumber(RankLabel.Text:match("%((%d+)%)") or nil) or 0
+
+            -- Fonction pour vérifier et effectuer un rebirth
+            local function checkRebirth()
+                if RebirthText.Text == "Would you like to Super Rebirth?" then
+                    game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Net"):WaitForChild("RE/SuperRebirth"):FireServer()
+                    QuestToFarm = 1
+                    return true
+                elseif RebirthText.Text == "Would you like to Rebirth?" or RebirthText.Text:match("%[%D*%d+%D*%]") then
+                    Rebirth:FireServer()
+                    QuestToFarm = 1
+                    return true
+                end
+                return false
+            end
+
+            -- Si RankLevel < 2, vérifier immédiatement si un rebirth est possible
+            if RankLevel < 2 then
+                if checkRebirth() then
+                    print(RankLevel)
+                    task.wait()
+                end
+            end
+
+            -- Parcourir les quêtes pour farmer
+            for i = QuestToFarm, #PowerRequierd do
+                if not getgenv().AutoSuperRebirth then
+                    break
+                end
+
+                print(i)
+                print(QuestObjectifW1[i].name)
+
+                local v = PowerRequierd[i]
+
+                -- Si le niveau du joueur est suffisant pour la quête
+                if level and v.Value <= level then
+                    QuestToFarm = i
+                    handleAutoFarm(i, false)
+                elseif RankLevel >= 2 and level and v.Value > level then
+                    -- Si RankLevel >= 2 et le NPC a un niveau supérieur, tenter un rebirth
+                    print(string.format("Required Power: %d | Current Level: %d | Needs More Power: %s", v.Value, level, tostring(v.Value > level)))
+                    if checkRebirth() then
+                        task.wait(1)
+                        break
+                    end
+                else
+                    -- Si le niveau est trop bas, farmer une quête précédente
+                    for j = i - 1, 1, -1 do
+                        if PowerRequierd[j].Value <= level then
+                            QuestToFarm = j
+                            handleAutoFarm(j, false)
+                            break
+                        end
+                    end
+                    break
+                end
+                task.wait()
+            end
+            task.wait()
         end
     end
-})
 
-local Discord = Misc.Button({
-    Text = " 🌐 Discord",
-    Callback = function()
-        local discordLink = "https://discord.gg/wx9gV9Z7Yy"
+    local function FuncAutoRebirthW2()
+        while getgenv().AutoRebirthW2 do
+            AscendantRebirth:FireServer()
+            task.wait(0.1)
+        end
+    end
 
-        local function copyToClipboard()
-            local success, result = pcall(function()
-                setclipboard(discordLink)
-            end)
-            
-            if success then
-                UI.Banner({Text = "Discord link copied to clipboard!"})
-            else
-                UI.Banner({Text = "Failed to copy Discord link!"})
-            end
+    -- AutoTrain =====================================================================================
+    local function FuncAutoTrain()
+        if not CombatEvent then
+            warn("CombatEvent not found!")
+            return
         end
 
-        if httprequest then
-            local success, result = pcall(function()
-                local url = "http://127.0.0.1:6463/rpc?v=1"
-                local headers = {
-                    ["Content-Type"] = "application/json",
-                    Origin = "https://discord.com"
-                }
-                local body = HttpService:JSONEncode({
-                    cmd = "INVITE_BROWSER",
-                    nonce = HttpService:GenerateGUID(false),
-                    args = {code = "wx9gV9Z7Yy"}
+        while getgenv().AutoTrain do
+            local args = {
+                [1] = "Train"
+            }
+            CombatEvent:FireServer(unpack(args))
+            task.wait()
+        end
+    end
+
+    -- UI Material Create ============================================================================
+    local UI = Material.Load({
+        Title = " Axiom's Hub | " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name,
+        Style = 1,
+        SizeX = 500,
+        SizeY = 350,
+        Theme = "Dark"
+    })
+
+    local AutoFarmPageW1 = UI.New({
+        Title = "AutoFarm World 1"
+    })
+
+    local AutoTrainStart = AutoFarmPageW1.Toggle({
+        Text = "Auto Train",
+        Callback = function(value)
+            getgenv().AutoTrain = value
+            if value then
+                spawn(function() FuncAutoTrain() end)
+            end
+        end
+    })
+
+    local AutoFarmQuestSelectW1 = AutoFarmPageW1.TextField({
+        Text = "Select Quest <Number>",
+        Callback = function(Value)
+            local number = tonumber(Value)
+            if not number or number <= 0 then
+                UI.Banner({
+                    Text = "Please enter a valid quest number greater than 0 !"
                 })
+                return
+            elseif number > 33 then
+                UI.Banner({
+                    Text = "The last quest is 33"
+                })
+                return
+            end
+            QuestLevel = number
+            UI.Banner({
+                Text = "Quest number set to " .. number
+            })
+        end
+    })
 
-                httprequest({Url = url, Method = "POST", Headers = headers, Body = body})
+    local AutoQuestStartNPCW1 = AutoFarmPageW1.Toggle({
+        Text = "Auto Quest NPC",
+        Callback = function(value)
+            if not getgenv().AutoSuperRebirth then
+                getgenv().AutoQuest = value
+                if value then
+                    spawn(function() FuncAutoQuest(false) end)
+                end
+            elseif value then
+                UI.Banner({
+                    Text = "Please disable AutoFarm Super Rebirth first"
+                })
+            end
+        end
+    })
+
+    local AutoFarmRebirthW1 = AutoFarmPageW1.Toggle({
+        Text = "AutoFarm Super Rebirth",
+        Callback = function(value)
+            if not getgenv().AutoQuest then
+                getgenv().AutoSuperRebirth = value
+                if value then
+                    spawn(function() FuncAutoSuperRebirth() end)
+                end
+            elseif value then
+                UI.Banner({
+                    Text = "Please disable Auto Quest NPC first"
+                })
+            end
+        end,
+        Menu = {
+            Reset = function(self)
+                QuestToFarm = 1
+                if getgenv().AutoSuperRebirth then
+                    getgenv().AutoSuperRebirth = false
+                    task.wait(1)
+                    getgenv().AutoSuperRebirth = true
+                    spawn(function() FuncAutoSuperRebirth() end)
+                end
+                UI.Banner({
+                    Text = "AutoFarm Super Rebirth has been reset"
+                })
+            end
+        }
+    })
+
+    local AutoFarmPageW2 = UI.New({
+        Title = "AutoFarm World 2"
+    })
+
+    local AutoFarmQuestSelectW2 = AutoFarmPageW2.TextField({
+        Text = "Select Quest <Number>",
+        Callback = function(Value)
+            local number = tonumber(Value)
+            if not number or number <= 0 then
+                UI.Banner({
+                    Text = "Please enter a valid quest number greater than 0 !"
+                })
+                return
+            elseif number > 21 then
+                UI.Banner({
+                    Text = "The last quest is 21"
+                })
+                return
+            end
+            QuestLevelW2 = number
+            UI.Banner({
+                Text = "Quest number set to " .. number
+            })
+        end
+    })
+
+    local AutoQuestStartNPCW2 = AutoFarmPageW2.Toggle({
+        Text = "Auto Quest NPC",
+        Callback = function(value)
+            if not getgenv().AutoFarmW2 then
+                getgenv().AutoQuest = value
+                if value then
+                    spawn(function() FuncAutoQuest(true) end)
+                end
+            elseif value then
+                UI.Banner({
+                    Text = "Please disable Auto Rebirth first"
+                })
+            end
+        end
+    })
+
+    local AutoFarmRebirthW2 = AutoFarmPageW2.Toggle({
+        Text = "AutoFarm Mobs",
+        Callback = function(value)
+            if not getgenv().AutoQuest then
+                getgenv().AutoFarmW2 = value
+                if value then
+                    spawn(function() FuncAutoFarmW2() end)
+                end
+            elseif value then
+                UI.Banner({
+                    Text = "Please disable Auto Quest NPC first"
+                })
+            end
+        end,
+        Menu = {
+            Reset = function(self)
+                QuestToFarmW2 = 1
+                if getgenv().AutoFarmW2 then
+                    getgenv().AutoFarmW2 = false
+                    task.wait(1)
+                    getgenv().AutoFarmW2 = true
+                    spawn(function() FuncAutoFarmW2() end)
+                end
+                UI.Banner({
+                    Text = "AutoFarm Rebirth has been reset"
+                })
+            end
+        }
+    })
+
+    local AutoRebirthW2_ = AutoFarmPageW2.Toggle({
+        Text = "AutoRebirth",
+        Callback = function(value)
+            getgenv().AutoRebirthW2 = value
+            if value then
+                spawn(function() FuncAutoRebirthW2() end)
+            end
+        end,
+    })
+
+    local AutoFarmSetting = UI.New({
+        Title = "AutoFarm Settings"
+    })
+
+    local AutoFarmDistance = AutoFarmSetting.Slider({
+        Text = "AutoFarm Distance",
+        Callback = function(value)
+            distance_mobs_farm = value
+        end,
+        Min = 0,
+        Max = 50,
+        Def = 3,
+    })
+
+    local Misc = UI.New({
+        Title = "Misc"
+    })
+
+    local ServerHop = Misc.Button({
+        Text = " 🔄 Server Hop", -- Icône et texte plus clair
+        Callback = function()
+            local success, result = pcall(function()
+                local servers = {}
+                local placeId = game.PlaceId -- Utilise une variable pour la clarté
+                local url = string.format(
+                    "https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true",
+                    placeId
+                )
+                local req = httprequest({ Url = url })
+                local body = HttpService:JSONDecode(req.Body)
+
+                if body and body.data then
+                    for i, v in next, body.data do
+                        if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= JobId then
+                            table.insert(servers, 1, v.id)
+                        end
+                    end
+                end
+
+                if #servers > 0 then
+                    local randomServerId = servers[math.random(1, #servers)]
+                    TeleportService:TeleportToPlaceInstance(placeId, randomServerId, Players.LocalPlayer)
+                else
+                    UI.Banner({ Text = "No available servers found." }) -- Message plus précis
+                end
             end)
 
             if success then
-                UI.Banner({Text = "Attempted to open Discord invite in browser!"})
+                UI.Banner({ Text = "Attempting to teleport to a new server..." }) -- Indique l'action en cours
             else
-                print("HTTP Request Failed:", result)
+                UI.Banner({ Text = "Server hop failed! Please try again." }) -- Message d'erreur clair
+                warn("Server Hop Error:", result) -- Affiche l'erreur dans la console
+            end
+        end
+    })
+
+    local AntiAFK = Misc.Button({
+        Text = " 🎮 Anti AFK",
+        Callback = function()
+            local success, result = pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/NoTwistedHere/Roblox/main/AntiAFK.lua"))()
+            end)
+            if not success then
+                UI.Banner({
+                    Text = "Failed to load Anti-AFK script ! Try other exploit !"
+                })
+            else
+                UI.Banner({
+                    Text = "Anti-AFK script loaded!"
+                })
+            end
+        end
+    })
+
+    local Discord = Misc.Button({
+        Text = " 🌐 Discord",
+        Callback = function()
+            local discordLink = "https://discord.gg/wx9gV9Z7Yy"
+
+            local function copyToClipboard()
+                local success, result = pcall(function()
+                    setclipboard(discordLink)
+                end)
+                
+                if success then
+                    UI.Banner({Text = "Discord link copied to clipboard!"})
+                else
+                    UI.Banner({Text = "Failed to copy Discord link!"})
+                end
+            end
+
+            if httprequest then
+                local success, result = pcall(function()
+                    local url = "http://127.0.0.1:6463/rpc?v=1"
+                    local headers = {
+                        ["Content-Type"] = "application/json",
+                        Origin = "https://discord.com"
+                    }
+                    local body = HttpService:JSONEncode({
+                        cmd = "INVITE_BROWSER",
+                        nonce = HttpService:GenerateGUID(false),
+                        args = {code = "wx9gV9Z7Yy"}
+                    })
+
+                    httprequest({Url = url, Method = "POST", Headers = headers, Body = body})
+                end)
+
+                if success then
+                    UI.Banner({Text = "Attempted to open Discord invite in browser!"})
+                else
+                    print("HTTP Request Failed:", result)
+                    copyToClipboard()
+                end
+            else
                 copyToClipboard()
             end
-        else
-            copyToClipboard()
         end
-    end
-})
-
-end
+    })
+end -- End of Scripting function

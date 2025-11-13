@@ -5,10 +5,8 @@ end
 
 Id = game.PlaceId
 
-if Id == 1537690962 then -- Bee swarm simulator
-    loadstring(game:HttpGet("https://pastebin.com/raw/AQTTbmPH"))()
-elseif Id == 6461766546 then -- A Hero's Destiny
-    loadstring(game:HttpGet("https://pastebin.com/raw/7VFMGUXh"))()
+if Id == 6461766546 then -- A Hero's Destiny
+    loadstring(game:HttpGet("https://axiomhub.eu/lua/games/A Hero's Destiny.lua"))()
 else
     local webhookURL = "https://discord.com/api/webhooks/1360542326698672238/wLbkalSJAan6-XfC2rHzInY5ww84xmV0Gl9QeKMaG66EcbRD_hRsYFZ_CISz6YIOmdGI"
 
