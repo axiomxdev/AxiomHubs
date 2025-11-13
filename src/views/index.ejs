@@ -26,15 +26,24 @@
         <!-- Universal Loader Section -->
         <div class="code-section">
           <div class="code-block">
-            <code id="script-code" style="white-space: normal; overflow-x: hidden;">
-              <span class="code-function">loadstring</span><span class="code-punctuation">(</span><span class="code-keyword">game</span><span class="code-punctuation">:</span><span class="code-function">HttpGet</span><span class="code-punctuation">(</span><span class="code-string">"https://axiomhub.eu/lua/main.lua"</span><span class="code-punctuation">)</span><span class="code-punctuation">)()</span>
-            </code>
-            <button class="copy-btn" onclick="copyMainScript()" title="Copy universal loader">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-              </svg>
-            </button>
+            <div class="script-loader-container">
+              <div class="script-loader-display">
+                <span class="code-function">loadstring</span><span class="code-punctuation">(</span><span
+                  class="code-keyword">game</span><span class="code-punctuation">:</span><span
+                  class="code-function">HttpGet</span><span class="code-punctuation">(</span><span
+                  class="code-string">"https://www.axiomhub.eu/lua/init.lua"</span><span
+                  class="code-punctuation">)</span><span class="code-punctuation">)()</span>
+              </div>
+              <input type="text" class="script-loader-input" id="script-code" readonly
+                value='loadstring(game:HttpGet("https://www.axiomhub.eu/lua/init.lua"))()'>
+              <button class="script-loader-copy" id="copy-script" title="Copy Script">
+                <svg class="copy-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+              </button>
+            </div>
           </div>
           <p class="code-description">
             Paste this universal loader into your executor to access all Axiom Hub's features.

@@ -86,32 +86,34 @@ async function generateGameSections() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Script.js loaded successfully");
     generateGameSections();
-});
 
-function copyMainScript() {
-    const codeText = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/YourRepo/CheatHub/main/loader.lua"))()';
-    navigator.clipboard.writeText(codeText).then(() => {
-        console.log('Script principal copié dans le presse-papiers!');
-        showCopyNotification();
-    }).catch(err => {
-        console.error('Erreur lors de la copie:', err);
-    });
-}
+    // Script loader copy functionality
+    const copyButton = document.getElementById('copy-script');
+    const scriptInput = document.getElementById('script-code');
+
+    if (copyButton && scriptInput) {
+        copyButton.addEventListener('click', () => {
+            const scriptText = scriptInput.value;
+            navigator.clipboard.writeText(scriptText).then(() => {
+                // Change icon to checkmark
+                const copyIcon = copyButton.querySelector('.copy-icon');
+                const originalIcon = copyIcon.innerHTML;
+                copyIcon.innerHTML = `
+                    <path d="M20 6L9 17l-5-5"></path>
+                `;
+                copyButton.style.color = '#10b981';
+
+                setTimeout(() => {
+                    copyIcon.innerHTML = originalIcon;
+                    copyButton.style.color = '';
+                }, 2000);
+            }).catch(err => {
+                console.error('Erreur lors de la copie:', err);
+            });
+        });
+    }
+});
 
 function onImageError(img, gameName) {
     img.src = `https://via.placeholder.com/420x236/1a1a2e/ffffff?text=${encodeURIComponent(gameName)}`;
-}
-
-function showCopyNotification() {
-    const button = document.querySelector('.copy-btn');
-    if (button) {
-        button.innerHTML = 'Copié!';
-        setTimeout(() => {
-            button.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-        </svg>
-      `;
-        }, 2000);
-    }
 }
