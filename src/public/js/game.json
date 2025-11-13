@@ -1,16 +1,5 @@
 [
     {
-        "placeId": 1537690962,
-        "name": "Bee Swarm Simulator",
-        "features": [
-            "AutoFarm: Automatically collects pollen in selected fields and converts it to honey at your hive.",
-            "AutoDig: Continuously collects pollen from nearby flowers.",
-            "Teleportation: Instantly move to specific fields or your hive.",
-            "Anti-AFK: Prevents disconnection during long sessions.",
-            "Customizable speed: Adjust AutoFarm's movement speed for more efficiency."
-        ]
-    },
-    {
         "placeId": 6461766546,
         "name": "A Hero's Destiny",
         "features": [
@@ -19,17 +8,6 @@
             "AutoRebirth & Super Rebirth: Automates the rebirth processes to increase stats.",
             "AutoTrain: Continuously trains your character to gain stats.",
             "Anti-AFK: Keeps you active to avoid being kicked."
-        ]
-    },
-    {
-        "placeId": 2916899287,
-        "name": "Black Hawk Rescue Mission",
-        "features": [
-            "AutoPilot: Automatically flies the helicopter to designated locations.",
-            "AutoRescue: Identifies and rescues stranded NPCs without manual input.",
-            "AutoLand: Safely lands the helicopter at specified zones.",
-            "Fuel Management: Monitors fuel levels and auto-refuels when necessary.",
-            "Anti-AFK: Prevents disconnection during long rescue missions."
         ]
     }
 ]
