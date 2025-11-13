@@ -1,0 +1,36 @@
+services:
+  nginx-proxy:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    environment:
+      TZ: "Australia/Brisbane"
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    networks:
+      - axiomhub-network
+
+  axiomhub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    env_file:
+      - .env
+    volumes:
+      - ./src/db:/app/dist/db
+    networks:
+      - axiomhub-network
+    expose:
+      - "3000"
+
+networks:
+  axiomhub-network:
+    driver: bridge
