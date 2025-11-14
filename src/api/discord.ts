@@ -57,6 +57,7 @@ router.get('/discord/callback', async (req, res) => {
         });
 
         const userJson = await userResponse.json() as Record<string, any>;
+        console.log('[DISCORD CALLBACK] Discord user data:', userJson);
         const email = userJson.email;
         console.log('[DISCORD CALLBACK] Discord user email:', email);
 
