@@ -6,5 +6,5 @@ import analytics from './middlewares/analytics';
 export function setupMiddlewareRoutes(app: Application) {
     app.use(setGlobalVar);
     app.use(analytics);
-    app.use(strictCookies);
+    //app.use(strictCookies);
 }
