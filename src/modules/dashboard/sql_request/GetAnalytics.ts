@@ -63,6 +63,8 @@ export async function GetAnalytics(): Promise<AnalyticsStats> {
         AND referrer NOT LIKE 'https://localhost%'
         AND referrer NOT LIKE 'http://axiomhub.eu%'
         AND referrer NOT LIKE 'https://axiomhub.eu%'
+        AND referrer NOT LIKE 'http://www.axiomhub.eu%'
+        AND referrer NOT LIKE 'https://www.axiomhub.eu%'
         GROUP BY referrer 
         ORDER BY count DESC 
         LIMIT 5

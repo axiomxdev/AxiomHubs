@@ -4,6 +4,6 @@ const isProduction = process.env.NODE_ENV === 'production';
 export const cookieConfig = {
     httpOnly: true,
     secure: isProduction, // Only use secure in production (HTTPS)
-    sameSite: isProduction ? ('strict' as const) : ('lax' as const), // Less strict in development
+    sameSite: 'lax' as const, // 'lax' allows cookies on top-level navigation (OAuth redirects)
     path: '/',
 };
