@@ -15,22 +15,24 @@ import { cookieConfig } from '../config/cookies';
 
 // Auth token
 function createToken(payload: Payload, expiresIn: string = '30d'): string {
+    console.log('Creating JWT token with payload:', payload);
     return jwt.sign(payload, JWT_SECRET, {
         expiresIn: expiresIn
     } as jwt.SignOptions);
 }
 
-
 const router = Router();
 
 router.get('/discord/callback', async (req, res) => {
-    //try {
     console.log('Discord callback called');
+    console.log('Query parameters:', req.query);
 
     if (!req.query.code) {
+        console.log('No code provided in query');
         return res.status(400).json({ error: 'NoCodeProvided', req: req });
     }
     const code = req.query.code;
+    console.log('Authorization code received:', code);
 
     const params = new URLSearchParams();
     params.append('client_id', DISCORD_CLIENT_ID || '');
@@ -39,43 +41,109 @@ router.get('/discord/callback', async (req, res) => {
     params.append('code', code.toString());
     params.append('redirect_uri', redirect);
 
-    const response = await fetch(
-        `https://discord.com/api/oauth2/token`,
-        {
-            method: 'POST',
+    console.log('Token request params:', params.toString());
+
+    try {
+        const response = await fetch(
+            `https://discord.com/api/oauth2/token`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: params,
+            }
+        );
+
+        console.log('Token response status:', response.status);
+
+        const json = await response.json() as Record<string, any>;
+        console.log('Token response data:', json);
+
+        const accessToken = json["access_token"];
+        console.log('Access token received:', accessToken ? 'YES' : 'NO');
+
+        const userResponse = await fetch(`https://discord.com/api/users/@me`, {
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                Authorization: `Bearer ${accessToken}`,
             },
-            body: params,
+        });
+
+        console.log('User info response status:', userResponse.status);
+
+        const userJson = await userResponse.json() as Record<string, any>;
+        console.log('User info received:', userJson);
+
+        const email = userJson.email;
+        console.log('User email:', email);
+
+        const existing = await dbManager.findUserByEmail(email);
+        console.log('Existing user found:', existing ? 'YES' : 'NO');
+
+        if (existing) {
+            console.log('Existing user data:', existing);
+
+            const payload: Payload = {
+                userId: existing.id.toString(),
+                email: existing.email,
+                type: 'discord',
+                expiration: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60),
+            };
+
+            const token = createToken(payload);
+            console.log('JWT token created for existing user');
+
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 30);
+
+            res.cookie('logged', 'true', {
+                ...cookieConfig,
+                expires: expiryDate,
+            });
+
+            res.cookie('auth-token', token, {
+                ...cookieConfig,
+                expires: expiryDate,
+            });
+
+            console.log('Cookies set, redirecting to dashboard');
+            return res.redirect('/dashboard');
         }
-    );
 
-    const json = await response.json() as Record<string, any>;
-    const accessToken = json["access_token"];
+        console.log('Creating new user...');
 
-    const userResponse = await fetch(`https://discord.com/api/users/@me`, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
-    });
+        const roblox_client: RobloxClient = {
+            userId: '',
+            key: crypto.randomBytes(24)
+                .toString('base64')
+                .replace(/[^a-zA-Z0-9]/g, '')
+                .slice(0, 24)
+                .match(/.{4}/g)
+                ?.join('-') || '',
+            type: 'free'
+        };
 
-    const userJson = await userResponse.json() as Record<string, any>;
-    const email = userJson.email;
+        console.log('Generated roblox client:', roblox_client);
 
-    const existing = await dbManager.findUserByEmail(email);
-    if (existing) {
+        const newUser = await dbManager.createUser({
+            email: email,
+            roblox_client: roblox_client
+        });
+
+        console.log('New user created:', newUser);
+
         const payload: Payload = {
-            userId: existing.id.toString(),
-            email: existing.email,
+            userId: newUser.id.toString(),
+            email: newUser.email,
             type: 'discord',
-            expiration: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60), // 30 days expiration
+            expiration: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60),
         };
 
         const token = createToken(payload);
+        console.log('JWT token created for new user');
 
-        // Set authentication cookies
         const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + 30); // 30 days
+        expiryDate.setDate(expiryDate.getDate() + 30);
 
         res.cookie('logged', 'true', {
             ...cookieConfig,
@@ -87,52 +155,13 @@ router.get('/discord/callback', async (req, res) => {
             expires: expiryDate,
         });
 
+        console.log('Cookies set for new user, redirecting to dashboard');
         return res.redirect('/dashboard');
+
+    } catch (error) {
+        console.error('Error in Discord callback:', error);
+        res.redirect('/login');
     }
-
-    const roblox_client: RobloxClient = {
-        userId: '',
-        key: crypto.randomBytes(24)
-            .toString('base64')
-            .replace(/[^a-zA-Z0-9]/g, '')
-            .slice(0, 24)
-            .match(/.{4}/g)
-            ?.join('-') || '',
-        type: 'free'
-    };
-
-    const newUser = await dbManager.createUser({
-        email: email,
-        roblox_client: roblox_client
-    });
-
-    const payload: Payload = {
-        userId: newUser.id.toString(),
-        email: newUser.email,
-        type: 'discord',
-        expiration: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60), // 30 days expiration
-    };
-
-    const token = createToken(payload);
-
-    // Set authentication cookies
-    const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + 30); // 30 days
-
-    res.cookie('logged', 'true', {
-        ...cookieConfig,
-        expires: expiryDate,
-    });
-
-    res.cookie('auth-token', token, {
-        ...cookieConfig,
-        expires: expiryDate,
-    });
-
-    return res.redirect('/dashboard');
-    //} catch (error) {
-    //    res.redirect('/login');
-    //}
 });
 
 export default router;
