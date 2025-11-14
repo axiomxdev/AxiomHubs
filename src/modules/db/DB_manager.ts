@@ -379,38 +379,19 @@ export class DBManager implements DBManagerInterface {
      * Validate user credentials (login)
      */
     async validateUser(credentials: UserCredentials): Promise<User | null> {
-        console.log('Starting user validation for email:', credentials.email);
-
         const user = await this.findUserByEmail(credentials.email);
 
         if (!user) {
-            console.log('User not found for email:', credentials.email);
             return null;
         }
 
-        console.log('User found, verifying password for user ID:', user.id);
-        console.log('Password hash exists:', !!user.password_hash);
+        // Verify password with Argon2
+        const isValid = await argon2.verify(
+            user.password_hash,
+            credentials.password
+        );
 
-        try {
-            // Verify password with Argon2
-            const isValid = await argon2.verify(
-                user.password_hash,
-                credentials.password
-            );
-
-            console.log('Password verification result:', isValid);
-
-            if (isValid) {
-                console.log('User validation successful for email:', credentials.email);
-                return user;
-            } else {
-                console.log('Password verification failed for email:', credentials.email);
-                return null;
-            }
-        } catch (error) {
-            console.error('Error during password verification:', error);
-            return null;
-        }
+        return isValid ? user : null;
     }
 
     /**
