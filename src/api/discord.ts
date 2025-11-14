@@ -48,38 +48,28 @@ router.get('/discord/callback', async (req, res) => {
         );
 
         const json = await response.json() as Record<string, any>;
-        console.log('[DISCORD CALLBACK] Token response:', json);
 
         const accessToken = json["access_token"];
-        console.log('[DISCORD CALLBACK] Received access token:', accessToken);
 
         if (!accessToken) {
-            console.error('[DISCORD CALLBACK] No access token received');
             return res.redirect('/login?error=no_access_token');
         }
 
-        console.log('[DISCORD CALLBACK] Fetching Discord user data with access token:', accessToken);
         const userResponse = await fetch(`https://discord.com/api/users/@me`, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
         });
 
-        console.log('[DISCORD CALLBACK] User response status:', userResponse.status);
-
         if (!userResponse.ok) {
-            console.error('[DISCORD CALLBACK] Failed to fetch user data:', await userResponse.text());
             return res.redirect('/login?error=discord_api_failed');
         }
 
         const userJson = await userResponse.json() as Record<string, any>;
-        console.log('[DISCORD CALLBACK] Discord user data:', userJson);
 
         const email = userJson.email;
-        console.log('[DISCORD CALLBACK] Discord user email:', email);
 
         if (!email) {
-            console.error('[DISCORD CALLBACK] No email in Discord user data');
             return res.redirect('/login?error=no_email');
         }
 
