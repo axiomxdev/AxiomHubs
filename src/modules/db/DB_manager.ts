@@ -259,19 +259,27 @@ export class DBManager implements DBManagerInterface {
      * Create a new user with hashed password
      */
     async createUser(data: CreateUserData): Promise<User> {
+        console.log('[DBManager] createUser called with data:', { email: data.email, hasPassword: !!data.password, robloxClient: data.roblox_client });
+
         if (!this.isOpen()) {
+            console.error('[DBManager] createUser failed: Database not open');
             throw new Error('Database not open');
         }
+        console.log('[DBManager] Database is open, proceeding with user creation');
 
         // Check if username already exists
+        console.log('[DBManager] Checking if user already exists with email:', data.email);
         const existingUser = await this.findUserByEmail(data.email);
         if (existingUser) {
+            console.error('[DBManager] createUser failed: Username already exists for email:', data.email);
             throw new Error('Username already exists');
         }
+        console.log('[DBManager] No existing user found, proceeding with creation');
 
         let passwordHash: string | null;
 
         if (data.password) {
+            console.log('[DBManager] Hashing password with Argon2');
             // Hash password with Argon2 (most secure and performant)
             passwordHash = await argon2.hash(data.password, {
                 type: argon2.argon2id, // Hybrid version (recommended)
@@ -279,7 +287,9 @@ export class DBManager implements DBManagerInterface {
                 timeCost: 3, // 3 iterations
                 parallelism: 4, // 4 threads
             });
+            console.log('[DBManager] Password hashed successfully');
         } else {
+            console.log('[DBManager] No password provided, setting passwordHash to null');
             passwordHash = null;
         }
 
@@ -288,31 +298,44 @@ export class DBManager implements DBManagerInterface {
             VALUES (?, ?, ?)
         `;
 
+        console.log('[DBManager] Executing INSERT query:', sql);
+        console.log('[DBManager] Query parameters:', [data.email, passwordHash ? '[HASH]' : null, JSON.stringify(data.roblox_client)]);
+
         return new Promise((resolve, reject) => {
             if (!this.db) {
+                console.error('[DBManager] Database instance is null in Promise');
                 reject(new Error('Database not open'));
                 return;
             }
 
             // Store reference to the database instance
             const db = this.db;
+            console.log('[DBManager] Database reference stored, executing INSERT');
 
             db.run(
                 sql,
                 [data.email, passwordHash, JSON.stringify(data.roblox_client)],
                 function (err) {
                     if (err) {
-                        console.error('Error creating user:', err);
+                        console.error('[DBManager] Error creating user:', err);
+                        console.error('[DBManager] SQL that failed:', sql);
+                        console.error('[DBManager] Parameters that failed:', [data.email, passwordHash ? '[HASH]' : null, JSON.stringify(data.roblox_client)]);
                         reject(err);
                     } else {
                         // Fetch the created user
                         const userId = this.lastID;
+                        console.log('[DBManager] User created successfully with ID:', userId);
+
                         const selectSql = 'SELECT * FROM users WHERE id = ?';
+                        console.log('[DBManager] Fetching created user with query:', selectSql);
+                        console.log('[DBManager] User ID to fetch:', userId);
 
                         db.get(selectSql, [userId], (err: Error, row: User) => {
                             if (err) {
+                                console.error('[DBManager] Error fetching created user:', err);
                                 reject(err);
                             } else {
+                                console.log('[DBManager] Created user fetched successfully:', { id: row?.id, email: row?.email });
                                 resolve(row);
                             }
                         });
@@ -363,8 +386,23 @@ export class DBManager implements DBManagerInterface {
      * Find user by username
      */
     async findUserByEmail(email: string): Promise<User | null> {
+        console.log(`[DBManager] findUserByEmail called with email: ${email}`);
+
         const sql = 'SELECT * FROM users WHERE email = ?';
-        return this.get<User>(sql, [email]);
+        console.log(`[DBManager] Executing SQL: ${sql}`);
+        console.log(`[DBManager] SQL params:`, [email]);
+
+        try {
+            const result = await this.get<User>(sql, [email]);
+            console.log(`[DBManager] findUserByEmail result:`, result ? 'User found' : 'No user found');
+            if (result) {
+                console.log(`[DBManager] Found user ID: ${result.id}, Email: ${result.email}`);
+            }
+            return result;
+        } catch (error) {
+            console.error(`[DBManager] Error in findUserByEmail:`, error);
+            throw error;
+        }
     }
 
     /**
