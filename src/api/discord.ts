@@ -28,7 +28,7 @@ router.get('/discord/callback', async (req, res) => {
         console.log('Discord callback called');
 
         if (!req.query.code) {
-            throw new Error('NoCodeProvided');
+            return res.status(400).json({ error: 'NoCodeProvided' });
         }
         const code = req.query.code;
 
