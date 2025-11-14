@@ -24,6 +24,8 @@ function createToken(payload: Payload, expiresIn: string = '30d'): string {
 const router = Router();
 
 router.get('/discord/callback', async (req, res) => {
+    console.log('Discord callback called', req.query);
+
     if (!req.query.code) {
         throw new Error('NoCodeProvided');
     }
