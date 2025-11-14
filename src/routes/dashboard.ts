@@ -11,7 +11,7 @@ router.get('/dashboard', (req, res) => {
         const token = req.cookies['auth-token'];
 
         if (!token) {
-            res.redirect('/login');
+            return res.redirect('/login');
         }
 
         const decoded = jwt.verify(token, JWT_SECRET) as Payload;
@@ -19,9 +19,9 @@ router.get('/dashboard', (req, res) => {
         if (decoded.email && emailAuth.includes(decoded.email))
             return adminDashboard(res, decoded);
 
-        res.render('dashboard');
+        return res.render('dashboard');
     } catch (error) {
-        res.render('dashboard');
+        return res.render('dashboard');
     }
 });
 
