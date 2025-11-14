@@ -49,12 +49,13 @@ router.get('/discord/callback', async (req, res) => {
 
         const json = await response.json() as Record<string, any>;
         const accessToken = json["access_token"];
-
+        console.log('[DISCORD CALLBACK] Received access token:', accessToken);
         const userResponse = await fetch(`https://discord.com/api/users/@me`, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
         });
+        console.log('[DISCORD CALLBACK] Fetching Discord user data with access token:', accessToken);
 
         const userJson = await userResponse.json() as Record<string, any>;
         console.log('[DISCORD CALLBACK] Discord user data:', userJson);
