@@ -7,7 +7,6 @@ const router = Router();
 
 router.get('/reset-password', (req, res) => {
     const token = req.query.token as string;
-    console.log(token);
 
     if (!token) {
         return res.redirect('/login');

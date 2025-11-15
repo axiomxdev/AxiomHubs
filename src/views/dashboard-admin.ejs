@@ -2,8 +2,7 @@
 <html lang="fr">
 
 <head>
-    <%- include('partials/head', { title: 'Admin Dashboard — Axiom Hub\' s', description: 'Admin Dashboard - Axiom Hub\'
-        s', extraCSS: ['/css/dashboard.css', '/css/dashboard-admin.css' ] }) %>
+    <%- include('partials/head', {title: 'Admin Dashboard — Axiom Hub\' s', description: 'Admin Dashboard - Axiom Hub\'s', extraCSS: ['/css/dashboard.css', '/css/dashboard-admin.css' ]}) %>
 </head>
 
 <body>
@@ -135,7 +134,7 @@
                                     </thead>
                                     <tbody>
                                         <% if (analytics.topPages && analytics.topPages.length> 0) { %>
-                                            <% analytics.topPages.forEach(page=> { %>
+                                            <% analytics.topPages.forEach(function(page) { %>
                                                 <tr>
                                                     <td>
                                                         <%= page.page %>
@@ -180,7 +179,7 @@
                                     </thead>
                                     <tbody>
                                         <% if (analytics.topBrowsers && analytics.topBrowsers.length> 0) { %>
-                                            <% analytics.topBrowsers.forEach(browser=> { %>
+                                            <% analytics.topBrowsers.forEach(function(browser) { %>
                                                 <tr>
                                                     <td>
                                                         <%= browser.browser %>
@@ -222,7 +221,7 @@
                                     </thead>
                                     <tbody>
                                         <% if (analytics.topReferrers && analytics.topReferrers.length> 0) { %>
-                                            <% analytics.topReferrers.forEach(referrer=> { %>
+                                            <% analytics.topReferrers.forEach(function(referrer) { %>
                                                 <tr>
                                                     <td>
                                                         <%= referrer.referrer %>

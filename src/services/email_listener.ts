@@ -125,6 +125,7 @@ export async function startEmailListener() {
 
         client.on('error', (err) => {
             console.error('❌ IMAP error:', err);
+            startEmailListener();
         });
 
     } catch (error) {
