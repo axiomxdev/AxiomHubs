@@ -1,0 +1,93 @@
+<% // Configuration par défaut const pageTitle=typeof title !=='undefined' ? title : 'Axiom Hub\' s'; const
+    pageDescription=typeof description !=='undefined' ? description : 'Happy cheating !' ; const additionalCSS=typeof
+    extraCSS !=='undefined' ? extraCSS : []; const additionalMeta=typeof extraMeta !=='undefined' ? extraMeta : []; %>
+    <!-- Google Tag Manager -->
+    <script>(function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-P73HFGSV');</script>
+    <!-- End Google Tag Manager -->
+    <meta charset="utf-8">
+    <title>
+        <%= pageTitle %>
+    </title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="/assets/axioms.ico">
+    <link rel="canonical" href="https://axiomhub.eu">
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="<%= pageDescription %>">
+    <meta name="keywords" content="roblox, scripts, cheats, hub, gaming, axiom">
+    <meta name="author" content="Axiom Hub's">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Axiom Hub's">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://axiomhub.eu">
+    <meta property="og:title" content="<%= pageTitle %>">
+    <meta property="og:description" content="<%= pageDescription %>">
+    <meta property="og:image" content="https://axiomhub.eu/assets/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Axiom Hub's">
+    <meta property="og:locale" content="fr_FR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= pageTitle %>">
+    <meta name="twitter:description" content="<%= pageDescription %>">
+    <meta name="twitter:image" content="https://axiomhub.eu/assets/preview.png">
+
+    <!-- Discord Embed -->
+    <meta property="og:image:alt" content="Axiom Hub's - Premium Roblox Scripts">
+    <meta name="theme-color" content="#667eea">
+
+    <!-- LinkedIn -->
+    <meta property="og:image:type" content="image/png">
+
+    <!-- Telegram -->
+    <meta property="telegram:image" content="https://axiomhub.eu/assets/preview.png">
+
+    <!-- WhatsApp -->
+    <meta property="og:image:secure_url" content="https://axiomhub.eu/assets/preview.png">
+
+    <!-- Google Site Verification -->
+    <meta name="google-site-verification" content="rgZLRcvGuFC89cqwOEQDuQml19I0lL0suVFTiipaz9Y" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HP4RZ18RKB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-HP4RZ18RKB');
+    </script>
+
+    <!-- Additional Meta Tags -->
+    <% if (additionalMeta.length> 0) { %>
+        <% additionalMeta.forEach(function(meta) { %>
+            <meta <%=meta %>>
+            <% }); %>
+                <% } %>
+
+                    <!-- Stylesheets -->
+                    <link rel="stylesheet" href="/css/styles.css">
+                    <% if (additionalCSS.length> 0) { %>
+                        <% additionalCSS.forEach(function(css) { %>
+                            <link rel="stylesheet" href="<%= css %>">
+                            <% }); %>
+                                <% } %>
+
+                                    <!-- Analytics Tracker (loaded early) -->
+                                    <script src="/js/analytics-tracker.js" defer></script>

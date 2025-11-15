@@ -2,17 +2,17 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <title>Cookie Policy & GDPR Compliance — Axiom Hub's</title>
-    <base href="/">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/x-icon" href="/assets/axioms.ico">
-    <meta name="description" content="Complete Cookie Policy and GDPR Compliance Information">
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/css/cookie-policy.css">
+    <%- include('partials/head', { title: 'Cookie Policy & GDPR Compliance — Axiom Hub\' s',
+        description: 'Complete Cookie Policy and GDPR Compliance Information' , extraCSS: ['/css/cookie-policy.css'] })
+        %>
 </head>
 
 <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P73HFGSV" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
     <%- include('partials/navbar') %>
 
         <main class="policy-section">

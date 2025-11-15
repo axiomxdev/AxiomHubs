@@ -2,17 +2,16 @@
 <html lang="fr">
 
 <head>
-    <meta charset="utf-8">
-    <title>Dashboard — Axiom Hub's</title>
-    <base href="/">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/x-icon" href="/assets/axioms.ico">
-    <meta name="description" content="Dashboard - Axiom Hub's">
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/css/dashboard.css">
+    <%- include('partials/head', { title: 'Dashboard — Axiom Hub\' s', description: 'Dashboard - Axiom Hub\' s',
+        extraCSS: ['/css/dashboard.css'] }) %>
 </head>
 
 <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P73HFGSV" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
     <%- include('partials/navbar') %>
 
         <main class="dashboard-section">
