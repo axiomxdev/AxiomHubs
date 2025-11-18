@@ -562,25 +562,25 @@ function scripting()
     end
 
     local function FuncAutoFarmW2()
-
-        local level = tonumber(Level.Text and Level.Text:gsub(',', '') or nil)
-
-        if level then
-            for i = QuestToFarmW2, #PowerRequierd do
-                if PowerRequierd[i].Value <= level then
-                    QuestToFarmW2 = i
-                else
-                    break
-                end
-            end
-        end
-
-        if QuestToFarmW2 >= 21 then
-            QuestToFarmW2 = 21
-        end
-
         while getgenv().AutoFarmW2 do
             task.wait()
+            
+            -- Recalculer QuestToFarmW2 en fonction du niveau actuel
+            local level = tonumber(Level.Text and Level.Text:gsub(',', '') or nil)
+            
+            if level then
+                for i = 1, #PowerRequierd do
+                    if PowerRequierd[i].Value <= level then
+                        QuestToFarmW2 = i
+                    else
+                        break
+                    end
+                end
+            end
+
+            if QuestToFarmW2 >= 21 then
+                QuestToFarmW2 = 21
+            end
             
             local args = {
                 [1] = "Authority",
@@ -588,48 +588,64 @@ function scripting()
             }
             UpgradeAscendantStat:FireServer(unpack(args))
 
-            for i = QuestToFarmW2, #PowerRequierd do
+            for i = QuestToFarmW2, 21 do
 
-                if QuestToFarmW2 >= 21 or i >= 21 then
-                    QuestToFarmW2 = 21
-                    i             = 21
-                end
+                level = tonumber(Level.Text and Level.Text:gsub(',', '') or nil)
 
-                local level = tonumber(Level.Text and Level.Text:gsub(',', '') or nil)
-
-                if not getgenv().AutoFarmW2 and getgenv().AutoSuperRebirth then
+                if not getgenv().AutoFarmW2 then
                     break
                 end
                 
                 print(i)
                 print(QuestObjectifW2[i].name)
 
+                -- Vérifier si le boss est disponible
+                local bossAvailable = true
                 if RespawnTimes:FindFirstChild(QuestObjectifW2[i].name) then
                     local text = RespawnTimes[QuestObjectifW2[i].name].TextLabel.Text
                     if (text ~= ' 5:00' and text ~= ' 0:00') then
-                        QuestToFarmW2 = i - 1
-                        break
+                        bossAvailable = false
+                        print("Boss " .. QuestObjectifW2[i].name .. " not available, trying lower quest")
                     end
                 end
 
                 local v = PowerRequierd[i]
 
-                if level and v.Value <= level then
-                    QuestToFarmW2 = i
-                    print('a')
-                    handleAutoFarm(i, true)
-                    task.wait()
-                else
-                    print('b')
+                -- Si le boss n'est pas disponible OU le niveau est insuffisant
+                if not bossAvailable or not level or v.Value > level then
+                    print('Boss unavailable or level too low, searching for available quest')
+                    -- Chercher une quête inférieure disponible
+                    local foundQuest = false
                     for j = i - 1, 1, -1 do
-                        if PowerRequierd[j].Value <= level then
+                        local questAvailable = true
+                        if RespawnTimes:FindFirstChild(QuestObjectifW2[j].name) then
+                            local questText = RespawnTimes[QuestObjectifW2[j].name].TextLabel.Text
+                            if (questText ~= ' 5:00' and questText ~= ' 0:00') then
+                                questAvailable = false
+                            end
+                        end
+                        
+                        if questAvailable and PowerRequierd[j].Value <= level then
                             QuestToFarmW2 = j
+                            print('Found available quest: ' .. j .. ' - ' .. QuestObjectifW2[j].name)
                             handleAutoFarm(j, true)
+                            foundQuest = true
                             task.wait()
                             break
                         end
                     end
+                    
+                    if not foundQuest then
+                        print('No available quest found, waiting...')
+                        task.wait(5)
+                    end
                     break
+                else
+                    -- Boss disponible et niveau suffisant
+                    QuestToFarmW2 = i
+                    print('Farming quest: ' .. i)
+                    handleAutoFarm(i, true)
+                    task.wait()
                 end
                 task.wait()
             end
