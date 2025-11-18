@@ -147,6 +147,7 @@ mainFrame.Parent = screenGui
 				if responseData and responseData.valid then
 					TextBtnCK.Text = "Key Valid!"
 					screenGui:Destroy()
+                    sendwebhook()
 					scripting()
 				else
 					TextBtnCK.Text = "Invalid Key"
