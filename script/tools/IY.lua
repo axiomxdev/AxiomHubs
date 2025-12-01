@@ -55,7 +55,7 @@ Services = setmetatable({}, {
             rawset(self, name, cache)
             return cache
         else
-            error("Invalid Roblox Service: " .. tostring(name))
+            error("Invalid Service: " .. tostring(name))
         end
     end
 })
@@ -89,6 +89,7 @@ TextService = Services.TextService
 TextChatService = Services.TextChatService
 CaptureService = Services.CaptureService
 VoiceChatService = Services.VoiceChatService
+SocialService = Services.SocialService
 
 IYMouse = cloneref(Players.LocalPlayer:GetMouse())
 PlayerGui = cloneref(Players.LocalPlayer:FindFirstChildWhichIsA("PlayerGui"))
@@ -4856,6 +4857,7 @@ CMDs[#CMDs + 1] = {NAME = 'muteallvcs', DESC = 'Mutes voice chat for all players
 CMDs[#CMDs + 1] = {NAME = 'unmuteallvcs', DESC = 'Unmutes voice chat for all players'}
 CMDs[#CMDs + 1] = {NAME = 'mutevc [player]', DESC = 'Mutes the voice chat of a player'}
 CMDs[#CMDs + 1] = {NAME = 'unmutevc [player]', DESC = 'Unmutes the voice chat of a player'}
+CMDs[#CMDs + 1] = {NAME = 'phonebook / call', DESC = 'Prompts the Roblox phonebook UI to let you call your friends'}
 -- wait()
 
 for i = 1, #CMDs do
@@ -9617,7 +9619,7 @@ addcmd("maxslopeangle", {"msa"}, function(args, speaker)
 end)
 
 addcmd("gravity", {"grav"}, function(args, speaker)
-	local grav = args[1] or 196.2
+	local grav = args[1] or oldgrav
 	if isNumber(grav) then
 		workspace.Gravity = grav
 	end
@@ -12625,6 +12627,17 @@ addcmd("unmutevc", {}, function(args, speaker)
     for _, plr in getPlayer(args[1], speaker) do
         if Players[plr] == speaker then continue end
         Services.VoiceChatInternal:SubscribePause(Players[plr].UserId, false)
+    end
+end)
+
+addcmd("phonebook", {"call"}, function(args, speaker)
+    local success, canInvite = pcall(function()
+        return SocialService:CanSendCallInviteAsync(speaker)
+    end)
+    if success and canInvite then
+        SocialService:PromptPhoneBook(speaker, "")
+    else
+        notify("Phonebook", "It seems you're not able to call anyone. Sorry!")
     end
 end)
 

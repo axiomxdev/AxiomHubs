@@ -1,6 +1,45 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local HttpService = game:GetService("HttpService")
+
+local folderName = "Axiom'sHub"
+local fileName = "key.txt"
+local filePath = folderName .. "/" .. fileName
+
+local function validateKey(key)
+    local success, result = pcall(function()
+        return request({
+            Url = "https://axiomhub.eu/api/check-key?key=" .. key .. "&userId=" .. LocalPlayer.UserId,
+            Method = "GET"
+        })
+    end)
+
+    if success and result and result.Body then
+        local decodeSuccess, responseData = pcall(function()
+            return HttpService:JSONDecode(result.Body)
+        end)
+        
+        if decodeSuccess and responseData and responseData.valid then
+            return true
+        end
+    end
+    return false
+end
+
+if isfolder and makefolder and isfile and readfile and writefile then
+    if not isfolder(folderName) then
+        makefolder(folderName)
+    end
+    
+    if isfile(filePath) then
+        local savedKey = readfile(filePath)
+        if validateKey(savedKey) then
+            scripting()
+            return
+        end
+    end
+end
 
 local UIStroke = Instance.new("UIStroke")
 UIStroke.Thickness = 3
@@ -130,24 +169,17 @@ mainFrame.Parent = screenGui
 		TextBtnCK.Text = "Checking key . . ."
 		local keyValue = KeyInput.Text
 		if keyValue ~= "" then
-			local result = request({
-				Url = "http://localhost:3000/api/check-key?key=" .. keyValue .. "&userId=" .. LocalPlayer.UserId,
-				Method = "GET"
-			}).Body
-			
-			if result then
-				local responseData = game:GetService("HttpService"):JSONDecode(result)
-				
-				if responseData and responseData.valid then
-					TextBtnCK.Text = "Key Valid!"
-					screenGui:Destroy()
-					scripting()
-				else
-					TextBtnCK.Text = "Invalid Key"
-				end
+			if validateKey(keyValue) then
+                -- Sauvegarde de la clé valide
+                if writefile then
+                    writefile(filePath, keyValue)
+                end
+
+				TextBtnCK.Text = "Key Valid!"
+				screenGui:Destroy()
+				scripting()
 			else
-				TextBtnCK.Text = "Connection Error"
-				print("Error:", result)
+				TextBtnCK.Text = "Invalid Key"
 			end
 			
 			wait(2)

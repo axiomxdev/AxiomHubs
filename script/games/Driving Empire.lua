@@ -249,31 +249,7 @@ function scripting()
     local humanoid                  = character:WaitForChild("Humanoid")
     local humanoidRootPart          = character:WaitForChild("HumanoidRootPart")
 
-	-- check getgc availability ======================================================================
-    local Main
-    if getgc then
-        for _, v in pairs(getgc(true)) do
-            if typeof(v) == "table" and rawget(v, "DataManager") then
-                Main = v
-                break
-            end
-        end
-    end
-
-    if not Main then
-        player:Kick("Your exploit does not support getgc(). Find an exploit that does.")
-    end
-
-	function FuncAutoFarm()
-		while getgenv().AutoFarm do
-			if Main.DataManager.currentChunk.regionData.Grass then
-				Main.Battle.doWildBattle(Main.Battle, Main.DataManager.currentChunk.regionData.Grass, {})
-			end
-			wait(0.1)
-		end
-	end	
-
-	-- UI Material Create ============================================================================
+    -- UI Material Create ============================================================================
     local UI = Material.Load({
         Title = " Axiom's Hub | " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name,
         Style = 1,
@@ -286,17 +262,7 @@ function scripting()
         Title = "AutoFarm"
     })
 
-	local AutoTrainStart = AutoFarmPageW1.Toggle({
-        Text = "AutoFarm Mobs current area",
-        Callback = function(value)
-            getgenv().AutoFarm = value
-            if value then
-                spawn(function() FuncAutoFarm() end)
-            end
-        end
-    })
-
-	local Misc = UI.New({
+    local Misc = UI.New({
         Title = "Misc"
     })
 
@@ -342,7 +308,20 @@ function scripting()
         Text = " 🎮 Anti AFK",
         Callback = function()
             local success, result = pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/NoTwistedHere/Roblox/main/AntiAFK.lua"))()
+                if getconnections then
+                    for _, connection in pairs(getconnections(speaker.Idled)) do
+                        if connection["Disable"] then
+                            connection["Disable"](connection)
+                        elseif connection["Disconnect"] then
+                            connection["Disconnect"](connection)
+                        end
+                    end
+                else
+                    speaker.Idled:Connect(function()
+                        Services.VirtualUser:CaptureController()
+                        Services.VirtualUser:ClickButton2(Vector2.new())
+                    end)
+                end
             end)
             if not success then
                 UI.Banner({
