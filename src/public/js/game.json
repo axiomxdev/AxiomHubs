@@ -9,5 +9,12 @@
             "AutoTrain: Continuously trains your character to gain stats.",
             "Anti-AFK: Keeps you active to avoid being kicked."
         ]
+    },
+    {
+        "placeId": 3351674303,
+        "name": "Driving Empire",
+        "features": [
+            "AutoFarm Money"
+        ]
     }
 ]
