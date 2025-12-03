@@ -342,7 +342,20 @@ function scripting()
         Text = " 🎮 Anti AFK",
         Callback = function()
             local success, result = pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/NoTwistedHere/Roblox/main/AntiAFK.lua"))()
+                if getconnections then
+                    for _, connection in pairs(getconnections(speaker.Idled)) do
+                        if connection["Disable"] then
+                            connection["Disable"](connection)
+                        elseif connection["Disconnect"] then
+                            connection["Disconnect"](connection)
+                        end
+                    end
+                else
+                    speaker.Idled:Connect(function()
+                        Services.VirtualUser:CaptureController()
+                        Services.VirtualUser:ClickButton2(Vector2.new())
+                    end)
+                end
             end)
             if not success then
                 UI.Banner({

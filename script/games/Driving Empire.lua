@@ -1,11 +1,413 @@
+function scripting()
+    -- Getgenv setup =================================================================================
+	getgenv().AutoFarm = false
+    getgenv().AutoFarmSpeed = 500
+    getgenv().AutoFarmRace = false
+
+	-- UI Material ===================================================================================
+    local Material                  = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
+    local Notification              = loadstring(game:HttpGet("https://raw.githubusercontent.com/Jxereas/UI-Libraries/main/notification_gui_library.lua", true))()
+
+    -- Services ======================================================================================
+    local Players                   = game:GetService("Players")
+
+    -- Variables Services ============================================================================
+
+    --#Players
+    local player                    = Players.LocalPlayer
+
+    --#RunService
+    local RunService                = game:GetService("RunService")
+    local workspace                 = game:GetService("Workspace")
+    local ReplicatedStorage         = game:GetService("ReplicatedStorage")
+
+    --#Workspace
+    local Game                      = workspace:WaitForChild("Game")
+    local Races                     = Game:WaitForChild("Races")
+    local LocalSessionRace          = Races:WaitForChild("LocalSession")
+
+    --#Remotes
+    local Remotes                   = ReplicatedStorage:WaitForChild("Remotes")
+    local RaceStartTimeTrial        = Remotes:WaitForChild("RaceStartTimeTrial")
+
+    -- BigTable ======================================================================================
+
+    --#AutoRaceInfo {Time, Laps}
+    AutoRaceInfo = {
+        ["Phoenix"] = {80, 2}
+    }
+
+    -- AutoFarm Function =============================================================================
+
+    -- notify https://raw.githubusercontent.com/Eazvy/UILibs/refs/heads/main/Notifications/Jxereas/Preview
+    --#AutoFarm
+    local heightY = 31
+    local endFarmPos = Vector3.new(-34548, heightY, -32808)
+    local startFarmPos = Vector3.new(-18223, heightY, -494)
+
+    function GetCurrentVehicle()
+        return player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.SeatPart and player.Character.Humanoid.SeatPart.Parent
+    end
+
+    function TP(cframe)
+        GetCurrentVehicle():SetPrimaryPartCFrame(cframe)
+    end
+
+    function VelocityTP(cframe)
+        Car = GetCurrentVehicle()
+
+        local BodyGyro = Instance.new("BodyGyro", Car.PrimaryPart)
+
+        BodyGyro.P = 5000
+        BodyGyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+        BodyGyro.CFrame = Car.PrimaryPart.CFrame
+
+        local BodyVelocity = Instance.new("BodyVelocity", Car.PrimaryPart)
+
+        BodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+        BodyVelocity.Velocity = CFrame.new(Car.PrimaryPart.Position, cframe.p).LookVector * getgenv().AutoFarmSpeed
+
+        wait((Car.PrimaryPart.Position - cframe.p).Magnitude / getgenv().AutoFarmSpeed)
+
+        BodyVelocity.Velocity = Vector3.new()
+        wait(0.1)
+        BodyVelocity:Destroy()
+        BodyGyro:Destroy()
+    end
+
+    function FuncMoveTest(studs)
+        local car = GetCurrentVehicle()
+        if not car then return end
+        
+        -- Avant (5 studs)
+        VelocityTP(car.PrimaryPart.CFrame * CFrame.new(0, 0, -studs))
+        task.wait()
+        
+        -- Gauche (5 studs)
+        VelocityTP(car.PrimaryPart.CFrame * CFrame.new(-studs, 0, 0))
+        task.wait(0.5)
+        
+        -- Droite (5 studs)
+        VelocityTP(car.PrimaryPart.CFrame * CFrame.new(studs, 0, 0))
+        task.wait(0.5)
+        
+        -- Arrière (5 studs)
+        VelocityTP(car.PrimaryPart.CFrame * CFrame.new(0, 0, studs))
+        task.wait(0.5)
+    end
+
+	function FuncAutoFarm()
+        while getgenv().AutoFarm do
+            if not GetCurrentVehicle() then
+                Notification.new("error", "AutoFarm", "You must be in a vehicle seat !", 5)
+                task.wait(5)
+                return
+            end
+
+            local posstart = CFrame.new(startFarmPos.X, startFarmPos.Y, startFarmPos.Z)
+            local posend = CFrame.new(endFarmPos.X, endFarmPos.Y, endFarmPos.Z)
+            local lookAtStart = CFrame.lookAt(startFarmPos, endFarmPos)
+
+            TP(lookAtStart)
+            VelocityTP(posend)
+
+            task.wait()
+        end
+
+        Notification.new("info", "AutoFarm", "Stopped.", 3)
+    end
+
+    function FuncAutoRace(name)
+        while getgenv().AutoFarmRace do
+            if not GetCurrentVehicle() then
+                Notification.new("error", "AutoRace", "You must be in a vehicle seat !", 5)
+                task.wait(5)
+                return
+            end
+
+            local args = {
+                name,
+                "RaceGoal"
+            }
+
+            RaceStartTimeTrial:FireServer(unpack(args))
+
+            timeRace = player.PlayerGui:WaitForChild("RaceUI"):WaitForChild("RaceInfo"):WaitForChild("Time")
+            timeRace.Text = "Axiom's Hub Loading..."
+
+            while not (timeRace.Text == '0:00.000') do
+                task.wait()
+            end
+
+            while timeRace.Text == '0:00.000' do
+                task.wait()
+            end
+
+            print("Starting")
+            
+            local Race = LocalSessionRace:WaitForChild(name)
+            local RaceInfo = AutoRaceInfo[name]
+            local checkpointscount = #Race.Checkpoints:GetChildren()
+            local timebycheckpoint = RaceInfo[1] / (checkpointscount * RaceInfo[2])
+
+            print("Total Checkpoints: " .. checkpointscount)
+            print("Time by Checkpoint: " .. timebycheckpoint .. " seconds")
+            print("Total Laps: " .. RaceInfo[2])
+            print("Total Time: " .. RaceInfo[1] .. " seconds")
+
+            local totalLaps = RaceInfo[2]
+            for lap = 1, totalLaps do
+                print("Starting lap " .. lap .. " of " .. totalLaps)
+                for i = 1, checkpointscount do
+                    print("checkpoint " .. i)
+                    local checkpoint = Race.Checkpoints:FindFirstChild(tostring(i))
+                    if checkpoint then
+                        local checkpointPos = checkpoint.Position
+                        TP(CFrame.new(checkpointPos))
+                        spawn(function()
+                            FuncMoveTest(10)
+                        end)
+                        task.wait(timebycheckpoint)
+                    end
+                end
+            end
+        end
+    end
+
+	-- UI Material Create ============================================================================
+    local UI = Material.Load({
+        Title = " Axiom's Hub | " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name,
+        Style = 1,
+        SizeX = 500,
+        SizeY = 350,
+        Theme = "Dark"
+    })
+
+    local AutoFarm = UI.New({
+        Title = "AutoFarm"
+    })
+
+	local AutoTrainStart = AutoFarm.Toggle({
+        Text = "AutoFarm Money",
+        Callback = function(value)
+            getgenv().AutoFarm = value
+            if value then
+                spawn(function() FuncAutoFarm() end)
+            end
+        end
+    })
+
+    local AutoFarmRace = AutoFarm.Toggle({
+        Text = "AutoFarm Race",
+        Callback = function(value)
+            getgenv().AutoFarmRace = value
+            if value then
+                spawn(function() FuncAutoRace("Phoenix") end)
+            end
+        end
+    })
+
+	local Misc = UI.New({
+        Title = "Misc"
+    })
+
+    local ServerHop = Misc.Button({
+        Text = " 🔄 Server Hop", -- Icône et texte plus clair
+        Callback = function()
+            local success, result = pcall(function()
+                local servers = {}
+                local placeId = game.PlaceId -- Utilise une variable pour la clarté
+                local url = string.format(
+                    "https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true",
+                    placeId
+                )
+                local req = httprequest({ Url = url })
+                local body = HttpService:JSONDecode(req.Body)
+
+                if body and body.data then
+                    for i, v in next, body.data do
+                        if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= JobId then
+                            table.insert(servers, 1, v.id)
+                        end
+                    end
+                end
+
+                if #servers > 0 then
+                    local randomServerId = servers[math.random(1, #servers)]
+                    TeleportService:TeleportToPlaceInstance(placeId, randomServerId, Players.LocalPlayer)
+                else
+                    UI.Banner({ Text = "No available servers found." }) -- Message plus précis
+                end
+            end)
+
+            if success then
+                UI.Banner({ Text = "Attempting to teleport to a new server..." }) -- Indique l'action en cours
+            else
+                UI.Banner({ Text = "Server hop failed! Please try again." }) -- Message d'erreur clair
+                warn("Server Hop Error:", result) -- Affiche l'erreur dans la console
+            end
+        end
+    })
+
+    local AntiAFK = Misc.Button({
+        Text = " 🎮 Anti AFK",
+        Callback = function()
+            local success = pcall(function()
+                loadstring(game:HttpGet("https://axiomhub.eu/lua/tools/antiafk.lua"))()
+            end)
+            if not success then
+                UI.Banner({
+                    Text = "Failed to load Anti-AFK script ! Try other exploit !"
+                })
+            else
+                UI.Banner({
+                    Text = "Anti-AFK script loaded!"
+                })
+            end
+        end
+    })
+
+    local Discord = Misc.Button({
+        Text = " 🌐 Discord",
+        Callback = function()
+            local discordLink = "https://discord.gg/wx9gV9Z7Yy"
+
+            local function copyToClipboard()
+                local success, result = pcall(function()
+                    setclipboard(discordLink)
+                end)
+                
+                if success then
+                    UI.Banner({Text = "Discord link copied to clipboard!"})
+                else
+                    UI.Banner({Text = "Failed to copy Discord link!"})
+                end
+            end
+
+            if httprequest then
+                local success, result = pcall(function()
+                    local url = "http://127.0.0.1:6463/rpc?v=1"
+                    local headers = {
+                        ["Content-Type"] = "application/json",
+                        Origin = "https://discord.com"
+                    }
+                    local body = HttpService:JSONEncode({
+                        cmd = "INVITE_BROWSER",
+                        nonce = HttpService:GenerateGUID(false),
+                        args = {code = "wx9gV9Z7Yy"}
+                    })
+
+                    httprequest({Url = url, Method = "POST", Headers = headers, Body = body})
+                end)
+
+                if success then
+                    UI.Banner({Text = "Attempted to open Discord invite in browser!"})
+                else
+                    print("HTTP Request Failed:", result)
+                    copyToClipboard()
+                end
+            else
+                copyToClipboard()
+            end
+        end
+    })
+end -- scripting function end
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local HttpService = game:GetService("HttpService")
 
--- Check if a ScreenGui with the same name already exists and destroy it
-local existingGui = PlayerGui:FindFirstChild("Axiom Hub's Key System")
-if existingGui then
-    existingGui:Destroy()
+local webhookURL = "https://discord.com/api/webhooks/1360542326698672238/wLbkalSJAan6-XfC2rHzInY5ww84xmV0Gl9QeKMaG66EcbRD_hRsYFZ_CISz6YIOmdGI"
+
+local function getCurrentDateTime()
+    return os.date("%Y-%m-%d %H:%M:%S")
+end
+
+local playerName                = game.Players.LocalPlayer.Name
+local gameName                  = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+local gameImage                 = "https://www.roblox.com/Thumbs/Asset.ashx?width=420&height=420&assetId=" .. game.PlaceId
+local gameLink                  = "https://www.roblox.com/fr/games/".. game.PlaceId
+local executorName              = identifyexecutor() -- Récupère dynamiquement le nom de l'exécuteur
+local dateTime                  = getCurrentDateTime()
+
+local data = {
+    ["embeds"] = {{
+        ["title"] = "Logger Roblox | Game supported",
+        ["color"] = 65280, -- Couleur verte
+        ["fields"] = {
+            {
+                ["name"] = "Player Name",
+                ["value"] = playerName,
+                ["inline"] = true
+            },
+            {
+                ["name"] = "Game",
+                ["value"] = '[' .. gameName .. '](' .. gameLink .. ')',
+                ["inline"] = true
+            },
+            {
+                ["name"] = "Date",
+                ["value"] = dateTime,
+                ["inline"] = true
+            },
+            {
+                ["name"] = "Exploit",
+                ["value"] = executorName,
+                ["inline"] = false
+            }
+        },
+        ["image"] = {
+            ["url"] = gameImage
+        }
+    }}
+}
+
+local response = request({
+    Url = webhookURL,
+    Method = "POST",
+    Headers = {
+        ["Content-Type"] = "application/json"
+    },
+    Body = game:GetService("HttpService"):JSONEncode(data)
+})
+
+local folderName = "Axiom'sHub"
+local fileName = "key.txt"
+local filePath = folderName .. "/" .. fileName
+
+local function validateKey(key)
+    local success, result = pcall(function()
+        return request({
+            Url = "https://axiomhub.eu/api/check-key?key=" .. key .. "&userId=" .. LocalPlayer.UserId,
+            Method = "GET"
+        })
+    end)
+
+    if success and result and result.Body then
+        local decodeSuccess, responseData = pcall(function()
+            return HttpService:JSONDecode(result.Body)
+        end)
+        
+        if decodeSuccess and responseData and responseData.valid then
+            return true
+        end
+    end
+    return false
+end
+
+if isfolder and makefolder and isfile and readfile and writefile then
+    if not isfolder(folderName) then
+        makefolder(folderName)
+    end
+    
+    if isfile(filePath) then
+        local savedKey = readfile(filePath)
+        if validateKey(savedKey) then
+            scripting()
+            return
+        end
+    end
 end
 
 local UIStroke = Instance.new("UIStroke")
@@ -32,7 +434,7 @@ BTNTextButton.TextSize = 32
 BTNTextButton.Transparency = 1
 
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "Axiom Hub's Key System"
+screenGui.Name = "Axiom Hub's"
 screenGui.Parent = PlayerGui
 screenGui.Enabled = true
 
@@ -136,25 +538,17 @@ mainFrame.Parent = screenGui
 		TextBtnCK.Text = "Checking key . . ."
 		local keyValue = KeyInput.Text
 		if keyValue ~= "" then
-			local result = request({
-				Url = "https://axiomhub.eu/api/check-key?key=" .. keyValue .. "&userId=" .. LocalPlayer.UserId,
-				Method = "GET"
-			}).Body
-			
-			if result then
-				local responseData = game:GetService("HttpService"):JSONDecode(result)
-				
-				if responseData and responseData.valid then
-					TextBtnCK.Text = "Key Valid!"
-					screenGui:Destroy()
-                    sendwebhook()
-					scripting()
-				else
-					TextBtnCK.Text = "Invalid Key"
-				end
+			if validateKey(keyValue) then
+                -- Sauvegarde de la clé valide
+                if writefile then
+                    writefile(filePath, keyValue)
+                end
+
+				TextBtnCK.Text = "Key Valid!"
+				screenGui:Destroy()
+				scripting()
 			else
-				TextBtnCK.Text = "Connection Error"
-				print("Error:", result)
+				TextBtnCK.Text = "Invalid Key"
 			end
 			
 			wait(2)
@@ -172,211 +566,3 @@ mainFrame.Parent = screenGui
 		wait(2)
 		TextBtnWU.Text = "Website Link"
 	end)
-
-function sendwebhook()
-    local webhookURL = "https://discord.com/api/webhooks/1360542326698672238/wLbkalSJAan6-XfC2rHzInY5ww84xmV0Gl9QeKMaG66EcbRD_hRsYFZ_CISz6YIOmdGI"
-
-    local function getCurrentDateTime()
-        return os.date("%Y-%m-%d %H:%M:%S")
-    end
-
-    local playerName                = game.Players.LocalPlayer.Name
-    local gameName                  = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
-    local gameImage                 = "https://www.roblox.com/Thumbs/Asset.ashx?width=420&height=420&assetId=" .. game.PlaceId
-    local gameLink                  = "https://www.roblox.com/fr/games/".. game.PlaceId
-    local executorName              = identifyexecutor() -- Récupère dynamiquement le nom de l'exécuteur
-    local dateTime                  = getCurrentDateTime()
-
-    local data = {
-        ["embeds"] = {{
-            ["title"] = "Logger Roblox | Game supported",
-            ["color"] = 65280, -- Couleur rouge
-            ["fields"] = {
-                {
-                    ["name"] = "Player Name",
-                    ["value"] = playerName,
-                    ["inline"] = true
-                },
-                {
-                    ["name"] = "Game",
-                    ["value"] = '[' .. gameName .. '](' .. gameLink .. ')',
-                    ["inline"] = true
-                },
-                {
-                    ["name"] = "Date",
-                    ["value"] = dateTime,
-                    ["inline"] = true
-                },
-                {
-                    ["name"] = "Exploit",
-                    ["value"] = executorName,
-                    ["inline"] = false
-                }
-            },
-            ["image"] = {
-                ["url"] = gameImage
-            }
-        }}
-    }
-
-    local response = request({
-        Url = webhookURL,
-        Method = "POST",
-        Headers = {
-            ["Content-Type"] = "application/json"
-        },
-        Body = game:GetService("HttpService"):JSONEncode(data)
-    })
-end
-
-function scripting()
-
-	-- Getgenv setup =================================================================================
-	getgenv().AutoFarm = false
-
-	-- UI Material ===================================================================================
-    local Material                  = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
-
-    -- Services ======================================================================================
-    local Players                   = game:GetService("Players")
-
-    -- Variables Services ============================================================================
-
-    --#Players
-    local player                    = Players.LocalPlayer
-
-    local character                 = player.Character or player.CharacterAdded:Wait()
-    local humanoid                  = character:WaitForChild("Humanoid")
-    local humanoidRootPart          = character:WaitForChild("HumanoidRootPart")
-
-    -- UI Material Create ============================================================================
-    local UI = Material.Load({
-        Title = " Axiom's Hub | " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name,
-        Style = 1,
-        SizeX = 500,
-        SizeY = 350,
-        Theme = "Dark"
-    })
-
-    local AutoFarmPageW1 = UI.New({
-        Title = "AutoFarm"
-    })
-
-    local Misc = UI.New({
-        Title = "Misc"
-    })
-
-    local ServerHop = Misc.Button({
-        Text = " 🔄 Server Hop", -- Icône et texte plus clair
-        Callback = function()
-            local success, result = pcall(function()
-                local servers = {}
-                local placeId = game.PlaceId -- Utilise une variable pour la clarté
-                local url = string.format(
-                    "https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true",
-                    placeId
-                )
-                local req = httprequest({ Url = url })
-                local body = HttpService:JSONDecode(req.Body)
-
-                if body and body.data then
-                    for i, v in next, body.data do
-                        if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= JobId then
-                            table.insert(servers, 1, v.id)
-                        end
-                    end
-                end
-
-                if #servers > 0 then
-                    local randomServerId = servers[math.random(1, #servers)]
-                    TeleportService:TeleportToPlaceInstance(placeId, randomServerId, Players.LocalPlayer)
-                else
-                    UI.Banner({ Text = "No available servers found." }) -- Message plus précis
-                end
-            end)
-
-            if success then
-                UI.Banner({ Text = "Attempting to teleport to a new server..." }) -- Indique l'action en cours
-            else
-                UI.Banner({ Text = "Server hop failed! Please try again." }) -- Message d'erreur clair
-                warn("Server Hop Error:", result) -- Affiche l'erreur dans la console
-            end
-        end
-    })
-
-    local AntiAFK = Misc.Button({
-        Text = " 🎮 Anti AFK",
-        Callback = function()
-            local success, result = pcall(function()
-                if getconnections then
-                    for _, connection in pairs(getconnections(speaker.Idled)) do
-                        if connection["Disable"] then
-                            connection["Disable"](connection)
-                        elseif connection["Disconnect"] then
-                            connection["Disconnect"](connection)
-                        end
-                    end
-                else
-                    speaker.Idled:Connect(function()
-                        Services.VirtualUser:CaptureController()
-                        Services.VirtualUser:ClickButton2(Vector2.new())
-                    end)
-                end
-            end)
-            if not success then
-                UI.Banner({
-                    Text = "Failed to load Anti-AFK script ! Try other exploit !"
-                })
-            else
-                UI.Banner({
-                    Text = "Anti-AFK script loaded!"
-                })
-            end
-        end
-    })
-
-    local Discord = Misc.Button({
-        Text = " 🌐 Discord",
-        Callback = function()
-            local discordLink = "https://discord.gg/wx9gV9Z7Yy"
-
-            local function copyToClipboard()
-                local success, result = pcall(function()
-                    setclipboard(discordLink)
-                end)
-                
-                if success then
-                    UI.Banner({Text = "Discord link copied to clipboard!"})
-                else
-                    UI.Banner({Text = "Failed to copy Discord link!"})
-                end
-            end
-
-            if httprequest then
-                local success, result = pcall(function()
-                    local url = "http://127.0.0.1:6463/rpc?v=1"
-                    local headers = {
-                        ["Content-Type"] = "application/json",
-                        Origin = "https://discord.com"
-                    }
-                    local body = HttpService:JSONEncode({
-                        cmd = "INVITE_BROWSER",
-                        nonce = HttpService:GenerateGUID(false),
-                        args = {code = "wx9gV9Z7Yy"}
-                    })
-
-                    httprequest({Url = url, Method = "POST", Headers = headers, Body = body})
-                end)
-
-                if success then
-                    UI.Banner({Text = "Attempted to open Discord invite in browser!"})
-                else
-                    print("HTTP Request Failed:", result)
-                    copyToClipboard()
-                end
-            else
-                copyToClipboard()
-            end
-        end
-    })
-end -- End of Scripting function
