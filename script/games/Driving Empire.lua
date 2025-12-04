@@ -6,7 +6,7 @@ function scripting()
 
 	-- UI Material ===================================================================================
     local Material                  = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
-    local Notification              = loadstring(game:HttpGet("https://axiomhub.eu/lua/libs/notify.lua"))()
+    local Notification              = loadstring(game:HttpGet("https://axiomhub.eu/lua/tools/notify.lua"))()
     local Notification = {
         new = function(msgType, title, text, duration)
             game:GetService("StarterGui"):SetCore("SendNotification", {
