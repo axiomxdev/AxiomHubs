@@ -7,15 +7,6 @@ function scripting()
 	-- UI Material ===================================================================================
     local Material                  = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
     local Notification              = loadstring(game:HttpGet("https://axiomhub.eu/lua/tools/notify.lua"))()
-    local Notification = {
-        new = function(msgType, title, text, duration)
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = title,
-                Text = text,
-                Duration = duration or 5
-            })
-        end
-    }
 
     -- Services ======================================================================================
     local Players                   = game:GetService("Players")
@@ -44,7 +35,8 @@ function scripting()
 
     --#AutoRaceInfo {Time, Laps}
     AutoRaceInfo = {
-        ["Phoenix"] = {100, 2}
+        ["Phoenix"] = {100, 2},
+        ["Highway"] = {40 , 1}
     }
 
     -- AutoFarm Function =============================================================================
@@ -92,18 +84,6 @@ function scripting()
 
         local currentCFrame = car.PrimaryPart.CFrame
         
-        -- Avant (5 studs)
-        VelocityTP(currentCFrame * CFrame.new(0, 0, -studs), speed)
-        task.wait()
-        
-        -- Gauche (5 studs)
-        VelocityTP(currentCFrame * CFrame.new(-studs, 0, 0), speed)
-        task.wait()
-        
-        -- Droite (5 studs)
-        VelocityTP(currentCFrame * CFrame.new(studs, 0, 0), speed)
-        task.wait()
-        
         -- Arrière (5 studs)
         VelocityTP(currentCFrame * CFrame.new(0, 0, studs), speed)
         task.wait()
@@ -144,9 +124,12 @@ function scripting()
 
     function FuncAutoRace(name)
         while getgenv().AutoFarmRace do
+            print("[AutoRace] Checking vehicle...")
             if not GetCurrentVehicle() then
+                print("[AutoRace] No vehicle found, attempting to spawn...")
                 local vehiclelist = player.PlayerGui.VehicleInventoryHolder.Vehicles.Container.List:GetChildren()
                 local vehicleName = vehiclelist[#vehiclelist].Name
+                print("[AutoRace] Spawning vehicle:", vehicleName)
 
                 local args = {
                     "Spawn",
@@ -154,9 +137,17 @@ function scripting()
                 }
 
                 VehicleEvent:FireServer(unpack(args))
-                task.wait(2)
+                task.wait(1)
+                if not GetCurrentVehicle() then
+                    print("[AutoRace] Failed to spawn vehicle.")
+                    Notification.new("error", "AutoFarm", "Failed to spawn vehicle.", 3)
+                    getgenv().AutoFarm = false
+                    break
+                end
+                print("[AutoRace] Vehicle spawned successfully.")
             end
 
+            print("[AutoRace] Starting race:", name)
             local args = {
                 name,
                 "RaceGoal"
@@ -167,15 +158,15 @@ function scripting()
             local timeRace = player.PlayerGui:WaitForChild("RaceUI"):WaitForChild("RaceInfo"):WaitForChild("Time")
             timeRace.Text = "Axiom's Hub Loading..."
 
-            while not (timeRace.Text == '0:00.000') do
+            while not (timeRace.Text == '0:00.000' or timeRace.Text == '0.000s') do
                 task.wait()
             end
 
-            while timeRace.Text == '0:00.000' do
+            while timeRace.Text == '0:00.000' or timeRace.Text == '0.000s' do
                 task.wait()
             end
 
-            print("Starting")
+            print("[AutoRace] Race started!")
             
             local Race = LocalSessionRace:WaitForChild(name)
             local RaceInfo = AutoRaceInfo[name]
@@ -252,12 +243,26 @@ function scripting()
         end
     })
 
+    local RaceOptions = {}
+    for name, _ in pairs(AutoRaceInfo) do
+        table.insert(RaceOptions, name)
+    end
+    local SelectedRace = "Phoenix"
+
+    local RaceDropdown = AutoFarm.Dropdown({
+        Text = "Select Race",
+        Callback = function(value)
+            SelectedRace = value
+        end,
+        Options = RaceOptions
+    })
+
     local AutoFarmRace = AutoFarm.Toggle({
         Text = "AutoFarm Race",
         Callback = function(value)
             getgenv().AutoFarmRace = value
             if value then
-                spawn(function() FuncAutoRace("Phoenix") end)
+                spawn(function() FuncAutoRace(SelectedRace) end)
             end
         end
     })
