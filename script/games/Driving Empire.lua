@@ -6,7 +6,16 @@ function scripting()
 
 	-- UI Material ===================================================================================
     local Material                  = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
-    local Notification              = loadstring(game:HttpGet("https://raw.githubusercontent.com/Jxereas/UI-Libraries/main/notification_gui_library.lua", true))()
+    local Notification              = loadstring(game:HttpGet("https://axiomhub.eu/lua/libs/notify.lua"))()
+    local Notification = {
+        new = function(msgType, title, text, duration)
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = title,
+                Text = text,
+                Duration = duration or 5
+            })
+        end
+    }
 
     -- Services ======================================================================================
     local Players                   = game:GetService("Players")
@@ -29,12 +38,13 @@ function scripting()
     --#Remotes
     local Remotes                   = ReplicatedStorage:WaitForChild("Remotes")
     local RaceStartTimeTrial        = Remotes:WaitForChild("RaceStartTimeTrial")
+    local VehicleEvent              = Remotes:WaitForChild("VehicleEvent")
 
     -- BigTable ======================================================================================
 
     --#AutoRaceInfo {Time, Laps}
     AutoRaceInfo = {
-        ["Phoenix"] = {80, 2}
+        ["Phoenix"] = {100, 2}
     }
 
     -- AutoFarm Function =============================================================================
@@ -53,7 +63,8 @@ function scripting()
         GetCurrentVehicle():SetPrimaryPartCFrame(cframe)
     end
 
-    function VelocityTP(cframe)
+    function VelocityTP(cframe, speed)
+        speed = speed or getgenv().AutoFarmSpeed
         Car = GetCurrentVehicle()
 
         local BodyGyro = Instance.new("BodyGyro", Car.PrimaryPart)
@@ -65,9 +76,9 @@ function scripting()
         local BodyVelocity = Instance.new("BodyVelocity", Car.PrimaryPart)
 
         BodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-        BodyVelocity.Velocity = CFrame.new(Car.PrimaryPart.Position, cframe.p).LookVector * getgenv().AutoFarmSpeed
+        BodyVelocity.Velocity = CFrame.new(Car.PrimaryPart.Position, cframe.p).LookVector * speed
 
-        wait((Car.PrimaryPart.Position - cframe.p).Magnitude / getgenv().AutoFarmSpeed)
+        wait((Car.PrimaryPart.Position - cframe.p).Magnitude / speed)
 
         BodyVelocity.Velocity = Vector3.new()
         wait(0.1)
@@ -75,33 +86,47 @@ function scripting()
         BodyGyro:Destroy()
     end
 
-    function FuncMoveTest(studs)
+    function FuncMoveTest(studs, speed)
         local car = GetCurrentVehicle()
         if not car then return end
+
+        local currentCFrame = car.PrimaryPart.CFrame
         
         -- Avant (5 studs)
-        VelocityTP(car.PrimaryPart.CFrame * CFrame.new(0, 0, -studs))
+        VelocityTP(currentCFrame * CFrame.new(0, 0, -studs), speed)
         task.wait()
         
         -- Gauche (5 studs)
-        VelocityTP(car.PrimaryPart.CFrame * CFrame.new(-studs, 0, 0))
-        task.wait(0.5)
+        VelocityTP(currentCFrame * CFrame.new(-studs, 0, 0), speed)
+        task.wait()
         
         -- Droite (5 studs)
-        VelocityTP(car.PrimaryPart.CFrame * CFrame.new(studs, 0, 0))
-        task.wait(0.5)
+        VelocityTP(currentCFrame * CFrame.new(studs, 0, 0), speed)
+        task.wait()
         
         -- Arrière (5 studs)
-        VelocityTP(car.PrimaryPart.CFrame * CFrame.new(0, 0, studs))
-        task.wait(0.5)
+        VelocityTP(currentCFrame * CFrame.new(0, 0, studs), speed)
+        task.wait()
     end
 
 	function FuncAutoFarm()
         while getgenv().AutoFarm do
             if not GetCurrentVehicle() then
-                Notification.new("error", "AutoFarm", "You must be in a vehicle seat !", 5)
-                task.wait(5)
-                return
+                local vehiclelist = player.PlayerGui.VehicleInventoryHolder.Vehicles.Container.List:GetChildren()
+                local vehicleName = vehiclelist[#vehiclelist].Name
+
+                local args = {
+                    "Spawn",
+                    vehicleName
+                }
+
+                VehicleEvent:FireServer(unpack(args))
+                task.wait(1)
+                if not GetCurrentVehicle() then
+                    Notification.new("error", "AutoFarm", "Failed to spawn vehicle.", 3)
+                    getgenv().AutoFarm = false
+                    break
+                end
             end
 
             local posstart = CFrame.new(startFarmPos.X, startFarmPos.Y, startFarmPos.Z)
@@ -120,9 +145,16 @@ function scripting()
     function FuncAutoRace(name)
         while getgenv().AutoFarmRace do
             if not GetCurrentVehicle() then
-                Notification.new("error", "AutoRace", "You must be in a vehicle seat !", 5)
-                task.wait(5)
-                return
+                local vehiclelist = player.PlayerGui.VehicleInventoryHolder.Vehicles.Container.List:GetChildren()
+                local vehicleName = vehiclelist[#vehiclelist].Name
+
+                local args = {
+                    "Spawn",
+                    vehicleName
+                }
+
+                VehicleEvent:FireServer(unpack(args))
+                task.wait(2)
             end
 
             local args = {
@@ -132,7 +164,7 @@ function scripting()
 
             RaceStartTimeTrial:FireServer(unpack(args))
 
-            timeRace = player.PlayerGui:WaitForChild("RaceUI"):WaitForChild("RaceInfo"):WaitForChild("Time")
+            local timeRace = player.PlayerGui:WaitForChild("RaceUI"):WaitForChild("RaceInfo"):WaitForChild("Time")
             timeRace.Text = "Axiom's Hub Loading..."
 
             while not (timeRace.Text == '0:00.000') do
@@ -148,7 +180,8 @@ function scripting()
             local Race = LocalSessionRace:WaitForChild(name)
             local RaceInfo = AutoRaceInfo[name]
             local checkpointscount = #Race.Checkpoints:GetChildren()
-            local timebycheckpoint = RaceInfo[1] / (checkpointscount * RaceInfo[2])
+            --                       TotalTime / (TotalCheckpoints + 1 * TotalLaps * 1.05)
+            local timebycheckpoint = RaceInfo[1] / ((checkpointscount + 1) * RaceInfo[2] * 1.05)
 
             print("Total Checkpoints: " .. checkpointscount)
             print("Time by Checkpoint: " .. timebycheckpoint .. " seconds")
@@ -159,18 +192,40 @@ function scripting()
             for lap = 1, totalLaps do
                 print("Starting lap " .. lap .. " of " .. totalLaps)
                 for i = 1, checkpointscount do
+                    if not getgenv().AutoFarmRace then
+                        break
+                    end
                     print("checkpoint " .. i)
                     local checkpoint = Race.Checkpoints:FindFirstChild(tostring(i))
                     if checkpoint then
-                        local checkpointPos = checkpoint.Position
-                        TP(CFrame.new(checkpointPos))
-                        spawn(function()
-                            FuncMoveTest(10)
+                        local checkpointPos = checkpoint.CFrame
+                        TP(checkpointPos * CFrame.new(0, 5, 0))
+                        task.spawn(function()
+                            FuncMoveTest(15, 50)
                         end)
                         task.wait(timebycheckpoint)
                     end
                 end
             end
+            local FinishPos = Race.Finish.CFrame
+
+            TP(FinishPos * CFrame.new(0, 5, 0))
+
+            FuncMoveTest(15, 50)
+
+            wait(5)
+
+            local vehiclelist = player.PlayerGui.VehicleInventoryHolder.Vehicles.Container.List:GetChildren()
+            local vehicleName = vehiclelist[#vehiclelist].Name
+
+            local args = {
+                "Spawn",
+                vehicleName
+            }
+
+            VehicleEvent:FireServer(unpack(args))
+        
+            wait(2)
         end
     end
 
