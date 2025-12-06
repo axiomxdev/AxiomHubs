@@ -14,7 +14,13 @@
         "placeId": 3351674303,
         "name": "Driving Empire",
         "features": [
-            "AutoFarm Money"
+            "AutoFarm Money: Automatically farm money on the map.",
+            "AutoFarm Race: Automatically farm all supported races.",
+            "Race Selection: Choose the race to farm via the menu.",
+            "Auto-spawn Vehicle: The script automatically spawns your vehicle if needed.",
+            "Anti-AFK: Prevents automatic disconnection.",
+            "Server Hop: Automatically switches to a different public server.",
+            "Rejoin: Instantly rejoins the current server."
         ]
     }
 ]
