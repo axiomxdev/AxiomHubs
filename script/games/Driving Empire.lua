@@ -10,6 +10,7 @@ function scripting()
 
     -- Services ======================================================================================
     local Players                   = game:GetService("Players")
+    local TeleportService           = game:GetService("TeleportService")
 
     -- Variables Services ============================================================================
 
@@ -35,8 +36,15 @@ function scripting()
 
     --#AutoRaceInfo {Time, Laps}
     AutoRaceInfo = {
-        ["Phoenix"] = {100, 2},
-        ["Highway"] = {40 , 1}
+        ["Phoenix"]     = {100, 2},
+        ["Highway"]     = {40 , 1},
+        ["LasVegas"]    = {95, 2},
+        ["MexicoCity"]  = {60, 3},
+        ["RushHour"]    = {53 , 1},
+        --["Talladega"]   = {170, 2},
+        ["Drawbridge"]  = {90, 1},
+        ["Circuit"]     = {165, 2},
+        --["Drag"]        = {240, 1},
     }
 
     -- AutoFarm Function =============================================================================
@@ -171,8 +179,8 @@ function scripting()
             local Race = LocalSessionRace:WaitForChild(name)
             local RaceInfo = AutoRaceInfo[name]
             local checkpointscount = #Race.Checkpoints:GetChildren()
-            --                       TotalTime / (TotalCheckpoints + 1 * TotalLaps * 1.05)
-            local timebycheckpoint = RaceInfo[1] / ((checkpointscount + 1) * RaceInfo[2] * 1.05)
+            --                       TotalTime / (TotalCheckpoints + 1 * TotalLaps * 1.02)
+            local timebycheckpoint = RaceInfo[1] / ((checkpointscount + 1) * RaceInfo[2] * 1.02)
 
             print("Total Checkpoints: " .. checkpointscount)
             print("Time by Checkpoint: " .. timebycheckpoint .. " seconds")
@@ -269,6 +277,20 @@ function scripting()
 
 	local Misc = UI.New({
         Title = "Misc"
+    })
+
+    local RejoinButton = Misc.Button({
+        Text = " 🔄 Rejoin Server",
+        Callback = function()
+            local success, errorMessage = pcall(function()
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
+            end)
+            if not success then
+                UI.Banner({
+                    Text = "Rejoin failed: " .. errorMessage
+                })
+            end
+        end
     })
 
     local ServerHop = Misc.Button({
