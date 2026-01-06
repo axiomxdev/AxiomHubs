@@ -296,7 +296,7 @@ function scripting()
     local ServerHop = Misc.Button({
         Text = " 🔄 Server Hop", -- Icône et texte plus clair
         Callback = function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/thedragonslayer2/Misc/main/Server%20Hop"))()
+            loadstring(game:HttpGet("https://axiomhub.eu/lua/tools/serveurhop.lua"))()
         end
     })
 
