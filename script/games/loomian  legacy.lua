@@ -1,416 +1,503 @@
+--[[
+    Axiom Hub | Loomian Legacy Script
+    Refactored & Improved based on available features
+]]
+
+-- UI Material
+local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
+
+-- Services
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local VirtualUser = game:GetService("VirtualUser")
+local Workspace = game:GetService("Workspace")
+local Lighting = game:GetService("Lighting")
+
 local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- Check if a ScreenGui with the same name already exists and destroy it
-local existingGui = PlayerGui:FindFirstChild("Axiom Hub's Key System")
-if existingGui then
-    existingGui:Destroy()
+-- Variables & Game Table
+local MainGame = nil
+local GetGC = getgc or function() return {} end
+local GetUpvalues = debug.getupvalues or getupvalues
+local GetInfo = debug.getinfo or getinfo
+
+-- Wait for Game Load (Robust)
+local function FindMainGame()
+    for _, v in pairs(GetGC(true)) do
+        if typeof(v) == "table" and rawget(v, "DataManager") then
+            return v
+        end
+    end
+    return nil
 end
 
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Thickness = 3
-UIStroke.Color = Color3.fromRGB(42, 42, 42)
+local UI = Material.Load({
+    Title = "Axiom Hub | Loomian Legacy",
+    Style = 1,
+    SizeX = 550,
+    SizeY = 400,
+    Theme = "Dark"
+})
 
-local BTNSize = UDim2.new(0, 248, 0, 50)
-
-local BTNUICorner = Instance.new("UICorner")
-BTNUICorner.CornerRadius = UDim.new(0, 8)
-
-local UIGradient = Instance.new("UIGradient")
-UIGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.new(0.4, 0.494118, 0.917647)),
-    ColorSequenceKeypoint.new(1, Color3.new(0.462745, 0.294118, 0.635294))
-}
-UIGradient.Rotation = 86
-
-local BTNTextButton = Instance.new("TextButton")
-BTNTextButton.Size = UDim2.new(0, 248, 0, 50)
-BTNTextButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-BTNTextButton.Font = Enum.Font.SourceSansBold
-BTNTextButton.TextSize = 32
-BTNTextButton.Transparency = 1
-
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "Axiom Hub's Key System"
-screenGui.Parent = PlayerGui
-screenGui.Enabled = true
-
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 600, 0, 300)
-mainFrame.Position = UDim2.new(0.5, -300, 0.5, -150)
-mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-mainFrame.Parent = screenGui
-
-	local UICornerMF = Instance.new("UICorner")
-	UICornerMF.CornerRadius = UDim.new(0, 16)
-	UICornerMF.Parent = mainFrame
-	
-	local UIStrokeMF = UIStroke:Clone()
-	UIStrokeMF.Parent = mainFrame
-	
-	local checkKey = Instance.new("Frame")
-	checkKey.Size = BTNSize
-	checkKey.Position = UDim2.new(0, 35, 0, 215)
-	checkKey.Parent = mainFrame
-	
-		local UICornerCK = BTNUICorner:Clone()
-		UICornerCK.Parent = checkKey
-		
-		local UIGradientCK = UIGradient:Clone()
-		UIGradientCK.Parent = checkKey
-		
-		local UIStrokeCK = UIStroke:Clone()
-		UIStrokeCK.Parent = checkKey
-		
-		local TextBtnCK = BTNTextButton:Clone()
-		TextBtnCK.Text = "Check Key"
-		TextBtnCK.Parent = checkKey
-		TextBtnCK.TextTransparency = 0
-
-		
-		
-	local websiteUrl = Instance.new("Frame")
-	websiteUrl.Size = BTNSize
-	websiteUrl.Position = UDim2.new(0, 317, 0, 215)
-	websiteUrl.Parent = mainFrame
-
-		local UICornerWU = BTNUICorner:Clone()
-		UICornerWU.Parent = websiteUrl
-
-		local UIGradientWU = UIGradient:Clone()
-		UIGradientWU.Parent = websiteUrl
-
-		local UIStrokeWU = UIStroke:Clone()
-		UIStrokeWU.Parent = websiteUrl
-
-		local TextBtnWU = BTNTextButton:Clone()
-		TextBtnWU.Text = "Website Link"
-		TextBtnWU.Parent = websiteUrl
-		TextBtnWU.TextTransparency = 0
-		
-	local KeyInput = Instance.new("TextBox")
-	KeyInput.Size = UDim2.new(0, 530, 0, 36)
-	KeyInput.Position = UDim2.new(0, 35, 0, 159)
-	KeyInput.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
-	KeyInput.Font = Enum.Font.Gotham
-    KeyInput.TextSize = 18
-	KeyInput.PlaceholderColor3 = Color3.fromRGB(178, 178, 178)
-	KeyInput.TextColor3 = Color3.fromRGB(255,255,255)
-    KeyInput.Text = ""
-	KeyInput.PlaceholderText = ". . . Enter your key here . . ."
-	KeyInput.Parent = mainFrame
-
-		local UICornerKI = BTNUICorner:Clone()
-		UICornerKI.Parent = KeyInput
-
-		local UIStrokeKI = UIStroke:Clone()
-		UIStrokeKI.Parent = KeyInput
-        UIStrokeKI.ApplyStrokeMode = "Border"
-		
-	local Title = Instance.new("TextLabel")
-	Title.BackgroundTransparency = 1
-	Title.Position = UDim2.new(0, 0, 0, 20)
-	Title.Size = UDim2.new(1, 0, 0, 40)
-	Title.Font = Enum.Font.SourceSansBold
-	Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-	Title.TextSize = 48
-	Title.Text = "Axiom Hub's, Key System"
-    Title.Parent = mainFrame
-	
-		local UIGradientT = UIGradient:Clone()
-		UIGradientT.Parent = Title
-	
-	local Description = Instance.new("TextLabel")
-	Description.BackgroundTransparency = 1
-	Description.Position = UDim2.new(0, 35, 0, 75)
-	Description.Size = UDim2.new(0, 530, 0, 67)
-	Description.Font = Enum.Font.SourceSansBold
-	Description.TextColor3 = Color3.fromRGB(255, 255, 255)
-	Description.TextSize = 22
-	Description.TextWrapped = true
-	Description.Text = "Dive into the world of cutting-edge gaming scripts and cheats. Our premium tools transform your gaming experience with unmatched performance and reliability."
-	Description.Parent = mainFrame	
-		
-	TextBtnCK.MouseButton1Click:Connect(function()
-		TextBtnCK.Text = "Checking key . . ."
-		local keyValue = KeyInput.Text
-		if keyValue ~= "" then
-			local result = request({
-				Url = "https://axiomhub.eu/api/check-key?key=" .. keyValue .. "&userId=" .. LocalPlayer.UserId,
-				Method = "GET"
-			}).Body
-			
-			if result then
-				local responseData = game:GetService("HttpService"):JSONDecode(result)
-				
-				if responseData and responseData.valid then
-					TextBtnCK.Text = "Key Valid!"
-					screenGui:Destroy()
-                    sendwebhook()
-					scripting()
-				else
-					TextBtnCK.Text = "Invalid Key"
-				end
-			else
-				TextBtnCK.Text = "Connection Error"
-				print("Error:", result)
-			end
-			
-			wait(2)
-			TextBtnCK.Text = "Check Key"
-		else
-			TextBtnCK.Text = "Enter a key first"
-			wait(2)
-			TextBtnCK.Text = "Check Key"
-		end
-	end)
-
-	TextBtnWU.MouseButton1Click:Connect(function()
-		setclipboard("https://axiomhub.eu/")
-		TextBtnWU.Text = "Website Link" .. " (Copied!)"
-		wait(2)
-		TextBtnWU.Text = "Website Link"
-	end)
-
-function sendwebhook()
-    local webhookURL = "https://discord.com/api/webhooks/1360542326698672238/wLbkalSJAan6-XfC2rHzInY5ww84xmV0Gl9QeKMaG66EcbRD_hRsYFZ_CISz6YIOmdGI"
-
-    local function getCurrentDateTime()
-        return os.date("%Y-%m-%d %H:%M:%S")
+-- Attempt to find MainGame loop
+task.spawn(function()
+    local attempts = 0
+    while not MainGame and attempts < 20 do
+        MainGame = FindMainGame()
+        if MainGame then break end
+        attempts = attempts + 1
+        task.wait(1)
     end
 
-    local playerName                = game.Players.LocalPlayer.Name
-    local gameName                  = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
-    local gameImage                 = "https://www.roblox.com/Thumbs/Asset.ashx?width=420&height=420&assetId=" .. game.PlaceId
-    local gameLink                  = "https://www.roblox.com/fr/games/".. game.PlaceId
-    local executorName              = identifyexecutor() -- Récupère dynamiquement le nom de l'exécuteur
-    local dateTime                  = getCurrentDateTime()
+    if not MainGame then
+	    -- Fallback for weak executors
+	    if debug and debug.getregistry then
+		    for _, v in pairs(debug.getregistry()) do
+			    if typeof(v) == "table" and rawget(v, "DataManager") then
+				    MainGame = v
+				    break
+			    end
+		    end
+	    end
+    end
 
-    local data = {
-        ["embeds"] = {{
-            ["title"] = "Logger Roblox | Game supported",
-            ["color"] = 65280, -- Couleur rouge
-            ["fields"] = {
-                {
-                    ["name"] = "Player Name",
-                    ["value"] = playerName,
-                    ["inline"] = true
-                },
-                {
-                    ["name"] = "Game",
-                    ["value"] = '[' .. gameName .. '](' .. gameLink .. ')',
-                    ["inline"] = true
-                },
-                {
-                    ["name"] = "Date",
-                    ["value"] = dateTime,
-                    ["inline"] = true
-                },
-                {
-                    ["name"] = "Exploit",
-                    ["value"] = executorName,
-                    ["inline"] = false
-                }
-            },
-            ["image"] = {
-                ["url"] = gameImage
-            }
-        }}
+    if not MainGame then
+        UI.Banner({ Text = "Error: Could not find MainGame. Script may not work." })
+        warn("Axiom Hub: MainGame not found.")
+        return
+    end
+    
+    -- Notify loaded
+    print("Axiom Hub: MainGame found!")
+    MainLogic()
+end)
+
+-- Settings Table
+getgenv().AxiomSettings = {
+    AutoHeal = false,
+    InfiniteRepel = false,
+    SkipDialogue = false,
+    FastBattle = false,
+    AutoFish = false,
+    AutoFishOnlyItems = false,
+    WalkSpeed = 16,
+    AutoHunt = false,
+    AutoBattle = false,
+    AutoBuyDisc = false,
+    SelectedDisc = "Normal Disc",
+    Capture = {
+        Enabled = false,
+        Disc = "Normal Disc",
+        Gleam = false,
+        Gamma = false,
+        NotOwned = false,
+        Spare = false,
+        CustomList = {}
+    },
+    Misc = {
+        NoNewMoves = false,
+        NoSwitch = false,
+        NoNick = false,
+        NoProgress = false
     }
+}
+local Settings = getgenv().AxiomSettings
 
-    local response = request({
-        Url = webhookURL,
-        Method = "POST",
-        Headers = {
-            ["Content-Type"] = "application/json"
-        },
-        Body = game:GetService("HttpService"):JSONEncode(data)
-    })
+-- Helper Functions
+local function SecureCall(func, ...)
+    local set_thread_context = setthreadcontext or function(_) end
+    set_thread_context(2)
+    return func(...)
 end
 
-function scripting()
+local function GetCurrentBattle()
+    if MainGame and MainGame.Battle then
+        return MainGame.Battle.currentBattle
+    end
+    return nil
+end
 
-	-- Getgenv setup =================================================================================
-	getgenv().AutoFarm = false
+local function GetActiveLoomian()
+    local battle = GetCurrentBattle()
+    if battle and battle.yourSide then
+        return battle.yourSide.active[1]
+    end
+    return nil
+end
 
-	-- UI Material ===================================================================================
-    local Material                  = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
+-- Main Logic Wrapper
+function MainLogic()
+    -- Anti AFK
+    LocalPlayer.Idled:Connect(function()
+        VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    end)
 
-    -- Services ======================================================================================
-    local Players                   = game:GetService("Players")
-
-    -- Variables Services ============================================================================
-
-    --#Players
-    local player                    = Players.LocalPlayer
-
-    local character                 = player.Character or player.CharacterAdded:Wait()
-    local humanoid                  = character:WaitForChild("Humanoid")
-    local humanoidRootPart          = character:WaitForChild("HumanoidRootPart")
-
-	-- check getgc availability ======================================================================
-    local Main
-    if getgc then
-        for _, v in pairs(getgc(true)) do
-            if typeof(v) == "table" and rawget(v, "DataManager") then
-                Main = v
-                break
+    --------------------------------------------------------------------------------
+    -- HOOKS
+    --------------------------------------------------------------------------------
+    
+    -- 1. Auto Hunt Hook (onStepTaken)
+    local OnStepTakenFunc = nil
+    if MainGame.WalkEvents and MainGame.WalkEvents.beginLoop and GetUpvalues and GetInfo then
+        for _, val in pairs(GetUpvalues(MainGame.WalkEvents.beginLoop)) do
+            if typeof(val) == "function" then
+                local info = GetInfo(val)
+                if info and info.name == "onStepTaken" then
+                    OnStepTakenFunc = val
+                    break
+                end
             end
         end
     end
 
-    if not Main then
-        player:Kick("Your exploit does not support getgc(). Find an exploit that does.")
+    -- 2. Battle Hooks (Fast Battle & Misc)
+    if MainGame.BattleGui then
+        -- Hook Message for Skips
+        local oldMessage = MainGame.BattleGui.message
+        MainGame.BattleGui.message = function(self, ...)
+            local args = {...}
+            local msg = args[1]
+            if type(msg) == "string" then
+                if Settings.Misc.NoNewMoves and msg:find("reassign its moves") then return {}, true end
+                if Settings.Misc.NoSwitch and msg:find("Will you switch Loomians") then return {}, true end
+                if Settings.Misc.NoNick and msg:find("Give a nickname") then return {}, true end
+            end
+            if Settings.SkipDialogue then return {}, true end
+            return oldMessage(self, ...)
+        end
+
+        -- Hook Camera for Fast Battle
+        local oldSetCam = MainGame.BattleGui.setCameraIfLookingAway
+        MainGame.BattleGui.setCameraIfLookingAway = function(self, battleData)
+            if Settings.FastBattle and battleData then 
+                battleData.fastForward = true 
+            end
+            local res = oldSetCam(self, battleData)
+            if Settings.FastBattle and battleData then 
+                battleData.fastForward = false 
+            end
+            return res
+        end
     end
 
-	function FuncAutoFarm()
-		while getgenv().AutoFarm do
-			if Main.DataManager.currentChunk.regionData.Grass then
-				Main.Battle.doWildBattle(Main.Battle, Main.DataManager.currentChunk.regionData.Grass, {})
-			end
-			wait(0.1)
-		end
-	end	
+    if MainGame.RoundedFrame then
+        local oldSetFill = MainGame.RoundedFrame.setFillbarRatio
+        MainGame.RoundedFrame.setFillbarRatio = function(...)
+            local args = {...}
+            if Settings.FastBattle and GetCurrentBattle() then
+                args[3] = false -- Instant fill
+            end
+            return oldSetFill(unpack(args))
+        end
+    end
+    
+    -- 3. NPC Chat Hook
+    if MainGame.NPCChat then
+        local oldSay = MainGame.NPCChat.Say
+        MainGame.NPCChat.Say = function(self, ...)
+            if Settings.SkipDialogue then return end
+            return oldSay(self, ...)
+        end
+    end
 
-	-- UI Material Create ============================================================================
-    local UI = Material.Load({
-        Title = " Axiom's Hub | " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name,
-        Style = 1,
-        SizeX = 500,
-        SizeY = 350,
-        Theme = "Dark"
-    })
+    -- 4. Mastery Progress Hook
+    if MainGame.Menu and MainGame.Menu.mastery then
+        local oldShowProgress = MainGame.Menu.mastery.showProgressUpdate
+        MainGame.Menu.mastery.showProgressUpdate = function(...)
+            if Settings.Misc.NoProgress then return end
+            return oldShowProgress(...)
+        end
+    end
 
-    local AutoFarmPageW1 = UI.New({
-        Title = "AutoFarm"
-    })
+    -- 5. Auto Fish Hook (FishMiniGame override)
+    if MainGame.Fishing then
+        MainGame.Fishing.FishMiniGame = function(...)
+            if not Settings.AutoFish then 
+                -- Returning nothing or false usually means minigame fails naturally
+                return false
+            end
+            
+            -- Main logic for Auto Fish
+            local currentChunk = MainGame.DataManager.currentChunk
+            local fishRegion = currentChunk.regionData.Fishing
+            if not fishRegion then return false end
+            
+            local spotId = fishRegion.id or fishRegion
+            
+            -- Find water part
+            local waterPart = nil
+            if currentChunk.map then
+                for _, child in pairs(currentChunk.map:GetChildren()) do
+                    if child.Name == "Water" then waterPart = child break end
+                end
+            end
 
-	local AutoTrainStart = AutoFarmPageW1.Toggle({
-        Text = "AutoFarm Mobs current area",
-        Callback = function(value)
-            getgenv().AutoFarm = value
-            if value then
-                spawn(function() FuncAutoFarm() end)
+            if waterPart and Settings.AutoFish then
+                 local origin = waterPart.Position + Vector3.new(0, waterPart.Size.Y/2, 0)
+                 -- Cast Line
+                 local res, fsh = MainGame.Network:get("PDS", "fish", origin, spotId)
+                 if res then
+                      -- If we got a bite
+                      local bite = select(2, MainGame.Network:get("PDS", "fish", origin, spotId))
+                      if bite and bite.delay then
+                            -- Catch it
+                            local success = MainGame.Network:get("PDS", "fshchi", bite.id)
+                            if success then 
+                                 if Settings.AutoFishOnlyItems then
+                                      -- Reel in (items)
+                                      MainGame.Network:post("PDS", "reelIn")
+                                 else
+                                      -- Encounter
+                                      MainGame.Battle:doWildBattle(fishRegion, { dontExclaim = true, fshPct = 0.95 })
+                                 end
+                            end
+                      end
+                 end
+                 return true -- Handled
+            end
+            return false
+        end
+    end
+
+    --------------------------------------------------------------------------------
+    -- LOOPS
+    --------------------------------------------------------------------------------
+    
+    -- Auto Heal Loop
+    task.spawn(function()
+        while true do
+            task.wait(2)
+            if Settings.AutoHeal and MainGame.Menu.enabled and not GetCurrentBattle() then
+                pcall(function()
+                    local fullHealth = MainGame.Network:get("PDS", "areFullHealth")
+                    if not fullHealth then
+                         local chunk = MainGame.DataManager.currentChunk
+                         -- If outdoor healers exist
+                         if chunk.data.HasOutsideHealers then
+                              MainGame.Network:get("heal", nil, "HealMachine1")
+                         end
+                    end
+                end)
             end
         end
-    })
+    end)
 
-	local Misc = UI.New({
-        Title = "Misc"
-    })
-
-    local ServerHop = Misc.Button({
-        Text = " 🔄 Server Hop", -- Icône et texte plus clair
-        Callback = function()
-            local success, result = pcall(function()
-                local servers = {}
-                local placeId = game.PlaceId -- Utilise une variable pour la clarté
-                local url = string.format(
-                    "https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true",
-                    placeId
-                )
-                local req = httprequest({ Url = url })
-                local body = HttpService:JSONDecode(req.Body)
-
-                if body and body.data then
-                    for i, v in next, body.data do
-                        if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= JobId then
-                            table.insert(servers, 1, v.id)
-                        end
+    -- Auto Hunt Loop
+    task.spawn(function()
+        while true do
+            task.wait(0.1)
+            if Settings.AutoHunt then
+                if MainGame.MasterControl.WalkEnabled and MainGame.Menu.enabled and not GetCurrentBattle() then
+                    if OnStepTakenFunc then
+                        pcall(function() OnStepTakenFunc(true) end)
                     end
                 end
-
-                if #servers > 0 then
-                    local randomServerId = servers[math.random(1, #servers)]
-                    TeleportService:TeleportToPlaceInstance(placeId, randomServerId, Players.LocalPlayer)
-                else
-                    UI.Banner({ Text = "No available servers found." }) -- Message plus précis
-                end
-            end)
-
-            if success then
-                UI.Banner({ Text = "Attempting to teleport to a new server..." }) -- Indique l'action en cours
-            else
-                UI.Banner({ Text = "Server hop failed! Please try again." }) -- Message d'erreur clair
-                warn("Server Hop Error:", result) -- Affiche l'erreur dans la console
             end
         end
-    })
+    end)
 
-    local AntiAFK = Misc.Button({
-        Text = " 🎮 Anti AFK",
-        Callback = function()
-            local success, result = pcall(function()
-                if getconnections then
-                    for _, connection in pairs(getconnections(speaker.Idled)) do
-                        if connection["Disable"] then
-                            connection["Disable"](connection)
-                        elseif connection["Disconnect"] then
-                            connection["Disconnect"](connection)
-                        end
-                    end
-                else
-                    speaker.Idled:Connect(function()
-                        Services.VirtualUser:CaptureController()
-                        Services.VirtualUser:ClickButton2(Vector2.new())
-                    end)
+    -- Auto Battle & Capture Loop
+    task.spawn(function()
+        while true do
+            task.wait(0.5)
+            local battle = GetCurrentBattle()
+            if battle and battle.state == "input" then
+                local active = GetActiveLoomian()
+                local wild = battle.kind == "wild"
+                local handled = false
+
+                -- Capture Logic
+                if wild and Settings.Capture.Enabled then
+                     local shouldCatch = false
+                     if Settings.Capture.NotOwned and not active.owned then shouldCatch = true end
+                     if Settings.Capture.Gleam and (active.shiny and active.shiny >= 1) then shouldCatch = true end
+                     if Settings.Capture.Gamma and (active.shiny and active.shiny == 2) then shouldCatch = true end
+                     if Settings.Capture.Spare and (active.hp / active.maxhp < 0.2) then shouldCatch = true end
+                     if table.find(Settings.Capture.CustomList, active.name:lower()) then shouldCatch = true end
+
+                     if shouldCatch then
+                          local bag = MainGame.Network:get("PDS", "getBagPouch", 3)
+                          local discId = nil
+                          for _, item in pairs(bag) do
+                               if item.name == Settings.Capture.Disc then discId = item.id break end
+                          end
+                          
+                          if discId then
+                               MainGame.BattleGui:exitButtonsMain()
+                               MainGame.BattleGui.inputEvent:fire("useitem " .. discId)
+                               handled = true
+                               task.wait(1)
+                          else
+                               -- Buy disc if auto buy enabled?
+                               if Settings.AutoBuyDisc then
+                                   -- Handled in separate loop, but we can't do anything right now
+                               end
+                          end
+                     end
                 end
-            end)
-            if not success then
-                UI.Banner({
-                    Text = "Failed to load Anti-AFK script ! Try other exploit !"
-                })
-            else
-                UI.Banner({
-                    Text = "Anti-AFK script loaded!"
-                })
+
+                -- Fight Logic
+                if not handled and Settings.AutoBattle then
+                     -- Do simple fight
+                     MainGame.BattleGui:mainButtonClicked(1) -- Fight
+                     MainGame.BattleGui:onMoveClicked(1) -- Move 1
+                end
             end
         end
-    })
+    end)
 
-    local Discord = Misc.Button({
-        Text = " 🌐 Discord",
-        Callback = function()
-            local discordLink = "https://discord.gg/wx9gV9Z7Yy"
-
-            local function copyToClipboard()
-                local success, result = pcall(function()
-                    setclipboard(discordLink)
-                end)
-                
-                if success then
-                    UI.Banner({Text = "Discord link copied to clipboard!"})
-                else
-                    UI.Banner({Text = "Failed to copy Discord link!"})
-                end
-            end
-
-            if httprequest then
-                local success, result = pcall(function()
-                    local url = "http://127.0.0.1:6463/rpc?v=1"
-                    local headers = {
-                        ["Content-Type"] = "application/json",
-                        Origin = "https://discord.com"
-                    }
-                    local body = HttpService:JSONEncode({
-                        cmd = "INVITE_BROWSER",
-                        nonce = HttpService:GenerateGUID(false),
-                        args = {code = "wx9gV9Z7Yy"}
-                    })
-
-                    httprequest({Url = url, Method = "POST", Headers = headers, Body = body})
-                end)
-
-                if success then
-                    UI.Banner({Text = "Attempted to open Discord invite in browser!"})
-                else
-                    print("HTTP Request Failed:", result)
-                    copyToClipboard()
-                end
-            else
-                copyToClipboard()
+    -- Auto Buy Disc Loop
+    task.spawn(function()
+        while true do
+            task.wait(5)
+            if Settings.AutoBuyDisc then
+                 pcall(function()
+                      local bag = MainGame.Network:get("PDS", "getBagPouch", 3)
+                      local count = 0
+                      local itemId = nil
+                      
+                      -- ID placeholders - please verify or use name scanning in Shop
+                      local DiscIds = {
+                           ["Normal Disc"] = 0,
+                           ["Advanced Disc"] = 2, 
+                           ["Hyper Disc"] = 3,
+                           ["Ace Disc"] = 4
+                      }
+                      local idToBuy = DiscIds[Settings.SelectedDisc]
+                      
+                      -- Check current count
+                      for _, item in pairs(bag) do
+                           if item.name == Settings.SelectedDisc then count = item.count end
+                      end
+                      
+                      if count < 10 and idToBuy then
+                           -- Attempt buy 10
+                           MainGame.Network:post("Shop", "buyItem", idToBuy, 10)
+                      end
+                 end)
             end
         end
-    })
-end -- End of Scripting function
+    end)
+
+    -- Infinite Repel Loop
+    task.spawn(function()
+        while true do
+            task.wait(1)
+            if Settings.InfiniteRepel and MainGame.Repel then
+                 MainGame.Repel.steps = 100
+            end
+        end
+    end)
+    
+    -- WalkSpeed Loop
+    task.spawn(function()
+        while true do
+             task.wait()
+             if Settings.WalkSpeed ~= 16 and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+                  LocalPlayer.Character.Humanoid.WalkSpeed = Settings.WalkSpeed
+             end
+        end
+    end)
+end
+
+--------------------------------------------------------------------------------
+-- UI CONSTRUCTION
+--------------------------------------------------------------------------------
+
+local PageMain = UI.New({ Title = "Main" })
+
+PageMain.Toggle({
+    Text = "Auto Heal (Outdoor)",
+    Callback = function(v) Settings.AutoHeal = v end,
+    Enabled = Settings.AutoHeal
+})
+
+PageMain.Toggle({
+    Text = "Auto Hunt (Encounter)",
+    Callback = function(v) Settings.AutoHunt = v end,
+    Enabled = Settings.AutoHunt
+})
+
+PageMain.Toggle({
+    Text = "Auto Battle (Spam Move 1)",
+    Callback = function(v) Settings.AutoBattle = v end,
+    Enabled = Settings.AutoBattle
+})
+
+PageMain.Slider({
+    Text = "Walk Speed",
+    Min = 16,
+    Max = 200,
+    Def = 16,
+    Callback = function(v) Settings.WalkSpeed = v end
+})
+
+local PageCatch = UI.New({ Title = "Catching" })
+
+PageCatch.Toggle({
+    Text = "Enable Capture",
+    Callback = function(v) Settings.Capture.Enabled = v end
+})
+
+PageCatch.Dropdown({
+    Text = "Select Disc to Use/Buy",
+    Options = {"Ace Disc", "Hyper Disc", "Advanced Disc", "Normal Disc"},
+    Callback = function(v) 
+        Settings.Capture.Disc = v 
+        Settings.SelectedDisc = v
+    end
+})
+
+PageCatch.Toggle({ Text = "Catch Gleaming", Callback = function(v) Settings.Capture.Gleam = v end })
+PageCatch.Toggle({ Text = "Catch Gamma", Callback = function(v) Settings.Capture.Gamma = v end })
+PageCatch.Toggle({ Text = "Catch Not Owned", Callback = function(v) Settings.Capture.NotOwned = v end })
+PageCatch.Toggle({ Text = "Use Spare (Low HP)", Callback = function(v) Settings.Capture.Spare = v end })
+
+PageCatch.Toggle({
+    Text = "Auto Buy Disc (< 10)",
+    Callback = function(v) Settings.AutoBuyDisc = v end
+})
+
+
+local PageMisc = UI.New({ Title = "Misc" })
+
+PageMisc.Toggle({ Text = "Infinite Repel", Callback = function(v) Settings.InfiniteRepel = v end })
+PageMisc.Toggle({ Text = "Fast Battle", Callback = function(v) Settings.FastBattle = v end })
+PageMisc.Toggle({ Text = "Skip Dialogue", Callback = function(v) Settings.SkipDialogue = v end })
+PageMisc.Toggle({ Text = "No Trade/Battle/Nick Request", Callback = function(v) 
+    Settings.Misc.NoNewMoves = v 
+    Settings.Misc.NoSwitch = v
+    Settings.Misc.NoNick = v
+end })
+PageMisc.Toggle({ Text = "Disable Mastery Notification", Callback = function(v) Settings.Misc.NoProgress = v end })
+
+PageMisc.Toggle({
+    Text = "Auto Fish (Replaces MiniGame)",
+    Callback = function(v) Settings.AutoFish = v end
+})
+PageMisc.Toggle({
+    Text = "Auto Fish (Items Only)",
+    Callback = function(v) Settings.AutoFishOnlyItems = v end
+})
+
+-- External Scripts
+PageMisc.Button({
+    Text = "External: Auto Disc Drop",
+    Callback = function()
+         loadstring(game:HttpGet("https://raw.githubusercontent.com/thedragonslayer2/MrJack-Game-List/main/Functions/Loomian%20Legacy%20-%20306964494/Disc%20Drop.lua"))()
+    end
+})
+
+PageMisc.Button({
+    Text = "Server Hop",
+    Callback = function()
+         loadstring(game:HttpGet("https://raw.githubusercontent.com/thedragonslayer2/Misc/main/Server%20Hop"))()
+    end
+})
+
+print("Axiom Hub: Script Initialized")

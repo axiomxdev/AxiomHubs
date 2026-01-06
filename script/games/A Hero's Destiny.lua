@@ -704,38 +704,7 @@ function scripting()
     local ServerHop = Misc.Button({
         Text = " 🔄 Server Hop", -- Icône et texte plus clair
         Callback = function()
-            local success, result = pcall(function()
-                local servers = {}
-                local placeId = game.PlaceId -- Utilise une variable pour la clarté
-                local url = string.format(
-                    "https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true",
-                    placeId
-                )
-                local req = httprequest({ Url = url })
-                local body = HttpService:JSONDecode(req.Body)
-
-                if body and body.data then
-                    for i, v in next, body.data do
-                        if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= JobId then
-                            table.insert(servers, 1, v.id)
-                        end
-                    end
-                end
-
-                if #servers > 0 then
-                    local randomServerId = servers[math.random(1, #servers)]
-                    TeleportService:TeleportToPlaceInstance(placeId, randomServerId, Players.LocalPlayer)
-                else
-                    UI.Banner({ Text = "No available servers found." }) -- Message plus précis
-                end
-            end)
-
-            if success then
-                UI.Banner({ Text = "Attempting to teleport to a new server..." }) -- Indique l'action en cours
-            else
-                UI.Banner({ Text = "Server hop failed! Please try again." }) -- Message d'erreur clair
-                warn("Server Hop Error:", result) -- Affiche l'erreur dans la console
-            end
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/thedragonslayer2/Misc/main/Server%20Hop"))()
         end
     })
 
