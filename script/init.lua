@@ -6,9 +6,9 @@ end
 Id = game.PlaceId
 
 if Id == 6461766546 then -- A Hero's Destiny
-    loadstring(game:HttpGet("https://axiomhub.eu/lua/games/A Hero's Destiny.lua"))()
+    loadstring(game:HttpGet("https://axiomhub.eu/lua/games/A%20Hero's%20Destiny.lua"))()
 elseif Id == 3351674303 then -- Driving Empire
-    loadstring(game:HttpGet("https://axiomhub.eu/lua/games/Driving Empire.lua"))()
+    loadstring(game:HttpGet("https://axiomhub.eu/lua/games/Driving%20Empire.lua"))()
 else
     local webhookURL = "https://discord.com/api/webhooks/1360542326698672238/wLbkalSJAan6-XfC2rHzInY5ww84xmV0Gl9QeKMaG66EcbRD_hRsYFZ_CISz6YIOmdGI"
 
