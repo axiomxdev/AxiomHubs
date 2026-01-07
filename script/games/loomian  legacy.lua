@@ -3,6 +3,14 @@
     Revised & Corrected based on Proven Methods
 ]]
 
+-- Notifications
+local Notification = loadstring(game:HttpGet("https://axiomhub.eu/lua/tools/notify.lua"))()
+
+-- verify executor compatibility
+if not (getgc or debug.getregistry) then
+    return Notification.new("warning", "Executor not Supported !", "A Function is Missing ! Please Download a better Executor !", 10)
+end
+
 -- UI Material
 local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
 
@@ -120,31 +128,37 @@ local function FuncAutoHeal()
     while Settings.AutoHeal do
         task.wait(1)
         pcall(function()
-            if Settings.AutoHeal then
-                local currentChunk = MainGame.DataManager.currentChunk
-                if currentChunk and MainGame.MasterControl.WalkEnabled and MainGame.Menu.enabled and not GetCurrentBattle() then
-                    if not IsHealthFull() then
-                        if currentChunk.data.HasOutsideHealers then
-                            MainGame.Network:get("heal", nil, "HealMachine1")
-                        else
-                            -- Blackout Logic
-                            local blackoutTo = currentChunk.regionData and currentChunk.regionData.BlackOutTo or currentChunk.data.blackOutTo
-                            
-                            if blackoutTo then
-                                MainGame.MasterControl.WalkEnabled = false
-                                MainGame.Utilities.FadeOut(1)
-                                MainGame.Utilities.TeleportToSpawnBox()
-                                currentChunk:unbindIndoorCam()
-                                currentChunk:destroy()
-                                
-                                -- Load Healer Chunk
-                                SecureCall(function() 
-                                    MainGame.DataManager:loadChunk(blackoutTo)
-                                end)
-                                
-                                MainGame.MasterControl.WalkEnabled = true
-                            end
-                        end
+            if Settings.AutoHeal and MainGame.MasterControl.WalkEnabled and MainGame.Menu.enabled and not GetCurrentBattle() then
+                local fullHealth = MainGame.Network:get("PDS", "areFullHealth")
+                if fullHealth == false then
+                    local currentChunk = MainGame.DataManager.currentChunk
+                    -- Method 1: Standard Healer (Outdoor/Indoor Entity)
+                    -- Checks if there is a Healer entity configuration in the chunk data
+                    if currentChunk.data.HasOutsideHealers or (currentChunk.interacts and currentChunk.interacts.HealMachine1) then
+                        MainGame.Network:get("heal", nil, "HealMachine1")
+                    elseif currentChunk.regionData and currentChunk.regionData.BlackOutTo then
+                        -- Method 2: Force Teleport to Center (Blackout Logic)
+                        -- This resembles the game's "Respawn/Blackout" mechanic
+                        local blackoutTo = currentChunk.regionData.BlackOutTo
+                        
+                        -- Screen Fade
+                        MainGame.Utilities.FadeOut(1)
+                        MainGame.MasterControl.WalkEnabled = false
+                        
+                        -- Unload current
+                        if currentChunk.unbindIndoorCam then pcall(function() currentChunk:unbindIndoorCam() end) end
+                        currentChunk:destroy()
+                        
+                        -- Move Player
+                        MainGame.Utilities.TeleportToSpawnBox()
+                        
+                        -- Load Target Chunk (Center)
+                        SecureCall(function()
+                            MainGame.DataManager:loadChunk(blackoutTo)
+                        end)
+                        
+                        task.wait(0.5)
+                        MainGame.MasterControl.WalkEnabled = true
                     end
                 end
             end
@@ -172,41 +186,19 @@ end
 
 
 -------------------------------------------------------------------
--- FEATURES: AUTO HUNT / ENCOUNTER (Scanning Method)
+-- FEATURES: AUTO HUNT / ENCOUNTER (Direct Battle Method)
 -------------------------------------------------------------------
-local OnStepTakenFunc = nil
-local dbg = debug or getgenv().debug
-
--- Scan for onStepTaken in WalkEvents.beginLoop upvalues
-if MainGame.WalkEvents and MainGame.WalkEvents.beginLoop and dbg and dbg.getupvalues and dbg.getinfo then
-    for _, val in pairs(dbg.getupvalues(MainGame.WalkEvents.beginLoop)) do
-        if typeof(val) == "function" then
-            local info = dbg.getinfo(val)
-            if info and info.name == "onStepTaken" then
-                OnStepTakenFunc = val
-                break
-            end
-        end
-    end
-else
-    -- Fallback/Warn if debug lib missing
-    warn("Axiom Hub: Debug library missing or MainGame structure changed. Auto Hunt may not work.")
-end
-
 local function FuncAutoHunt()
     while Settings.AutoHunt do
         task.wait(0.1)
-        if OnStepTakenFunc then
-            -- Only if walking enabled, menu enabled, no battle
-            if MainGame.MasterControl.WalkEnabled and MainGame.Menu.enabled and not GetCurrentBattle() then
-                local success, err = pcall(function()
-                    OnStepTakenFunc(true)
-                end)
-                if not success then
-                    warn("Auto Hunt Error: " .. tostring(err))
-                    Settings.AutoHunt = false 
+        -- Only if walking enabled, menu enabled, no battle
+        if MainGame.MasterControl.WalkEnabled and MainGame.Menu.enabled and not GetCurrentBattle() then
+            pcall(function()
+                local currentChunk = MainGame.DataManager.currentChunk
+                if currentChunk and currentChunk.regionData and currentChunk.regionData.Grass then
+                    MainGame.Battle:doWildBattle(currentChunk.regionData.Grass, {})
                 end
-            end
+            end)
         end
     end
 end
