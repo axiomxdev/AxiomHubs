@@ -1,3 +1,5 @@
+repeat task.wait(0.1) until getgenv().AxiomHubUiConstante
+
 local Notification
 
 task.spawn(function()

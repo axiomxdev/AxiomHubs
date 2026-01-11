@@ -696,6 +696,8 @@ function scripting()
         Max = 50,
         Def = 3,
     })
+
+    loadstring(game:HttpGet("https://axiomhub.eu/lua/tools/othergui.lua"))()
 end -- End of Scripting function
 
 local Players = game:GetService("Players")

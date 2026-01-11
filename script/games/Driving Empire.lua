@@ -229,7 +229,7 @@ function scripting()
     end
 
 	-- UI Material Create ============================================================================
-    local UI = Material.Load({
+    getgenv().AxiomHubUiConstante = Material.Load({
         Title = " Axiom's Hub | " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name,
         Style = 1,
         SizeX = 500,
@@ -237,7 +237,7 @@ function scripting()
         Theme = "Dark"
     })
 
-    local AutoFarm = UI.New({
+    local AutoFarm = getgenv().AxiomHubUiConstante.New({
         Title = "AutoFarm"
     })
 
@@ -275,93 +275,7 @@ function scripting()
         end
     })
 
-	local Misc = UI.New({
-        Title = "Misc"
-    })
-
-    local RejoinButton = Misc.Button({
-        Text = " 🔄 Rejoin Server",
-        Callback = function()
-            local success, errorMessage = pcall(function()
-                TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
-            end)
-            if not success then
-                UI.Banner({
-                    Text = "Rejoin failed: " .. errorMessage
-                })
-            end
-        end
-    })
-
-    local ServerHop = Misc.Button({
-        Text = " 🔄 Server Hop", -- Icône et texte plus clair
-        Callback = function()
-            loadstring(game:HttpGet("https://axiomhub.eu/lua/tools/serveurhop.lua"))()
-        end
-    })
-
-    local AntiAFK = Misc.Button({
-        Text = " 🎮 Anti AFK",
-        Callback = function()
-            local success = pcall(function()
-                loadstring(game:HttpGet("https://axiomhub.eu/lua/tools/antiafk.lua"))()
-            end)
-            if not success then
-                UI.Banner({
-                    Text = "Failed to load Anti-AFK script ! Try other exploit !"
-                })
-            else
-                UI.Banner({
-                    Text = "Anti-AFK script loaded!"
-                })
-            end
-        end
-    })
-
-    local Discord = Misc.Button({
-        Text = " 🌐 Discord",
-        Callback = function()
-            local discordLink = "https://discord.gg/wx9gV9Z7Yy"
-
-            local function copyToClipboard()
-                local success, result = pcall(function()
-                    setclipboard(discordLink)
-                end)
-                
-                if success then
-                    UI.Banner({Text = "Discord link copied to clipboard!"})
-                else
-                    UI.Banner({Text = "Failed to copy Discord link!"})
-                end
-            end
-
-            if httprequest then
-                local success, result = pcall(function()
-                    local url = "http://127.0.0.1:6463/rpc?v=1"
-                    local headers = {
-                        ["Content-Type"] = "application/json",
-                        Origin = "https://discord.com"
-                    }
-                    local body = HttpService:JSONEncode({
-                        cmd = "INVITE_BROWSER",
-                        nonce = HttpService:GenerateGUID(false),
-                        args = {code = "wx9gV9Z7Yy"}
-                    })
-
-                    httprequest({Url = url, Method = "POST", Headers = headers, Body = body})
-                end)
-
-                if success then
-                    UI.Banner({Text = "Attempted to open Discord invite in browser!"})
-                else
-                    print("HTTP Request Failed:", result)
-                    copyToClipboard()
-                end
-            else
-                copyToClipboard()
-            end
-        end
-    })
+	loadstring(game:HttpGet("https://axiomhub.eu/lua/tools/othergui.lua"))()
 end -- scripting function end
 
 local Players = game:GetService("Players")
