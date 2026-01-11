@@ -1,43 +1,63 @@
 local GAME_NAME = "Loomian Legacy - 306964494"
 warn("\n=>=>=>  " .. GAME_NAME .. " Script Loading...  <=<=<=\n")
 
-local venyxLibraryWrapper = MrJackTable
-if venyxLibraryWrapper then
-    if type(MrJackTable.VenyxLibrary) ~= "function" then
-        venyxLibraryWrapper = false
-    else
-        venyxLibraryWrapper = MrJackTable.VenyxLibrary()
+-- Helper Functions
+local client = game:GetService("Players").LocalPlayer
+
+function LooP(func, delay)
+    task.spawn(function()
+        while task.wait(delay or 0) do
+            local success, err = pcall(func)
+            if not success then
+                warn("LooP Error:", err)
+            end
+        end
+    end)
+end
+
+function ForLooP(tbl, func)
+    for i, v in pairs(tbl) do
+        func(i, v)
     end
 end
 
-if not IrisNotificationMrJack then
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/thedragonslayer2/hey/main/Misc./iris%20notification%20function"))()
+function GetSavedSettings(path, userId)
+    return {}
 end
 
-if not venyxLibraryWrapper or venyxLibraryWrapper.MrJack ~= "MrJackIsCool" then
-    return loadstring(game:HttpGet("https://thedragonslayer2.github.io"))()
+function IrisNotificationMrJack(type, title, message, duration)
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = title,
+        Text = message,
+        Duration = duration or 5
+    })
+end
+
+local IrisNotificationUserMrJack = {
+    ClearAllNotifications = function()
+    end
+}
+
+local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
+
+if not Material then
+    warn("❌ Material UI Load Failed!")
+    return
 end
 
 if not (getgc or debug.getregistry) then
-    if IrisNotificationUserMrJack then
-        IrisNotificationUserMrJack.ClearAllNotifications()
-    end
-    return IrisNotificationMrJack(2, "Executor not Supported! D:", "A Function is Missing!\n\nPlease Download a better Executor!", 10)
+    return warn("❌ Executor not Supported! Missing getgc/debug.getregistry")
 end
-
-local coreGuiCheck = pcall(function()
-    return game:GetService("CoreGui")["keonelibbary/gui"]
-end)
 
 local userSettings = {}
 local clientState = nil
-local loadingNotification = nil
 local switchingInProgress = nil
 local battleGuiOpen = nil
 local healingInProgress = nil
 local travelLocations = {}
 local autoBuyModules = {}
 local autoEncounterEnabled = nil
+local discDropEnabled = nil
 local hasMetaHook = false
 if hasMetaHook then
     hasMetaHook = CreateHookMetaMethod:Index() or CreateHookMetaMethod.Indexes
@@ -51,7 +71,8 @@ end)
 local function locateClientState()
     pcall(function()
         ForLooP(getgc(true), function(_, candidate)
-            if typeof(candidate) == "table" and rawget(candidate, "Utilities") and not (clientState and clientState.Battle) then
+            if typeof(candidate) == "table" and rawget(candidate, "Utilities") and
+                not (clientState and clientState.Battle) then
                 clientState = candidate
             end
         end)
@@ -87,28 +108,20 @@ end
 pcall(function()
     while not clientState do
         locateClientState()
-        if clientState and not coreGuiCheck then
-            return
+        if clientState then
+            break
         end
-        if not loadingNotification then
-            loadingNotification = AbstractPooNotif():notify({
-                Title = "Notification",
-                Description = "Waiting for Game to Load...",
-                Length = 9000000000
-            })
-        end
-        if coreGuiCheck then
-            while task.wait() do
-            end
-        end
-        task.wait(7.5)
+        task.wait(0.5)
     end
 end)
 
-if loadingNotification then
-    loadingNotification()
+-- Attendre que clientState soit prêt
+if not clientState then
+    warn("❌ clientState failed to load!")
+    return
 end
 
+warn("✅ clientState loaded successfully!")
 wait(0.5)
 
 local function getCurrentBattle()
@@ -153,9 +166,8 @@ local function shouldCatchCurrentEncounter()
     local autoHuntSettings = userSettings["Auto Hunt"]
     if battle and battle.kind == "wild" and not getActiveMonster().corrupt then
         local shinyState = getShinyStatus()
-        return shinyState == 1 and autoHuntSettings.Gleam
-            or shinyState == 2 and autoHuntSettings.Gamma
-            or (not getActiveMonster().owned and autoHuntSettings.NotOwned or isTargetListedLoomian())
+        return shinyState == 1 and autoHuntSettings.Gleam or shinyState == 2 and autoHuntSettings.Gamma or
+                   (not getActiveMonster().owned and autoHuntSettings.NotOwned or isTargetListedLoomian())
     end
 end
 
@@ -166,7 +178,8 @@ local function chooseMove(moveIndex)
             battleGui:mainButtonClicked(1)
         end
         local moveDetails = battleGui.moves[moveIndex]
-        if moveDetails.energy and (battleGui.activeMonster.energy < moveDetails.energy and not battleGui.activeMonster.bypassEnergy) then
+        if moveDetails.energy and
+            (battleGui.activeMonster.energy < moveDetails.energy and not battleGui.activeMonster.bypassEnergy) then
             battleGui.fightSelectionGroup:LoseFocus()
             battleGui.inputEvent:fire("rest 0")
             battleGui:exitButtonsMoveChosen()
@@ -211,6 +224,9 @@ if originalSetupScene then
 end
 
 LooP(function()
+    if not clientState or not clientState.Menu or not clientState.Network then
+        return
+    end
     local listIterator = next
     local moduleIndex = autoBuyModules
     local moduleKey = nil
@@ -258,6 +274,9 @@ LooP(function()
 end)
 
 LooP(function()
+    if not clientState or not client or not client.PlayerGui then
+        return
+    end
     if getCurrentBattle() and client.PlayerGui.MainGui:FindFirstChild("BattleGui", true) then
         task.wait(3)
         battleGuiOpen = true
@@ -285,7 +304,8 @@ while true do
         break
     end
     badgeKey = badgeName
-    if typeof(badgeValue) == "number" and badgeName:sub(1, 5) == "Medal" and badgeName:sub(7, 7) == "" and badgeValue ~= 0 then
+    if typeof(badgeValue) == "number" and badgeName:sub(1, 5) == "Medal" and badgeName:sub(7, 7) == "" and badgeValue ~=
+        0 then
         task.spawn(function()
             while task.wait() do
                 local theatreModule = clientState.DataManager:getModule("BattleTheatre" .. badgeName:sub(6, 6))
@@ -323,7 +343,8 @@ task.spawn(function()
             if miningKey == nil then
                 break
             end
-            if task.wait() and miningPoint.Part and not (miningPoint.Part:GetAttribute("OnlyOnce") or miningPoint.Part:SetAttribute("OnlyOnce", true)) then
+            if task.wait() and miningPoint.Part and
+                not (miningPoint.Part:GetAttribute("OnlyOnce") or miningPoint.Part:SetAttribute("OnlyOnce", true)) then
                 miningPoint.Part.Parent = miningModel
             end
         end
@@ -334,6 +355,9 @@ function clientState.Menu.options.resetLastUnstuckTick()
 end
 
 LooP(function()
+    if not clientState or not clientState.MasterControl then
+        return
+    end
     if clientState.MasterControl.WalkEnabled and not getCurrentBattle() then
         workspace.Camera.FieldOfView = 70
     end
@@ -342,15 +366,11 @@ end)
 local originalSwitchMonster = clientState.BattleGui.switchMonster
 function clientState.BattleGui.switchMonster(...)
     setThreadContextSafely(2)
-    local forceSwitch = ({
-        ...
-    })[3] == false
+    local forceSwitch = ({...})[3] == false
     if forceSwitch then
         switchingInProgress = true
     end
-    local results = {
-        originalSwitchMonster(...)
-    }
+    local results = {originalSwitchMonster(...)}
     if forceSwitch then
         switchingInProgress = nil
     end
@@ -377,35 +397,41 @@ function clientState.Battle.doTrainerBattle(...)
     return originalDoTrainerBattle(...)
 end
 
-local venyxWindow = venyxLibraryWrapper.new(GAME_NAME:split(" - ")[1])
-venyxWindow:toggle()
-local venyxAddPage = venyxWindow.addPage
-function venyxWindow.addPage(...)
-    task.wait(0.5)
-    return venyxAddPage(...)
-end
+local UIWindow = Material.Load({
+    Title = "Axiom Hub | Loomian Legacy",
+    Style = 1,
+    SizeX = 550,
+    SizeY = 400,
+    Theme = "Dark"
+})
 
-local mainPage = venyxWindow:addPage("Main")
-local mainSection = mainPage:addSection("Main")
+local mainPage = UIWindow.New({
+    Title = "Main"
+})
 
-mainSection:addToggle("Auto Heal[Outdoor Only]", userSettings["Auto Heal"], function(enabled)
-    userSettings["Auto Heal"] = enabled
-end)
+mainPage.Toggle({
+    Text = "Auto Heal [Outdoor Only]",
+    Enabled = userSettings["Auto Heal"],
+    Callback = function(enabled)
+        userSettings["Auto Heal"] = enabled
+    end
+})
 
 LooP(function()
     xpcall(function()
+        if not clientState or not clientState.DataManager or not clientState.MasterControl then
+            return
+        end
         local currentChunk = clientState.DataManager.currentChunk
-        if userSettings["Auto Heal"]
-            and clientState.MasterControl.WalkEnabled
-            and clientState.Menu.enabled
-            and not currentChunk.indoors
-            and not getCurrentBattle()
-            and not clientState.ObjectiveManager.disabledBy.LoomianCare
-            and not clientState.Network:get("PDS", "areFullHealth") then
+        if userSettings["Auto Heal"] and clientState.MasterControl.WalkEnabled and clientState.Menu.enabled and
+            not currentChunk.indoors and not getCurrentBattle() and
+            not clientState.ObjectiveManager.disabledBy.LoomianCare and
+            not clientState.Network:get("PDS", "areFullHealth") then
             if currentChunk.data.HasOutsideHealers then
                 clientState.Network:get("heal", nil, "HealMachine1")
             else
-                local returnChunkId = currentChunk.regionData and currentChunk.regionData.BlackOutTo or currentChunk.data.blackOutTo
+                local returnChunkId = currentChunk.regionData and currentChunk.regionData.BlackOutTo or
+                                          currentChunk.data.blackOutTo
                 local currentChunkId = currentChunk.id
                 local currentCFrame = client.character.PrimaryPart.CFrame
                 if returnChunkId then
@@ -449,11 +475,18 @@ LooP(function()
     end)
 end, 0.1)
 
-mainSection:addToggle("Active Repellent", userSettings["Infinite Repel"], function(enabled)
-    userSettings["Infinite Repel"] = enabled
-end)
+mainPage.Toggle({
+    Text = "Active Repellent",
+    Enabled = userSettings["Infinite Repel"],
+    Callback = function(enabled)
+        userSettings["Infinite Repel"] = enabled
+    end
+})
 
 LooP(function()
+    if not clientState or not clientState.Repel then
+        return
+    end
     if clientState.Repel.steps < 10 or not userSettings["Infinite Repel"] or autoEncounterEnabled then
         clientState.Repel.steps = not autoEncounterEnabled and (userSettings["Infinite Repel"] and 100) or 0
     end
@@ -461,15 +494,18 @@ end)
 
 if advancedExploitAvailable then
     local defeatedTrainerCache = {}
-    mainSection:addToggle("Ignore NPC Battle", userSettings["Ignore NPC Battle"], function(enabled)
-        userSettings["Ignore NPC Battle"] = enabled
-    end)
+    mainPage.Toggle({
+        Text = "Ignore NPC Battle",
+        Enabled = userSettings["Ignore NPC Battle"],
+        Callback = function(enabled)
+            userSettings["Ignore NPC Battle"] = enabled
+        end
+    })
     local originalGetBit = clientState.BitBuffer.GetBit
     function clientState.BitBuffer.GetBit(...)
-        local args = {
-            ...
-        }
-        if not (table.find(defeatedTrainerCache, clientState.DataManager.currentChunk.map) or table.clear(defeatedTrainerCache)) then
+        local args = {...}
+        if not (table.find(defeatedTrainerCache, clientState.DataManager.currentChunk.map) or
+            table.clear(defeatedTrainerCache)) then
             table.insert(defeatedTrainerCache, clientState.DataManager.currentChunk.map)
         end
         if args[1] == clientState.PlayerData.defeatedTrainers and args[2] then
@@ -489,22 +525,21 @@ if getthreadcontext then
     getthreadcontext()
 end
 
-mainSection:addToggle("Skip Dialogue", userSettings["Skip Dialogue"], function(enabled)
-    userSettings["Skip Dialogue"] = enabled
-end)
+mainPage.Toggle({
+    Text = "Skip Dialogue",
+    Enabled = userSettings["Skip Dialogue"],
+    Callback = function(enabled)
+        userSettings["Skip Dialogue"] = enabled
+    end
+})
 
 local function filterDialogue(_, ...)
-    local dialogueArgs = {
-        ...
-    }
+    local dialogueArgs = {...}
     local filteredDialogue = {}
     local shouldShow = nil
     if typeof(dialogueArgs[2]) == "string" then
         if dialogueArgs[2]:sub(1, 8) == "[NoSkip]" then
-            return {
-                dialogueArgs[1],
-                dialogueArgs[2]:sub(9)
-            }, true
+            return {dialogueArgs[1], dialogueArgs[2]:sub(9)}, true
         end
         if dialogueArgs[2]:sub(1, 5):lower() == "[y/n]" then
             if userSettings.MiscSettings.NoSwitch and dialogueArgs[2]:find("Will you switch Loomians") then
@@ -575,9 +610,13 @@ overrideDialogue(clientState.BattleGui, "message")
 overrideDialogue(clientState.NPCChat, "Say")
 overrideDialogue(clientState.NPCChat, "say")
 
-mainSection:addToggle("Fast Battle", userSettings["Fast Battle"], function(enabled)
-    userSettings["Fast Battle"] = enabled
-end)
+mainPage.Toggle({
+    Text = "Fast Battle",
+    Enabled = userSettings["Fast Battle"],
+    Callback = function(enabled)
+        userSettings["Fast Battle"] = enabled
+    end
+})
 
 local speedPatchIterator = next
 local speedPatchTargets = {
@@ -605,13 +644,9 @@ local function wrapBattleAnimation(methodName, targetTable, targetIndex)
     if originalMethod then
         targetTable[methodName] = function(...)
             setThreadContextSafely(2)
-            local callArgs = {
-                ...
-            }
+            local callArgs = {...}
             callArgs[targetIndex].battle.fastForward = userSettings["Fast Battle"]
-            local results = {
-                originalMethod(unpack(callArgs))
-            }
+            local results = {originalMethod(unpack(callArgs))}
             callArgs[targetIndex].battle.fastForward = false
             return unpack(results)
         end
@@ -639,14 +674,7 @@ end
 
 local animPatchIterator = next
 local animPatchTargets = {
-    [clientState.BattleGui] = {
-        "animWeather",
-        "animStatus",
-        "animAbility",
-        "animBoost",
-        "animHit",
-        "animMove"
-    }
+    [clientState.BattleGui] = {"animWeather", "animStatus", "animAbility", "animBoost", "animHit", "animMove"}
 }
 local animPatchKey = nil
 local function disableAnimations(methodName, targetTable)
@@ -681,18 +709,14 @@ end
 local originalSetCamera = clientState.BattleGui.setCameraIfLookingAway
 function clientState.BattleGui.setCameraIfLookingAway(self, cameraData)
     cameraData.fastForward = userSettings["Fast Battle"]
-    local results = {
-        originalSetCamera(self, cameraData)
-    }
+    local results = {originalSetCamera(self, cameraData)}
     cameraData.fastForward = false
     return unpack(results)
 end
 
 local originalFillbarRatio = clientState.RoundedFrame.setFillbarRatio
 function clientState.RoundedFrame.setFillbarRatio(...)
-    local args = {
-        ...
-    }
+    local args = {...}
     if userSettings["Fast Battle"] and getCurrentBattle() then
         args[3] = false
     end
@@ -700,7 +724,10 @@ function clientState.RoundedFrame.setFillbarRatio(...)
 end
 
 if advancedExploitAvailable then
-    mainSection:addButton("End Battle", forceBattleEnd)
+    mainPage.Button({
+        Text = "End Battle",
+        Callback = forceBattleEnd
+    })
 end
 
 if hasMetaHook then
@@ -715,10 +742,19 @@ if hasMetaHook then
             return true, 16
         end
     end)
-    mainSection:addSlider("WalkSpeed", userSettings.WalkSpeed or 16, 0, 250, 0.1, function(value)
-        userSettings.WalkSpeed = value
-    end)
+    mainPage.Slider({
+        Text = "WalkSpeed",
+        Min = 0,
+        Max = 250,
+        Def = userSettings.WalkSpeed or 16,
+        Callback = function(value)
+            userSettings.WalkSpeed = value
+        end
+    })
     LooP(function()
+        if not client or not client.Character or not client.Character:FindFirstChild("Humanoid") then
+            return
+        end
         if userSettings.WalkSpeed and userSettings.WalkSpeed ~= 0 then
             client.Character.Humanoid.WalkSpeed = userSettings.WalkSpeed or 16
         elseif userSettings.WalkSpeed == 0 then
@@ -729,66 +765,109 @@ if hasMetaHook then
     end)
 end
 
-local guiSection = mainPage:addSection("GUIs")
+mainPage.Button({
+    Text = "Open Rally Team",
+    Callback = function()
+        clientState.Menu:disable()
+        clientState.Menu.rally:openRallyTeamMenu()
+        clientState.Menu:enable()
+    end
+})
 
-guiSection:addButton("Open Rally Team", function()
-    clientState.Menu:disable()
-    clientState.Menu.rally:openRallyTeamMenu()
-    clientState.Menu:enable()
-end)
+mainPage.Button({
+    Text = "Open Rallied",
+    Callback = function()
+        pcall(function()
+            if clientState.Network:get("PDS", "ranchStatus").rallied > 0 then
+                clientState.Menu:disable()
+                clientState.Menu.rally:openRalliedMonstersMenu()
+                clientState.Menu:enable()
+            end
+        end)
+    end
+})
 
-guiSection:addButton("Open Rallied", function()
-    pcall(function()
-        if clientState.Network:get("PDS", "ranchStatus").rallied > 0 then
-            clientState.Menu:disable()
-            clientState.Menu.rally:openRalliedMonstersMenu()
-            clientState.Menu:enable()
-        end
-    end)
-end)
+mainPage.Button({
+    Text = "Open PC",
+    Callback = function()
+        clientState.Menu.pc:bootUp()
+    end
+})
 
-guiSection:addButton("Open PC", function()
-    clientState.Menu.pc:bootUp()
-end)
+mainPage.Button({
+    Text = "Open Shop",
+    Callback = function()
+        clientState.Menu:disable()
+        clientState.Menu.shop:open()
+        clientState.Menu:enable()
+    end
+})
 
-guiSection:addButton("Open Shop", function()
-    clientState.Menu:disable()
-    clientState.Menu.shop:open()
-    clientState.Menu:enable()
-end)
+mainPage.Button({
+    Text = "Junk 4 Junk",
+    Callback = function()
+        clientState.Menu:disable()
+        clientState.Menu.shop:open("fishtrash")
+        clientState.Menu:enable()
+    end
+})
 
-guiSection:addButton("Junk 4 Junk", function()
-    clientState.Menu:disable()
-    clientState.Menu.shop:open("fishtrash")
-    clientState.Menu:enable()
-end)
+local miscPage = UIWindow.New({
+    Title = "Misc"
+})
 
-local miscPage = venyxWindow:addPage("Misc")
 if not userSettings.MiscSettings then
     userSettings.MiscSettings = {}
 end
-local miscSettingsSection = miscPage:addSection("Misc Settings")
-local miscSettings = userSettings.MiscSettings
 
-local function addMiscToggle(label, key)
-    miscSettingsSection:addToggle(label, miscSettings[key], function(enabled)
-        miscSettings[key] = enabled
-    end)
-end
+miscPage.Toggle({
+    Text = "Deny Reassign Move",
+    Enabled = userSettings.MiscSettings.NoNewMoves,
+    Callback = function(enabled)
+        userSettings.MiscSettings.NoNewMoves = enabled
+    end
+})
 
-addMiscToggle("Deny Reassign Move", "NoNewMoves")
-addMiscToggle("Deny Switch Request", "NoSwitch")
-addMiscToggle("Deny Nickname Request", "NoNick")
-addMiscToggle("Disable Show Progress", "NoProgress")
+miscPage.Toggle({
+    Text = "Deny Switch Request",
+    Enabled = userSettings.MiscSettings.NoSwitch,
+    Callback = function(enabled)
+        userSettings.MiscSettings.NoSwitch = enabled
+    end
+})
 
-local autoFishSection = miscPage:addSection("Auto Fish")
-autoFishSection:addToggle(originalSetupScene and "Enabled" or "Enabled(will only get items)", userSettings.AutoFish, function(enabled)
-    userSettings.AutoFish = enabled
-end)
+miscPage.Toggle({
+    Text = "Deny Nickname Request",
+    Enabled = userSettings.MiscSettings.NoNick,
+    Callback = function(enabled)
+        userSettings.MiscSettings.NoNick = enabled
+    end
+})
+
+miscPage.Toggle({
+    Text = "Disable Show Progress",
+    Enabled = userSettings.MiscSettings.NoProgress,
+    Callback = function(enabled)
+        userSettings.MiscSettings.NoProgress = enabled
+    end
+})
+
+miscPage.Toggle({
+    Text = originalSetupScene and "Auto Fish" or "Auto Fish (Items Only)",
+    Enabled = userSettings.AutoFish,
+    Callback = function(enabled)
+        userSettings.AutoFish = enabled
+    end
+})
+
 if originalSetupScene then
-    autoFishSection:addToggle("Items Only", userSettings.AutoFish, function(enabled)
-        userSettings.AutoFishOnlyItems = enabled
-    end)
+    miscPage.Toggle({
+        Text = "Items Only",
+        Enabled = userSettings.AutoFishOnlyItems,
+        Callback = function(enabled)
+            userSettings.AutoFishOnlyItems = enabled
+        end
+    })
 end
 
 local originalOnWaterClicked = clientState.Fishing.OnWaterClicked
@@ -796,6 +875,9 @@ local currentWaterPart = nil
 
 LooP(function()
     pcall(function()
+        if not clientState or not clientState.DataManager or not clientState.DataManager.currentChunk then
+            return
+        end
         if currentWaterPart and not currentWaterPart:IsDescendantOf(workspace) then
             currentWaterPart = nil
         end
@@ -864,12 +946,11 @@ function clientState.Fishing.FishMiniGame(mode, _, _, rodId, itemId)
             local castPosition = currentWaterPart.Position + Vector3.new(0, currentWaterPart.Size.Y - 5, 0)
             local reelId = nil
             local raycastParams = RaycastParams.new()
-            raycastParams.FilterDescendantsInstances = {
-                workspace.Terrain
-            }
+            raycastParams.FilterDescendantsInstances = {workspace.Terrain}
             raycastParams.IgnoreWater = false
             raycastParams.FilterType = Enum.RaycastFilterType.Whitelist
-            local rayResult = workspace:Raycast(castPosition + Vector3.new(0, 3, 0), Vector3.new(0.001, -10, 0.001), raycastParams)
+            local rayResult = workspace:Raycast(castPosition + Vector3.new(0, 3, 0), Vector3.new(0.001, -10, 0.001),
+                raycastParams)
             if rayResult and rayResult.Material == Enum.Material.Water then
                 castPosition = rayResult.Position
             end
@@ -920,6 +1001,9 @@ end
 
 LooP(function()
     pcall(function()
+        if not clientState or not clientState.PlayerData or not clientState.Fishing then
+            return
+        end
         if userSettings.AutoFish and clientState.PlayerData.completedEvents.mabelRt8 then
             local delayValue, shouldBattle, regionFishing = clientState.Fishing.FishMiniGame("MrJack")
             if delayValue and userSettings.AutoFish then
@@ -938,20 +1022,30 @@ LooP(function()
     end)
 end)
 
-local discDropSection, discDropEnabled = miscPage:addSection("Auto Disc Drop")
-discDropSection:addToggle("Enabled", nil, function(enabled)
-    discDropEnabled = enabled
-end)
-discDropSection:addToggle("Fast Mode", userSettings.FastDiscDrop, function(enabled)
-    userSettings.FastDiscDrop = enabled
-end)
+miscPage.Toggle({
+    Text = "Disc Drop - Enabled",
+    Enabled = nil,
+    Callback = function(enabled)
+        discDropEnabled = enabled
+    end
+})
+
+miscPage.Toggle({
+    Text = "Disc Drop - Fast Mode",
+    Enabled = userSettings.FastDiscDrop,
+    Callback = function(enabled)
+        userSettings.FastDiscDrop = enabled
+    end
+})
 
 task.spawn(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/thedragonslayer2/MrJack-Game-List/main/Functions/Loomian%20Legacy%20-%20306964494/Disc%20Drop.lua"))()
+    loadstring(game:HttpGet(
+        "https://raw.githubusercontent.com/thedragonslayer2/MrJack-Game-List/main/Functions/Loomian%20Legacy%20-%20306964494/Disc%20Drop.lua"))()
     local runDiscDrop, getDiscDropState = getgenv().LoomianLegacyAutoDisDrop(userSettings, clientState)
     LooP(function()
         pcall(function()
-            if discDropEnabled and clientState.ArcadeController.playing and getDiscDropState() and getDiscDropState().gui.GridFrame:IsDescendantOf(client.PlayerGui) then
+            if discDropEnabled and clientState.ArcadeController.playing and getDiscDropState() and
+                getDiscDropState().gui.GridFrame:IsDescendantOf(client.PlayerGui) then
                 if getDiscDropState().gameEnded then
                     getDiscDropState():CleanUp()
                     getDiscDropState():new()
@@ -967,9 +1061,10 @@ if not userSettings["Auto Hunt"] then
     userSettings["Auto Hunt"] = {}
 end
 
-local autoHuntPage = venyxWindow:addPage("Auto Hunt")
+local autoHuntPage = UIWindow.New({
+    Title = "Auto Hunt"
+})
 local autoHuntSettings = userSettings["Auto Hunt"]
-local autoHuntSection = autoHuntPage:addSection("Auto Hunt")
 local debugInfo = debug.getinfo or getgenv().getinfo
 local walkEventIterator, walkEventTable, walkEventKey = pairs(getupvalues(clientState.WalkEvents.beginLoop))
 local onStepTaken = nil
@@ -989,18 +1084,21 @@ while true do
     end
 end
 
-autoHuntSection:addToggle("Auto Encounter", nil, function(enabled)
-    autoEncounterEnabled = enabled
-end)
+autoHuntPage.Toggle({
+    Text = "Auto Encounter",
+    Enabled = nil,
+    Callback = function(enabled)
+        autoEncounterEnabled = enabled
+    end
+})
 
 LooP(function()
     pcall(function()
-        if clientState.MasterControl.WalkEnabled
-            and autoEncounterEnabled
-            and clientState.Menu.enabled
-            and not getCurrentBattle()
-            and clientState.PlayerData.completedEvents.ChooseBeginner
-            and isHealedOrAllowed() then
+        if not clientState or not clientState.MasterControl or not clientState.Menu or not clientState.PlayerData then
+            return
+        end
+        if clientState.MasterControl.WalkEnabled and autoEncounterEnabled and clientState.Menu.enabled and
+            not getCurrentBattle() and clientState.PlayerData.completedEvents.ChooseBeginner and isHealedOrAllowed() then
             onStepTaken(true)
         end
     end)
@@ -1016,15 +1114,22 @@ autoHuntSettings.Disc = selectedDisc
 
 local discDropdown
 if advancedExploitAvailable then
-    discDropdown = autoHuntSection:addDropdown(autoHuntSettings.Disc or "Select Disc", availableDiscs, function(choice)
-        autoHuntSettings.Disc = choice
-    end)
+    discDropdown = autoHuntPage.Dropdown({
+        Text = autoHuntSettings.Disc or "Select Disc",
+        Options = availableDiscs,
+        Callback = function(choice)
+            autoHuntSettings.Disc = choice
+        end
+    })
 else
     discDropdown = advancedExploitAvailable
 end
 
 LooP(function()
     pcall(function()
+        if not clientState or not clientState.Network then
+            return
+        end
         local pouchItems = clientState.Network:get("PDS", "getBagPouch", 3)
         local pouchIterator = next
         local pouchKey = nil
@@ -1044,10 +1149,8 @@ LooP(function()
             end
             selectedFound = autoHuntSettings.Disc and item.name == autoHuntSettings.Disc or selectedFound
             if not discButtons[item.name] then
-                local sectionRef = discCounterSection
-                discButtons[item.name] = sectionRef:addButton("")
+                discButtons[item.name] = true
             end
-            discCounterSection:updateButton(discButtons[item.name], item.name .. ": " .. item.qty)
             table.insert(bagNames, item.name)
         end
         local availableIterator = next
@@ -1059,7 +1162,6 @@ LooP(function()
                 break
             end
             if not table.find(bagNames, discName) then
-                discCounterSection:updateButton(discButtons[discName], discName .. ": 0")
                 return table.remove(availableDiscs, availableKey)
             end
         end
@@ -1067,78 +1169,108 @@ LooP(function()
             if not selectedFound then
                 autoHuntSettings.Disc = nil
             end
-            if advancedExploitAvailable then
-                autoHuntSection:updateDropdown(discDropdown, autoHuntSettings.Disc or "Select Disc", availableDiscs, function(choice)
-                    autoHuntSettings.Disc = choice
-                end, true)
-            end
         end
     end)
 end)
 
 if advancedExploitAvailable then
     task.wait(0.1)
-    local function addAutoHuntToggle(label, key)
-        autoHuntSection:addToggle(label, autoHuntSettings[key], function(enabled)
-            autoHuntSettings[key] = enabled
-        end)
-    end
-    addAutoHuntToggle("Use Spare", "Spare")
-    addAutoHuntToggle("Catch Not Owned", "NotOwned")
-    addAutoHuntToggle("Catch Normal Gleam", "Gleam")
-    addAutoHuntToggle("Catch Gamma Gleam", "Gamma")
+
+    autoHuntPage.Toggle({
+        Text = "Use Spare",
+        Enabled = autoHuntSettings.Spare,
+        Callback = function(enabled)
+            autoHuntSettings.Spare = enabled
+        end
+    })
+
+    autoHuntPage.Toggle({
+        Text = "Catch Not Owned",
+        Enabled = autoHuntSettings.NotOwned,
+        Callback = function(enabled)
+            autoHuntSettings.NotOwned = enabled
+        end
+    })
+
+    autoHuntPage.Toggle({
+        Text = "Catch Normal Gleam",
+        Enabled = autoHuntSettings.Gleam,
+        Callback = function(enabled)
+            autoHuntSettings.Gleam = enabled
+        end
+    })
+
+    autoHuntPage.Toggle({
+        Text = "Catch Gamma Gleam",
+        Enabled = autoHuntSettings.Gamma,
+        Callback = function(enabled)
+            autoHuntSettings.Gamma = enabled
+        end
+    })
 
     if not autoHuntSettings.Loomians then
         autoHuntSettings.Loomians = {}
     end
-    local catchListSection = autoHuntPage:addSection("Catch Listed Loomians")
+
     local catchList = autoHuntSettings.Loomians
     local catchDropdown = nil
     local function removeLoomian(name)
         table.remove(catchList, table.find(catchList, name))
         task.delay(0.25, function()
-            catchListSection:updateDropdown(catchDropdown, "List", catchList, removeLoomian, true)
         end)
     end
-    catchDropdown = catchListSection:addDropdown("List", catchList, removeLoomian)
-    catchListSection:addTextbox("Add Loomian", "Name", function(text, enterPressed)
-        if enterPressed then
-            if not table.find(catchList, text:lower()) then
-                table.insert(catchList, text:lower())
+
+    catchDropdown = autoHuntPage.Dropdown({
+        Text = "Remove Loomian",
+        Options = catchList,
+        Callback = removeLoomian
+    })
+
+    autoHuntPage.Textbox({
+        Text = "Add Loomian",
+        Placeholder = "Name",
+        Callback = function(text, enterPressed)
+            if enterPressed then
+                if not table.find(catchList, text:lower()) then
+                    table.insert(catchList, text:lower())
+                end
             end
-            catchListSection:updateDropdown(catchDropdown, "List", catchList, removeLoomian, true)
         end
-    end)
+    })
 
     task.wait(0.1)
-    local corruptSection = autoHuntPage:addSection("Defeat Corrupt")
-    local corruptMoves = {
-        "Disabled"
-    }
+
+    local corruptMoves = {"Disabled"}
     for moveIndex = 1, 4 do
         table.insert(corruptMoves, "Move " .. moveIndex)
     end
+
     if not autoHuntSettings.CorruptMove then
         autoHuntSettings.CorruptMove = "Disabled"
     end
-    corruptSection:addDropdown(autoHuntSettings.CorruptMove, corruptMoves, function(choice)
-        autoHuntSettings.CorruptMove = choice
-    end)
 
-    local modeSection = autoHuntPage:addSection("Mode")
-    local modeOptions = {
-        "Disabled",
-        "Run"
-    }
+    autoHuntPage.Dropdown({
+        Text = autoHuntSettings.CorruptMove,
+        Options = corruptMoves,
+        Callback = function(choice)
+            autoHuntSettings.CorruptMove = choice
+        end
+    })
+
+    local modeOptions = {"Disabled", "Run"}
     for moveIndex = 1, 4 do
         table.insert(modeOptions, "Move " .. moveIndex)
     end
-    modeSection:addDropdown("Disabled", modeOptions, function(choice)
-        runModeSelection = choice
-    end)
+
+    autoHuntPage.Dropdown({
+        Text = "Mode",
+        Options = modeOptions,
+        Callback = function(choice)
+            runModeSelection = choice
+        end
+    })
 end
 
-local autoBuyDiscSection = autoHuntPage:addSection("Auto Buy Disc")
 local availableShopDiscs = {}
 local autoBuyDiscModule = {
     CanAutoBuy = function()
@@ -1146,13 +1278,17 @@ local autoBuyDiscModule = {
     end,
     Enabled = {},
     Func = function(item)
-        if item.name and item.id and item.id:sub(#item.id - 3, #item.id) == "disc" and typeof(item.price) == "number" and not availableShopDiscs[item.name] then
+        if item.name and item.id and item.id:sub(#item.id - 3, #item.id) == "disc" and typeof(item.price) == "number" and
+            not availableShopDiscs[item.name] then
             availableShopDiscs[item.name] = item
         end
     end
 }
 
 LooP(function()
+    if not autoHuntPage then
+        return
+    end
     local iterator = next
     local discTable = availableShopDiscs
     local key = nil
@@ -1163,9 +1299,15 @@ LooP(function()
             break
         end
         if typeof(disc) ~= "Instance" then
-            availableShopDiscs[disc.name] = autoBuyDiscSection:addToggle(disc.name, nil, function(enabled)
-                autoBuyDiscModule.Enabled[disc.id] = enabled or nil
-            end)
+            if disc and disc.name and disc.id then
+                availableShopDiscs[disc.name] = autoHuntPage.Toggle({
+                    Text = "Buy " .. tostring(disc.name),
+                    Enabled = nil,
+                    Callback = function(enabled)
+                        autoBuyDiscModule.Enabled[disc.id] = enabled or nil
+                    end
+                })
+            end
         end
     end
 end)
@@ -1174,6 +1316,9 @@ table.insert(autoBuyModules, autoBuyDiscModule)
 
 LooP(function()
     pcall(function()
+        if not clientState or not getCurrentBattle() then
+            return
+        end
         if getCurrentBattle().state == "input" and autoEncounterEnabled and advancedExploitAvailable then
             local activeLoomian = getActiveMonster()
             if shouldCatchCurrentEncounter() then
@@ -1194,13 +1339,24 @@ LooP(function()
                     return
                 end
                 clientState.BattleGui:exitButtonsMain()
-                clientState.BattleGui.inputEvent:fire("useitem " .. discIdLookup[autoHuntSettings.Disc])
+                local discItemId = discIdLookup[autoHuntSettings.Disc]
+                if discItemId then
+                    clientState.BattleGui.inputEvent:fire("useitem " .. tostring(discItemId))
+                end
             elseif activeLoomian.corrupt and autoHuntSettings.Corrupt ~= "Disabled" then
-                chooseMove(tonumber(autoHuntSettings.CorruptMove:split(" ")[2]))
+                if autoHuntSettings.CorruptMove and autoHuntSettings.CorruptMove ~= "Disabled" then
+                    local moveNum = autoHuntSettings.CorruptMove:split(" ")[2]
+                    if moveNum then
+                        chooseMove(tonumber(moveNum))
+                    end
+                end
             elseif runModeSelection and runModeSelection ~= "Disabled" then
                 if runModeSelection ~= "Run" then
                     local selectedMove = runModeSelection
-                    chooseMove(tonumber(selectedMove:split(" ")[2]))
+                    local moveNum = selectedMove:split(" ")[2]
+                    if moveNum then
+                        chooseMove(tonumber(moveNum))
+                    end
                 elseif getCurrentBattle() and getCurrentBattle().CanRun ~= false and battleGuiOpen then
                     clientState.BattleGui:mainButtonClicked(4)
                 end
@@ -1209,37 +1365,59 @@ LooP(function()
     end)
 end)
 
-local _ = autoHuntPage:addSection("Discs Counter")
+local _ = nil
 
 if advancedExploitAvailable then
     if not userSettings.AutoRally then
         userSettings.AutoRally = {}
     end
-    local autoRallySection = venyxWindow:addPage("Auto Rally"):addSection("Auto Rally")
-    autoRallySection:addToggle("Enabled", userSettings.AutoRally.Enabled, function(enabled)
-        userSettings.AutoRally.Enabled = enabled
-    end)
-    autoRallySection:addToggle("Keep All", userSettings.AutoRally.All, function(enabled)
-        userSettings.AutoRally.All = enabled
-    end)
-    autoRallySection:addToggle("Keep Gleaming", userSettings.AutoRally.Gleaming, function(enabled)
-        userSettings.AutoRally.Gleaming = enabled
-    end)
-    autoRallySection:addToggle("Keep Hidden Ability", userSettings.AutoRally["Hidden Ability"], function(enabled)
-        userSettings.AutoRally["Hidden Ability"] = enabled
-    end)
-    autoRallySection:addDropdown(userSettings.AutoRally.x40Tab or "x40 keep Disabled", {
-        "x40 keep Disabled",
-        "3x40 and Higher",
-        "4x40 and Higher",
-        "5x40 and Higher",
-        "6x40 and Higher",
-        "7x40 Only"
-    }, function(choice)
-        userSettings.AutoRally.x40Tab = choice
-        local keepCount = choice == "x40 keep Disabled" and 8 or choice:sub(1, 1)
-        userSettings.AutoRally.x40 = tonumber(keepCount)
-    end)
+
+    local autoRallyPage = UIWindow.New({
+        Title = "Auto Rally"
+    })
+
+    autoRallyPage.Toggle({
+        Text = "Enabled",
+        Enabled = userSettings.AutoRally.Enabled,
+        Callback = function(enabled)
+            userSettings.AutoRally.Enabled = enabled
+        end
+    })
+
+    autoRallyPage.Toggle({
+        Text = "Keep All",
+        Enabled = userSettings.AutoRally.All,
+        Callback = function(enabled)
+            userSettings.AutoRally.All = enabled
+        end
+    })
+
+    autoRallyPage.Toggle({
+        Text = "Keep Gleaming",
+        Enabled = userSettings.AutoRally.Gleaming,
+        Callback = function(enabled)
+            userSettings.AutoRally.Gleaming = enabled
+        end
+    })
+
+    autoRallyPage.Toggle({
+        Text = "Keep Hidden Ability",
+        Enabled = userSettings.AutoRally["Hidden Ability"],
+        Callback = function(enabled)
+            userSettings.AutoRally["Hidden Ability"] = enabled
+        end
+    })
+
+    autoRallyPage.Dropdown({
+        Text = userSettings.AutoRally.x40Tab or "x40 keep Disabled",
+        Options = {"x40 keep Disabled", "3x40 and Higher", "4x40 and Higher", "5x40 and Higher", "6x40 and Higher",
+                   "7x40 Only"},
+        Callback = function(choice)
+            userSettings.AutoRally.x40Tab = choice
+            local keepCount = choice == "x40 keep Disabled" and 8 or choice:sub(1, 1)
+            userSettings.AutoRally.x40 = tonumber(keepCount)
+        end
+    })
 
     LooP(function()
         pcall(function()
@@ -1281,24 +1459,21 @@ if advancedExploitAvailable then
                             toHandle[monsterIndex] = 1
                         end
                     end
-                    local actions = {
-                        function()
-                            clientState.DataManager:setLoading(loadingFlag, true)
-                            local handledCount = clientState.Network:get("PDS", "handleRallied", toHandle)
-                            clientState.DataManager:setLoading(loadingFlag, false)
-                            if handledCount then
-                                clientState.Menu.rally.ralliedCount = handledCount
-                                if clientState.Menu.rally.updateNPCBubble then
-                                    clientState.Menu.rally.updateNPCBubble(handledCount)
-                                end
-                            end
-                        end,
-                        function()
-                            if rallied.mastery then
-                                clientState.Menu.mastery:showProgressUpdate(rallied.mastery, false)
+                    local actions = {function()
+                        clientState.DataManager:setLoading(loadingFlag, true)
+                        local handledCount = clientState.Network:get("PDS", "handleRallied", toHandle)
+                        clientState.DataManager:setLoading(loadingFlag, false)
+                        if handledCount then
+                            clientState.Menu.rally.ralliedCount = handledCount
+                            if clientState.Menu.rally.updateNPCBubble then
+                                clientState.Menu.rally.updateNPCBubble(handledCount)
                             end
                         end
-                    }
+                    end, function()
+                        if rallied.mastery then
+                            clientState.Menu.mastery:showProgressUpdate(rallied.mastery, false)
+                        end
+                    end}
                     clientState.Utilities.Sync(actions)
                 end
             end
@@ -1306,36 +1481,35 @@ if advancedExploitAvailable then
     end)
 end
 
-local autoBattlePage = venyxWindow:addPage("Auto Battle")
+local autoBattlePage = UIWindow.New({
+    Title = "Auto Battle"
+})
 if not userSettings.AutoBattle then
     userSettings.AutoBattle = {}
 end
 
-local autoMoveSection = autoBattlePage:addSection("Auto Move")
 userSettings.Move = "Disabled"
-local moveOptions = {
-    "Disabled"
-}
+local moveOptions = {"Disabled"}
 for moveIndex = 1, 4 do
     table.insert(moveOptions, "Move " .. moveIndex)
 end
-autoMoveSection:addDropdown("Disabled", moveOptions, function(choice)
-    userSettings.Move = choice
-end)
+
+autoBattlePage.Dropdown({
+    Text = "Auto Move",
+    Options = moveOptions,
+    Callback = function(choice)
+        userSettings.Move = choice
+    end
+})
 
 LooP(function()
     pcall(function()
-        if client.PlayerGui.MainGui:FindFirstChild("BattleGui", true) and string.find(userSettings.Move, "Move") and getCurrentBattle().kind ~= "wild" then
-            chooseMove(tonumber(userSettings.Move:split(" ")[2]))
-        end
+        chooseMove(tonumber(userSettings.Move:split(" ")[2]))
     end)
 end)
 
-local autoBattleSection = autoBattlePage:addSection("Auto Battle")
 local selectedTrainer = "Disabled"
-local trainerOptions = {
-    "Disabled"
-}
+local trainerOptions = {"Disabled"}
 local trainerData = {}
 local trainerNames = {}
 local battleNameLookup = {}
@@ -1380,23 +1554,34 @@ local function cacheTrainerData(_, npc)
                 trainer = trainerBattle
             }
             trainerData[trainerBattle.Name] = battleContext
-            if not table.find(trainerOptions, trainerBattle.Name) and (originalSetupScene or not clientState.DataManager.currentChunk.regionData.BattleScene) then
+            if not table.find(trainerOptions, trainerBattle.Name) and
+                (originalSetupScene or not clientState.DataManager.currentChunk.regionData.BattleScene) then
                 table.insert(trainerOptions, trainerBattle.Name)
             end
         end
     end)
 end
 
-local trainerDropdown = autoBattleSection:addDropdown(trainerNames[1], trainerNames, function(choice)
-    selectedTrainer = choice
-end)
+local trainerDropdown = autoBattlePage.Dropdown({
+    Text = "Select Trainer",
+    Options = trainerNames,
+    Callback = function(choice)
+        selectedTrainer = choice
+    end
+})
 
 LooP(function()
+    if not clientState or not clientState.CollectionManager then
+        return
+    end
     ForLooP(clientState.CollectionManager:GetNPCs(), cacheTrainerData)
 end)
 
 LooP(function()
     pcall(function()
+        if not clientState or not clientState.DataManager or not clientState.DataManager.currentChunk then
+            return
+        end
         local needsUpdate = #trainerOptions ~= #trainerNames
         local nameIterator = next
         local nameKey = nil
@@ -1422,7 +1607,8 @@ LooP(function()
             end
             allInOptions = false
         end
-        if allInOptions and (#trainerOptions ~= 1 or not table.find(trainerOptions, "Disabled")) and not table.clear(trainerOptions) then
+        if allInOptions and (#trainerOptions ~= 1 or not table.find(trainerOptions, "Disabled")) and
+            not table.clear(trainerOptions) then
             table.insert(trainerOptions, "Disabled")
         elseif needsUpdate and not table.clear(trainerNames) then
             local optionIterator = next
@@ -1435,15 +1621,22 @@ LooP(function()
                 end
                 table.insert(trainerNames, option)
             end
-            autoBattleSection:updateDropdown(trainerDropdown)
-            autoBattleSection:updateDropdown(trainerDropdown, "Disabled", trainerOptions, function(choice)
-                selectedTrainer = choice
-            end, true)
+            trainerDropdown = autoBattlePage.Dropdown({
+                Text = "Select Trainer",
+                Options = trainerNames,
+                Callback = function(choice)
+                    selectedTrainer = choice
+                end
+            })
         elseif selectedTrainer ~= "Disabled" then
             local trainerContext = trainerData[selectedTrainer]
             local trainerBattleId = battleNameLookup[selectedTrainer]
-            if trainerContext and trainerContext.opponentBaseNPC.model and trainerContext.opponentBaseNPC.model:IsDescendantOf(workspace) and clientState.DataManager.currentChunk.battles[trainerBattleId] then
-                if clientState.MasterControl.WalkEnabled and not getCurrentBattle() and table.find(trainerOptions, selectedTrainer) and clientState.PlayerData.completedEvents.ChooseBeginner and isHealedOrAllowed() then
+            if trainerContext and trainerContext.opponentBaseNPC.model and
+                trainerContext.opponentBaseNPC.model:IsDescendantOf(workspace) and
+                clientState.DataManager.currentChunk.battles[trainerBattleId] then
+                if clientState.MasterControl.WalkEnabled and not getCurrentBattle() and
+                    table.find(trainerOptions, selectedTrainer) and
+                    clientState.PlayerData.completedEvents.ChooseBeginner and isHealedOrAllowed() then
                     if trainerContext.trainer.Name == "Tamyra" and clientState.DataManager.currentChunk.id == "chunk20" then
                         trainerContext.fshPct = 0.9
                     end
@@ -1459,37 +1652,78 @@ end)
 if table.find(travelLocations, "Uhnne Fair") then
     userSettings.Event = userSettings.Event or {}
     userSettings.Event["Uhnne Fair"] = userSettings.Event["Uhnne Fair"] or {}
-    local eventPage = venyxWindow:addPage("Event")
+
+    local eventPage = UIWindow.New({
+        Title = "Event"
+    })
     local fairSettings = userSettings.Event["Uhnne Fair"]
     local mazeLasers = {}
     local mazeFolder = nil
-    local mainSectionEvent = eventPage:addSection("Main")
-    mainSectionEvent:addToggle("Disable Traps", fairSettings.DisableTraps, function(enabled)
-        fairSettings.DisableTraps = enabled
-    end)
-    mainSectionEvent:addButton("Fix Camera", function()
-        client.CameraMode = "Classic"
-    end)
-    mainSectionEvent:addSlider("Brightness", 0, 0, 50, 0.1, function(value)
-        game.Lighting.Brightness = value
-    end)
 
-    local espSection = eventPage:addSection("ESP")
-    espSection:addToggle("Nevermare", fairSettings.NevermareESP, function(enabled)
-        fairSettings.NevermareESP = enabled
-    end)
-    espSection:addToggle("Key", fairSettings.KeyESP, function(enabled)
-        fairSettings.KeyESP = enabled
-    end)
-    espSection:addToggle("Potion", fairSettings.PotionESP, function(enabled)
-        fairSettings.PotionESP = enabled
-    end)
-    espSection:addToggle("Candy", fairSettings.CandyESP, function(enabled)
-        fairSettings.CandyESP = enabled
-    end)
-    espSection:addToggle("Safe House", fairSettings.SafeHouseESP, function(enabled)
-        fairSettings.SafeHouseESP = enabled
-    end)
+    eventPage.Toggle({
+        Text = "Disable Traps",
+        Enabled = fairSettings.DisableTraps,
+        Callback = function(enabled)
+            fairSettings.DisableTraps = enabled
+        end
+    })
+
+    eventPage.Button({
+        Text = "Fix Camera",
+        Callback = function()
+            client.CameraMode = "Classic"
+        end
+    })
+
+    eventPage.Slider({
+        Text = "Brightness",
+        Min = 0,
+        Max = 50,
+        Def = 0,
+        Callback = function(value)
+            game.Lighting.Brightness = value
+        end
+    })
+
+    eventPage.Toggle({
+        Text = "Nevermare ESP",
+        Enabled = fairSettings.NevermareESP,
+        Callback = function(enabled)
+            fairSettings.NevermareESP = enabled
+        end
+    })
+
+    eventPage.Toggle({
+        Text = "Key ESP",
+        Enabled = fairSettings.KeyESP,
+        Callback = function(enabled)
+            fairSettings.KeyESP = enabled
+        end
+    })
+
+    eventPage.Toggle({
+        Text = "Potion ESP",
+        Enabled = fairSettings.PotionESP,
+        Callback = function(enabled)
+            fairSettings.PotionESP = enabled
+        end
+    })
+
+    eventPage.Toggle({
+        Text = "Candy ESP",
+        Enabled = fairSettings.CandyESP,
+        Callback = function(enabled)
+            fairSettings.CandyESP = enabled
+        end
+    })
+
+    eventPage.Toggle({
+        Text = "Safe House ESP",
+        Enabled = fairSettings.SafeHouseESP,
+        Callback = function(enabled)
+            fairSettings.SafeHouseESP = enabled
+        end
+    })
 
     if game.PlaceId == tonumber("8284266336") then
         local trapTriggers = {}
@@ -1590,7 +1824,8 @@ if table.find(travelLocations, "Uhnne Fair") then
             local cleanupKey = nil
             while true do
                 local cleanupEntry
-                cleanupKey, cleanupEntry = cleanupIterator(clientState.CMazeGameClient.cleanupInstances or {}, cleanupKey)
+                cleanupKey, cleanupEntry = cleanupIterator(clientState.CMazeGameClient.cleanupInstances or {},
+                    cleanupKey)
                 if cleanupKey == nil then
                     break
                 end
@@ -1653,106 +1888,30 @@ if table.find(travelLocations, "Uhnne Fair") then
     end
 end
 
-local randomColor = Color3.fromHSV(tick() % math.random(5) / math.random(5), 1, 1)
-local themeSection = venyxWindow:addPage("GUI Theme"):addSection("Colors")
-local themeSettings = userSettings.Theme or {}
-local defaultTheme = {
-    Background = Color3.fromRGB(24, 24, 24),
-    Glow = randomColor,
-    Accent = Color3.fromRGB(10, 10, 10),
-    LightContrast = Color3.fromRGB(20, 20, 20),
-    DarkContrast = Color3.fromRGB(14, 14, 14),
-    TextColor = randomColor
-}
-userSettings.Theme = themeSettings
-local themeIterator = next
-local themeDefaults = defaultTheme
-local themeKey = nil
-local themePickers = {}
-local function toRGB(color)
-    return math.clamp(math.ceil(color.R * 255), 0, 255), math.clamp(math.ceil(color.G * 255), 0, 255), math.clamp(math.ceil(color.B * 255), 0, 255)
-end
-while true do
-    local themeName, themeValue = themeIterator(defaultTheme, themeKey)
-    if themeName == nil then
-        break
+local otherPage = UIWindow.New({
+    Title = "Other"
+})
+
+otherPage.Button({
+    Text = "Skip Battle Theater Puzzles",
+    Callback = function()
     end
-    themeKey = themeName
-    local savedTheme = userSettings.Theme[themeName]
-    if savedTheme then
-        savedTheme = Color3.fromRGB(toRGB(Color3.new(unpack(userSettings.Theme[themeName]:split(", ")))))
+})
+
+otherPage.Button({
+    Text = "No Unstuck CoolDown",
+    Callback = function()
     end
-    themePickers[themeName] = themeSection:addColorPicker(themeName, savedTheme or themeValue, function(color)
-        venyxWindow:setTheme(themeName, color)
-        userSettings.Theme[themeName] = tostring(color)
-    end)
-end
+})
 
-themeSection:addButton("Reset Theme", function()
-    local iterator = next
-    local key = nil
-    while true do
-        local name, value = iterator(themeDefaults, key)
-        if name == nil then
-            break
-        end
-        key = name
-        venyxWindow:setTheme(name, value)
-        themeSection:updateColorPicker(themePickers[name], name, value)
+otherPage.Button({
+    Text = "Skip Fish MiniGame",
+    Callback = function()
     end
-    userSettings.Theme = {}
-end)
+})
 
-local otherPage = venyxWindow:addPage("Other")
-local builtInSection = otherPage:addSection("Built In Features")
-builtInSection:addButton("Skip Battle Theater Puzzles")
-builtInSection:addButton("No Unstuck CoolDown")
-builtInSection:addButton("Skip Fish MiniGame")
-builtInSection:addButton("Infinite UMV Energy")
-
-local teleportSection = otherPage:addSection("Teleport")
-teleportSection:addButton("Rejoin", function()
-    game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId)
-end)
-teleportSection:addButton("Switch Server", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/thedragonslayer2/Misc/main/Server%20Hop"))()
-end)
-teleportSection:addButton("Find Most Empty Server", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/thedragonslayer2/hey/main/Misc./Find%20the%20most%20empty%20server%20script"))()
-end)
-
-local otherSection = otherPage:addSection("Other")
-otherSection:addButton("Copy Discord Invite", function()
-    setclipboard(DiscordInvite)
-    IrisNotificationMrJack(1, "Notification", "Discord Link Copied!", 3)
-end)
-
-if IrisNotificationUserMrJack then
-    IrisNotificationUserMrJack.ClearAllNotifications()
-end
-
-if not passlolbruh then
-    return IrisNotificationMrJack(2, "Ui Library Variable Did Not Load!", "Something went wrong,\nPlease Execute again!", 7)
-end
-
-otherSection:addKeybind("Hide/Show Gui", Enum.KeyCode.RightAlt, function()
-    venyxWindow:toggle()
-end)
-
-local themeApplyIterator = next
-local themeApplyKey = nil
-while true do
-    local themeName, themeValue = themeApplyIterator(themeDefaults, themeApplyKey)
-    if themeName == nil then
-        break
+otherPage.Button({
+    Text = "Infinite UMV Energy",
+    Callback = function()
     end
-    themeApplyKey = themeName
-    local savedTheme = userSettings.Theme[themeName]
-    if savedTheme then
-        savedTheme = Color3.fromRGB(toRGB(Color3.new(unpack(userSettings.Theme[themeName]:split(", ")))))
-    end
-    venyxWindow:setTheme(themeName, savedTheme or themeValue)
-end
-
-venyxWindow:toggle()
-venyxWindow:SelectPage(venyxWindow.pages[1], true)
+})
