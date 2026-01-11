@@ -5,7 +5,7 @@ function scripting()
     getgenv().AutoFarmRace = false
 
 	-- UI Material ===================================================================================
-    local Material                  = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
+    local Material                  = loadstring(game:HttpGet("https://axiomhub.eu/lua/libs/material.lua"))()
     local Notification              = loadstring(game:HttpGet("https://axiomhub.eu/lua/tools/notify.lua"))()
 
     -- Services ======================================================================================

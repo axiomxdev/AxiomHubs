@@ -1,7 +1,7 @@
 function scripting()
 
     -- getgenv().AxiomHubUiConstante Material ===================================================================================
-    local Material                  = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
+    local Material                  = loadstring(game:HttpGet("https://axiomhub.eu/lua/libs/material.lua"))()
 
     -- Services ======================================================================================
     local Players                   = game:GetService("Players")

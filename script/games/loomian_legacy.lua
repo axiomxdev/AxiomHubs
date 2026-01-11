@@ -36,7 +36,7 @@ local IrisNotificationUserMrJack = {
     end
 }
 
-local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
+local Material = loadstring(game:HttpGet("https://axiomhub.eu/lua/libs/material.lua"))()
 
 if not Material then
     game.Players.LocalPlayer:Kick("Executor not supported")
