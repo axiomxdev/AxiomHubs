@@ -10,19 +10,19 @@ local visitedServers = { game.JobId }
 local foundServerId
 
 pcall(function()
-    if not isfolder("Axiom'sHub") then
-        makefolder("Axiom'sHub")
+    if not isfolder("Axiom's Hub") then
+        makefolder("Axiom's Hub")
     end
 
     visitedServers = game:GetService("HttpService"):JSONDecode(
-        readfile("Axiom'sHub/ServerHop.json")
+        readfile("Axiom's Hub/ServerHop.json")
     )
 end)
 
 local function saveVisitedServers()
     pcall(function()
         writefile(
-            "Axiom'sHub/ServerHop.json",
+            "Axiom's Hub/ServerHop.json",
             game:GetService("HttpService"):JSONEncode(visitedServers)
         )
     end)
