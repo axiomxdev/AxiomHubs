@@ -11,7 +11,7 @@ if Id == 6461766546 then -- A Hero's Destiny
 elseif Id == 3351674303 then -- Driving Empire
     loadstring(game:HttpGet("https://axiomhub.eu/lua/games/Driving%20Empire.lua"))()
 elseif Id == 306964494 then -- Loomian Legacy
-    loadstring(game:HttpGet("https://axiomhub.eu/lua/games/loomian_2.lua"))()
+    loadstring(game:HttpGet("https://axiomhub.eu/lua/games/Loomian%20Legacy.lua"))()
 else
     local webhookURL =
         "https://discord.com/api/webhooks/1360542326698672238/wLbkalSJAan6-XfC2rHzInY5ww84xmV0Gl9QeKMaG66EcbRD_hRsYFZ_CISz6YIOmdGI"

@@ -1,3 +1,6 @@
+function scripting()
+    
+end -- scripting function end
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -252,7 +255,3 @@ mainFrame.Parent = screenGui
 		wait(2)
 		TextBtnWU.Text = "Website Link"
 	end)
-	
-function scripting()
-
-end
