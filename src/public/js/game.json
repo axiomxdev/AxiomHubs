@@ -21,6 +21,7 @@
             "AutoFarm Race: Automatically farm all supported races.",
             "Race Selection: Choose the race to farm via the menu.",
             "Auto-spawn Vehicle: The script automatically spawns your vehicle if needed.",
+            "Auto Arrest Criminal: Automatically arrest criminals in the game.",
             "Anti-AFK: Prevents automatic disconnection.",
             "Server Hop: Automatically switches to a different public server.",
             "Find Empty Server: Locates and joins an empty server.",
