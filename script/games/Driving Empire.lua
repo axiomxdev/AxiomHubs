@@ -1,8 +1,11 @@
 function scripting()
     -- Getgenv setup =================================================================================
-	getgenv().AutoFarm = false
-    getgenv().AutoFarmSpeed = 500
-    getgenv().AutoFarmRace = false
+	getgenv().Settings = {
+        AutoFarm = false,
+        AutoFarmSpeed = 500,
+        AutoFarmRace = false,
+        AutoArrest = false
+    }
 
 	-- UI Material ===================================================================================
     local Material                  = loadstring(game:HttpGet("https://axiomhub.eu/lua/libs/material.lua"))()
@@ -31,6 +34,7 @@ function scripting()
     local Remotes                   = ReplicatedStorage:WaitForChild("Remotes")
     local RaceStartTimeTrial        = Remotes:WaitForChild("RaceStartTimeTrial")
     local VehicleEvent              = Remotes:WaitForChild("VehicleEvent")
+    local RequestStartJobSession    = Remotes:WaitForChild("RequestStartJobSession")
 
     -- BigTable ======================================================================================
 
@@ -64,7 +68,7 @@ function scripting()
     end
 
     function VelocityTP(cframe, speed)
-        speed = speed or getgenv().AutoFarmSpeed
+        speed = speed or getgenv().Settings.AutoFarmSpeed
         Car = GetCurrentVehicle()
 
         local BodyGyro = Instance.new("BodyGyro", Car.PrimaryPart)
@@ -98,7 +102,7 @@ function scripting()
     end
 
 	function FuncAutoFarm()
-        while getgenv().AutoFarm do
+        while getgenv().Settings.AutoFarm do
             if not GetCurrentVehicle() then
                 local vehiclelist = player.PlayerGui.VehicleInventoryHolder.Vehicles.Container.List:GetChildren()
                 local vehicleName = vehiclelist[#vehiclelist].Name
@@ -112,7 +116,7 @@ function scripting()
                 task.wait(1)
                 if not GetCurrentVehicle() then
                     Notification.new("error", "AutoFarm", "Failed to spawn vehicle.", 3)
-                    getgenv().AutoFarm = false
+                    getgenv().Settings.AutoFarm = false
                     break
                 end
             end
@@ -131,7 +135,7 @@ function scripting()
     end
 
     function FuncAutoRace(name)
-        while getgenv().AutoFarmRace do
+        while getgenv().Settings.AutoFarmRace do
             print("[AutoRace] Checking vehicle...")
             if not GetCurrentVehicle() then
                 print("[AutoRace] No vehicle found, attempting to spawn...")
@@ -149,7 +153,7 @@ function scripting()
                 if not GetCurrentVehicle() then
                     print("[AutoRace] Failed to spawn vehicle.")
                     Notification.new("error", "AutoFarm", "Failed to spawn vehicle.", 3)
-                    getgenv().AutoFarm = false
+                    getgenv().Settings.AutoFarmRace = false
                     break
                 end
                 print("[AutoRace] Vehicle spawned successfully.")
@@ -191,7 +195,7 @@ function scripting()
             for lap = 1, totalLaps do
                 print("Starting lap " .. lap .. " of " .. totalLaps)
                 for i = 1, checkpointscount do
-                    if not getgenv().AutoFarmRace then
+                    if not getgenv().Settings.AutoFarmRace then
                         break
                     end
                     print("checkpoint " .. i)
@@ -228,6 +232,81 @@ function scripting()
         end
     end
 
+    --#AutoArrest
+    function StartSecurityJob()
+        local args = {
+            "Security",
+            "jobPad"
+        }
+        RequestStartJobSession:FireServer(unpack(args))
+    end
+
+    function FindCriminals()
+        local criminals = {}
+        for i, v in pairs(workspace:GetChildren()) do
+            if v.Name == "CharacterIconBillboard" then
+                local part = v:FindFirstChild("Part")
+                if part then
+                    local innerBillboard = part:FindFirstChild("CharacterIconBillboard")
+                    if innerBillboard then
+                        local label = innerBillboard:FindFirstChild("CriminalCharacterTextLabel")
+                        if label and label.Text ~= "$0" then
+                            table.insert(criminals, {billboard = v, bounty = label.Text})
+                        end
+                    end
+                end
+            end
+        end
+        return criminals
+    end
+
+    function FuncAutoArrest()
+        StartSecurityJob()
+        Notification.new("info", "AutoArrest", "Security job started.", 3)
+        task.wait(2)
+
+        while getgenv().Settings.AutoArrest do
+            if not GetCurrentVehicle() then
+                local vehiclelist = player.PlayerGui.VehicleInventoryHolder.Vehicles.Container.List:GetChildren()
+                local vehicleName = vehiclelist[#vehiclelist].Name
+
+                local args = {
+                    "Spawn",
+                    vehicleName
+                }
+
+                VehicleEvent:FireServer(unpack(args))
+                task.wait(1)
+                if not GetCurrentVehicle() then
+                    Notification.new("error", "AutoArrest", "Failed to spawn vehicle.", 3)
+                    getgenv().Settings.AutoArrest = false
+                    break
+                end
+            end
+
+            local criminals = FindCriminals()
+            if #criminals > 0 then
+                print("[AutoArrest] Found " .. #criminals .. " criminal(s)")
+                for _, criminal in ipairs(criminals) do
+                    if not getgenv().Settings.AutoArrest then break end
+                    
+                    local criminalPos = criminal.billboard.Part.Position
+                    local targetCFrame = CFrame.new(criminalPos.X, criminalPos.Y + 5, criminalPos.Z)
+                    
+                    print("[AutoArrest] Targeting criminal with bounty: " .. criminal.bounty)
+                    TP(targetCFrame)
+                    task.wait(2)
+                end
+            else
+                print("[AutoArrest] No criminals found, waiting...")
+            end
+            
+            task.wait(3)
+        end
+
+        Notification.new("info", "AutoArrest", "Stopped.", 3)
+    end
+
 	-- UI Material Create ============================================================================
     getgenv().AxiomHubUiConstante = Material.Load({
         Title = " Axiom's Hub | " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name,
@@ -244,7 +323,7 @@ function scripting()
 	local AutoTrainStart = AutoFarm.Toggle({
         Text = "AutoFarm Money",
         Callback = function(value)
-            getgenv().AutoFarm = value
+            getgenv().Settings.AutoFarm = value
             if value then
                 spawn(function() FuncAutoFarm() end)
             end
@@ -268,9 +347,19 @@ function scripting()
     local AutoFarmRace = AutoFarm.Toggle({
         Text = "AutoFarm Race",
         Callback = function(value)
-            getgenv().AutoFarmRace = value
+            getgenv().Settings.AutoFarmRace = value
             if value then
                 spawn(function() FuncAutoRace(SelectedRace) end)
+            end
+        end
+    })
+
+    local AutoArrestToggle = AutoFarm.Toggle({
+        Text = "Auto Arrest Criminals",
+        Callback = function(value)
+            getgenv().Settings.AutoArrest = value
+            if value then
+                spawn(function() FuncAutoArrest() end)
             end
         end
     })

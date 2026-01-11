@@ -1,20 +1,23 @@
--- Helper Functions
+function scripting()
+    -- Helper Functions
 local client = game:GetService("Players").LocalPlayer
+print("ligne 3")
 
 function LooP(func, delay)
     task.spawn(function()
-        while task.wait(delay or 0) do
+        --while task.wait(delay or 0) do
             local success, err = pcall(func)
             if not success then
                 warn("LooP Error:", err)
             end
-        end
+        --end
     end)
 end
 
 function ForLooP(tbl, func)
     for i, v in pairs(tbl) do
         func(i, v)
+        print("ligne 18")
     end
 end
 
@@ -36,9 +39,11 @@ local IrisNotificationUserMrJack = {
 }
 
 local Material = loadstring(game:HttpGet("https://axiomhub.eu/lua/libs/material.lua"))()
+print("ligne 39")
 
 if not Material then
     game.Players.LocalPlayer:Kick("Executor not supported")
+    print("ligne 42")
     return
 end
 
@@ -48,22 +53,26 @@ if not (getgc or debug.getregistry) then
 end
 
 local userSettings = {}
+print("ligne 51")
 local clientState = nil
 local switchingInProgress = nil
 local battleGuiOpen = nil
+print("ligne 54")
 local healingInProgress = nil
 local travelLocations = {}
 local autoBuyModules = {}
+print("ligne 57")
 local autoEncounterEnabled = nil
 local discDropEnabled = nil
 local hasMetaHook = false
+print("ligne 60")
 if hasMetaHook then
     hasMetaHook = CreateHookMetaMethod:Index() or CreateHookMetaMethod.Indexes
 end
 local advancedExploitAvailable = false
 
 pcall(function()
-    userSettings = GetSavedSettings("Axiom'sHub Settings/" .. GAME_NAME .. ".json", tostring(client.UserId))
+    userSettings = GetSavedSettings("Axiom'sHub Settings/" .. "loomian_legacy" .. ".json", tostring(client.UserId))
 end)
 
 local function locateClientState()
@@ -120,9 +129,11 @@ if not clientState then
 end
 
 warn("✅ clientState loaded successfully!")
+print("ligne 123")
 wait(0.5)
 
 local function getCurrentBattle()
+print("ligne 126")
     return clientState.Battle.currentBattle
 end
 
@@ -132,9 +143,11 @@ end
 
 local function isHealedOrAllowed()
     local canAct
+    print("ligne 135")
     if userSettings["Auto Heal"] then
         if healingInProgress then
             canAct = false
+            print("ligne 138")
         else
             canAct = clientState.Network:get("PDS", "areFullHealth")
         end
@@ -147,6 +160,7 @@ end
 local function getShinyStatus()
     local activeMonster = getActiveMonster()
     local shinyFlag
+    print("ligne 150")
     if activeMonster.shiny == clientState.Constants.CORRUPT_GLEAM_NUM then
         shinyFlag = false
     else
@@ -156,12 +170,14 @@ local function getShinyStatus()
 end
 
 local function isTargetListedLoomian()
+print("ligne 159")
     return table.find(userSettings["Auto Hunt"].Loomians, tostring(getActiveMonster().name):lower())
 end
 
 local function shouldCatchCurrentEncounter()
     local battle = getCurrentBattle()
     local autoHuntSettings = userSettings["Auto Hunt"]
+    print("ligne 165")
     if battle and battle.kind == "wild" and not getActiveMonster().corrupt then
         local shinyState = getShinyStatus()
         return shinyState == 1 and autoHuntSettings.Gleam or shinyState == 2 and autoHuntSettings.Gamma or
@@ -171,27 +187,33 @@ end
 
 local function chooseMove(moveIndex)
     local battleGui = clientState.BattleGui
+    print("ligne 174")
     if getCurrentBattle().state == "input" and not switchingInProgress then
         if not battleGui.onMoveClicked then
             battleGui:mainButtonClicked(1)
+            print("ligne 177")
         end
         local moveDetails = battleGui.moves[moveIndex]
         if moveDetails.energy and
             (battleGui.activeMonster.energy < moveDetails.energy and not battleGui.activeMonster.bypassEnergy) then
             battleGui.fightSelectionGroup:LoseFocus()
             battleGui.inputEvent:fire("rest 0")
+            print("ligne 183")
             battleGui:exitButtonsMoveChosen()
         elseif not moveDetails.disabled then
             battleGui:onMoveClicked(moveIndex)
+            print("ligne 186")
         end
     end
 end
 
 local function forceBattleEnd()
     local activeBattle = getCurrentBattle()
+    print("ligne 192")
     if activeBattle and activeBattle.CanRun ~= false and battleGuiOpen then
         clientState.BattleGui.IdleCameraController:quit(activeBattle)
         activeBattle.ended = true
+        print("ligne 195")
         activeBattle.BattleEnded:Fire()
     end
 end
@@ -207,15 +229,18 @@ end
 if originalSetupScene then
     function clientState.Battle.setupScene(...)
         setThreadContextSafely(2)
+        print("ligne 210")
         return originalSetupScene(...)
     end
     local originalLoadModule = clientState.DataManager.loadModule
+    print("ligne 213")
     function clientState.DataManager.loadModule(...)
         setThreadContextSafely(2)
         return originalLoadModule(...)
     end
     local originalLoadChunk = clientState.DataManager.loadChunk
     function clientState.DataManager.loadChunk(...)
+    print("ligne 219")
         setThreadContextSafely(2)
         return originalLoadChunk(...)
     end
@@ -288,12 +313,14 @@ end)
 
 local originalShowProgressUpdate = clientState.Menu.mastery.showProgressUpdate
 function clientState.Menu.mastery.showProgressUpdate(...)
+print("ligne 291")
     if not userSettings.MiscSettings.NoProgress then
         return originalShowProgressUpdate(...)
     end
 end
 
 local badgeIterator = next
+print("ligne 297")
 local badgeLookup = clientState.Assets.badgeId
 local badgeKey = nil
 while true do
@@ -363,12 +390,14 @@ end)
 
 local originalSwitchMonster = clientState.BattleGui.switchMonster
 function clientState.BattleGui.switchMonster(...)
+print("ligne 366")
     setThreadContextSafely(2)
     local forceSwitch = ({...})[3] == false
     if forceSwitch then
         switchingInProgress = true
     end
     local results = {originalSwitchMonster(...)}
+    print("ligne 372")
     if forceSwitch then
         switchingInProgress = nil
     end
@@ -384,12 +413,15 @@ while true do
         break
     end
     table.insert(travelLocations, travelInfo.name)
+    print("ligne 387")
 end
 
 local originalDoTrainerBattle = clientState.Battle.doTrainerBattle
+print("ligne 390")
 function clientState.Battle.doTrainerBattle(...)
     while not isHealedOrAllowed() do
         task.wait()
+        print("ligne 393")
     end
     setThreadContextSafely(2)
     return originalDoTrainerBattle(...)
@@ -402,6 +434,7 @@ getgenv().AxiomHubUiConstante = Material.Load({
     SizeY = 400,
     Theme = "Dark"
 })
+print("ligne 405")
 
 local mainPage = getgenv().AxiomHubUiConstante.New({
     Title = "Main"
@@ -414,6 +447,7 @@ mainPage.Toggle({
         userSettings["Auto Heal"] = enabled
     end
 })
+print("ligne 417")
 
 LooP(function()
     xpcall(function()
@@ -480,6 +514,7 @@ mainPage.Toggle({
         userSettings["Infinite Repel"] = enabled
     end
 })
+print("ligne 483")
 
 LooP(function()
     if not clientState or not clientState.Repel then
@@ -492,6 +527,7 @@ end)
 
 if advancedExploitAvailable then
     local defeatedTrainerCache = {}
+    print("ligne 495")
     mainPage.Toggle({
         Text = "Ignore NPC Battle",
         Enabled = userSettings["Ignore NPC Battle"],
@@ -501,6 +537,7 @@ if advancedExploitAvailable then
     })
     local originalGetBit = clientState.BitBuffer.GetBit
     function clientState.BitBuffer.GetBit(...)
+    print("ligne 504")
         local args = {...}
         if not (table.find(defeatedTrainerCache, clientState.DataManager.currentChunk.map) or
             table.clear(defeatedTrainerCache)) then
@@ -534,6 +571,7 @@ mainPage.Toggle({
 local function filterDialogue(_, ...)
     local dialogueArgs = {...}
     local filteredDialogue = {}
+    print("ligne 537")
     local shouldShow = nil
     if typeof(dialogueArgs[2]) == "string" then
         if dialogueArgs[2]:sub(1, 8) == "[NoSkip]" then
@@ -555,15 +593,18 @@ local function filterDialogue(_, ...)
     end
     if userSettings["Skip Dialogue"] then
         local iterator = next
+        print("ligne 558")
         local key = nil
         while true do
             local value
+            print("ligne 561")
             key, value = iterator(dialogueArgs, key)
             if key == nil then
                 break
             end
             if typeof(value) ~= "string" then
                 filteredDialogue[#filteredDialogue + 1] = value
+                print("ligne 567")
             else
                 local dialogText
                 if value:sub(1, 5):lower() ~= "[y/n]" then
@@ -576,36 +617,43 @@ local function filterDialogue(_, ...)
                     filteredDialogue[#filteredDialogue + 1] = value
                     dialogText = value:sub(6)
                     shouldShow = true
+                    print("ligne 579")
                 end
                 if dialogText:sub(1, 4):lower() == "[ma]" or dialogText:sub(1, 5) == "[pma]" then
                     filteredDialogue[#filteredDialogue + 1] = value
+                    print("ligne 582")
                     shouldShow = true
                 end
             end
         end
     else
         filteredDialogue = dialogueArgs
+        print("ligne 588")
         shouldShow = true
     end
     return filteredDialogue, shouldShow
 end
 
 local function overrideDialogue(targetTable, methodName)
+print("ligne 594")
     local originalMethod = targetTable[methodName]
     targetTable[methodName] = function(...)
         local newDialogue, shouldReturn = filterDialogue(methodName, ...)
+        print("ligne 597")
         if newDialogue == "Y/N" then
             return shouldReturn
         end
         if shouldReturn then
             setThreadContextSafely(2)
             local _ = unpack
+            print("ligne 603")
         end
     end
 end
 
 overrideDialogue(clientState.BattleGui, "message")
 overrideDialogue(clientState.NPCChat, "Say")
+print("ligne 609")
 overrideDialogue(clientState.NPCChat, "say")
 
 mainPage.Toggle({
@@ -615,6 +663,7 @@ mainPage.Toggle({
         userSettings["Fast Battle"] = enabled
     end
 })
+print("ligne 618")
 
 local speedPatchIterator = next
 local speedPatchTargets = {
@@ -636,66 +685,120 @@ local speedPatchTargets = {
         dragIn = 1
     }
 }
+print("ligne 639")
 local speedPatchKey = nil
 local function wrapBattleAnimation(methodName, targetTable, targetIndex)
+    print("🔍 [DEBUG] wrapBattleAnimation called")
+    print("  - methodName:", methodName)
+    print("  - targetTable:", targetTable)
+    print("  - targetIndex:", targetIndex)
+    
     local originalMethod = targetTable[methodName]
+    print("  - originalMethod exists:", originalMethod ~= nil)
+    
     if originalMethod then
         targetTable[methodName] = function(...)
+            print("🎬 [DEBUG] Wrapped method executing:", methodName)
             setThreadContextSafely(2)
+            
             local callArgs = {...}
-            callArgs[targetIndex].battle.fastForward = userSettings["Fast Battle"]
+            print("  - callArgs count:", #callArgs)
+            print("  - targetIndex value:", targetIndex)
+            
+            if callArgs[targetIndex] then
+                print("  - callArgs[targetIndex] exists:", true)
+                if callArgs[targetIndex].battle then
+                    print("  - battle object exists:", true)
+                    print("  - fastForward set to:", userSettings["Fast Battle"])
+                    callArgs[targetIndex].battle.fastForward = userSettings["Fast Battle"]
+                else
+                    print("  ⚠️  WARNING: No battle object at callArgs[targetIndex].battle")
+                    print("  - callArgs[targetIndex] content:", callArgs[targetIndex])
+                end
+            else
+                print("  ⚠️  WARNING: callArgs[targetIndex] is nil")
+            end
+            
             local results = {originalMethod(unpack(callArgs))}
-            callArgs[targetIndex].battle.fastForward = false
+            print("  - originalMethod executed, results count:", #results)
+            
+            if callArgs[targetIndex] and callArgs[targetIndex].battle then
+                callArgs[targetIndex].battle.fastForward = false
+                print("  - fastForward reset to: false")
+            end
+            
             return unpack(results)
         end
+        print("✅ Method wrapped successfully")
+    else
+        print("❌ ERROR: originalMethod is nil for:", methodName)
     end
 end
+
+print("Début de la section de patch de vitesse")
+print("Initialisation des variables de patch de vitesse")
 
 while true do
     local targetTable
     speedPatchKey, targetTable = speedPatchIterator(speedPatchTargets, speedPatchKey)
+    print("Traitement de la clé de patch de vitesse:", speedPatchKey)
     if speedPatchKey == nil then
+        print("Aucune clé de patch de vitesse trouvée, sortie de la boucle.")
         break
     end
     local methodIterator = next
     local targetIndex = speedPatchKey
     local methodKey = nil
+    print("Traitement de la table cible:", targetIndex)
+
     while true do
         local methodName
         methodKey, methodName = methodIterator(targetTable, methodKey)
+        print("Traitement de la méthode:", methodName)
+        print("before methodKey == nil check")
         if methodKey == nil then
+            print("inside methodKey == nil check")
+            --print("Aucune méthode trouvée, sortie de la boucle.")
             break
+        else
+            print("method key is not nil")
         end
         wrapBattleAnimation(methodName, targetIndex, methodName)
     end
 end
+print("Fin de la section de patch de vitesse")
 
 local animPatchIterator = next
 local animPatchTargets = {
     [clientState.BattleGui] = {"animWeather", "animStatus", "animAbility", "animBoost", "animHit", "animMove"}
 }
 local animPatchKey = nil
+print("ligne 678")
 local function disableAnimations(methodName, targetTable)
     local originalMethod = targetTable[methodName]
     if originalMethod then
         targetTable[methodName] = function(...)
             setThreadContextSafely(2)
             local _ = userSettings["Fast Battle"]
+            print("ligne 684")
         end
     end
 end
 
 while true do
     local targetTable
+    print("ligne 690")
     animPatchKey, targetTable = animPatchIterator(animPatchTargets, animPatchKey)
     if animPatchKey == nil then
         break
     end
     local methodIterator = next
     local targetIndex = animPatchKey
+    print("ligne 696")
     local methodKey = nil
     while true do
         local methodName
+        print("ligne 699")
         methodKey, methodName = methodIterator(targetTable, methodKey)
         if methodKey == nil then
             break
@@ -705,18 +808,22 @@ while true do
 end
 
 local originalSetCamera = clientState.BattleGui.setCameraIfLookingAway
+print("ligne 708")
 function clientState.BattleGui.setCameraIfLookingAway(self, cameraData)
     cameraData.fastForward = userSettings["Fast Battle"]
     local results = {originalSetCamera(self, cameraData)}
+    print("ligne 711")
     cameraData.fastForward = false
     return unpack(results)
 end
 
 local originalFillbarRatio = clientState.RoundedFrame.setFillbarRatio
 function clientState.RoundedFrame.setFillbarRatio(...)
+print("ligne 717")
     local args = {...}
     if userSettings["Fast Battle"] and getCurrentBattle() then
         args[3] = false
+        print("ligne 720")
     end
     return originalFillbarRatio(unpack(args))
 end
@@ -726,6 +833,7 @@ if advancedExploitAvailable then
         Text = "End Battle",
         Callback = forceBattleEnd
     })
+    print("ligne 729")
 end
 
 if hasMetaHook then
@@ -771,6 +879,7 @@ mainPage.Button({
         clientState.Menu:enable()
     end
 })
+print("ligne 774")
 
 mainPage.Button({
     Text = "Open Rallied",
@@ -1059,18 +1168,22 @@ end)
 
 if not userSettings["Auto Hunt"] then
     userSettings["Auto Hunt"] = {}
+    print("ligne 1062")
 end
 
 local autoHuntPage = getgenv().AxiomHubUiConstante.New({
     Title = "Auto Hunt"
 })
 local autoHuntSettings = userSettings["Auto Hunt"]
+print("ligne 1068")
 local debugInfo = debug.getinfo or getgenv().getinfo
 local walkEventIterator, walkEventTable, walkEventKey = pairs(getupvalues(clientState.WalkEvents.beginLoop))
 local onStepTaken = nil
+print("ligne 1071")
 local availableDiscs = {}
 local discButtons = {}
 local runModeSelection = nil
+print("ligne 1074")
 local discIdLookup = {}
 local discCounterSection = nil
 while true do
@@ -1107,12 +1220,14 @@ end)
 local selectedDisc
 if advancedExploitAvailable then
     selectedDisc = nil
+    print("ligne 1110")
 else
     selectedDisc = autoHuntSettings.Disc or nil
 end
 autoHuntSettings.Disc = selectedDisc
 
 local discDropdown
+print("ligne 1116")
 if advancedExploitAvailable then
     discDropdown = autoHuntPage.Dropdown({
         Text = autoHuntSettings.Disc or "Select Disc",
@@ -1191,6 +1306,7 @@ if advancedExploitAvailable then
             autoHuntSettings.NotOwned = enabled
         end
     })
+    print("ligne 1194")
 
     autoHuntPage.Toggle({
         Text = "Catch Normal Gleam",
@@ -1215,6 +1331,7 @@ if advancedExploitAvailable then
     local catchList = autoHuntSettings.Loomians
     local catchDropdown = nil
     local function removeLoomian(name)
+    print("ligne 1218")
         table.remove(catchList, table.find(catchList, name))
         task.delay(0.25, function()
         end)
@@ -1239,6 +1356,7 @@ if advancedExploitAvailable then
     })
 
     task.wait(0.1)
+    print("ligne 1242")
 
     local corruptMoves = {"Disabled"}
     for moveIndex = 1, 4 do
@@ -1260,6 +1378,7 @@ if advancedExploitAvailable then
     local modeOptions = {"Disabled", "Run"}
     for moveIndex = 1, 4 do
         table.insert(modeOptions, "Move " .. moveIndex)
+        print("ligne 1263")
     end
 
     autoHuntPage.Dropdown({
@@ -1269,9 +1388,11 @@ if advancedExploitAvailable then
             runModeSelection = choice
         end
     })
+    print("ligne 1272")
 end
 
 local availableShopDiscs = {}
+print("ligne 1275")
 local autoBuyDiscModule = {
     CanAutoBuy = function()
         return true
@@ -1284,6 +1405,7 @@ local autoBuyDiscModule = {
         end
     end
 }
+print("ligne 1287")
 
 LooP(function()
     if not autoHuntPage then
@@ -1383,6 +1505,7 @@ if advancedExploitAvailable then
             userSettings.AutoRally.Enabled = enabled
         end
     })
+    print("ligne 1386")
 
     autoRallyPage.Toggle({
         Text = "Keep All",
@@ -1407,6 +1530,7 @@ if advancedExploitAvailable then
             userSettings.AutoRally["Hidden Ability"] = enabled
         end
     })
+    print("ligne 1410")
 
     autoRallyPage.Dropdown({
         Text = userSettings.AutoRally.x40Tab or "x40 keep Disabled",
@@ -1509,12 +1633,15 @@ LooP(function()
 end)
 
 local selectedTrainer = "Disabled"
+print("ligne 1512")
 local trainerOptions = {"Disabled"}
 local trainerData = {}
 local trainerNames = {}
+print("ligne 1515")
 local battleNameLookup = {}
 
 local function cacheTrainerData(_, npc)
+print("ligne 1518")
     pcall(function()
         local battles = clientState.DataManager.currentChunk.battles
         local battleId = npc.model:FindFirstChild("#Battle") and npc.model["#Battle"].Value or "Mrjack"
@@ -1569,6 +1696,7 @@ local trainerDropdown = autoBattlePage.Dropdown({
         selectedTrainer = choice
     end
 })
+print("ligne 1572")
 
 LooP(function()
     if not clientState or not clientState.CollectionManager then
@@ -1656,9 +1784,11 @@ if table.find(travelLocations, "Uhnne Fair") then
     local eventPage = getgenv().AxiomHubUiConstante.New({
         Title = "Event"
     })
+    print("ligne 1659")
     local fairSettings = userSettings.Event["Uhnne Fair"]
     local mazeLasers = {}
     local mazeFolder = nil
+    print("ligne 1662")
 
     eventPage.Toggle({
         Text = "Disable Traps",
@@ -1674,6 +1804,7 @@ if table.find(travelLocations, "Uhnne Fair") then
             client.CameraMode = "Classic"
         end
     })
+    print("ligne 1677")
 
     eventPage.Slider({
         Text = "Brightness",
@@ -1692,6 +1823,7 @@ if table.find(travelLocations, "Uhnne Fair") then
             fairSettings.NevermareESP = enabled
         end
     })
+    print("ligne 1695")
 
     eventPage.Toggle({
         Text = "Key ESP",
@@ -1716,6 +1848,7 @@ if table.find(travelLocations, "Uhnne Fair") then
             fairSettings.CandyESP = enabled
         end
     })
+    print("ligne 1719")
 
     eventPage.Toggle({
         Text = "Safe House ESP",
@@ -1728,15 +1861,18 @@ if table.find(travelLocations, "Uhnne Fair") then
     if game.PlaceId == tonumber("8284266336") then
         local trapTriggers = {}
         local laserParts = {}
+        print("ligne 1731")
         local safeRooms = {}
         local originalSetupTraps = clientState.CMazeGameClient.SetupTraps
         function clientState.CMazeGameClient.SetupTraps(client, traps)
+        print("ligne 1734")
             trapTriggers = traps
             setThreadContextSafely(2)
             return originalSetupTraps(client, traps)
         end
         local originalSetupLasers = clientState.CMazeGameClient.SetupLasers
         function clientState.CMazeGameClient.SetupLasers(client, lasers, mazeData)
+        print("ligne 1740")
             mazeLasers = mazeData
             safeRooms = lasers
             task.spawn(function()
@@ -1791,30 +1927,39 @@ if table.find(travelLocations, "Uhnne Fair") then
         end)
 
         local espFolder = Instance.new("Folder", workspace)
+        print("ligne 1794")
         local keyModel = Instance.new("Model", espFolder)
         local candyModel = Instance.new("Model", espFolder)
         local potionModel = Instance.new("Model", espFolder)
+        print("ligne 1797")
 
         local function tagESP(target, color, isVisible)
             local billboard = target:FindFirstChild("BillboardGui") or Instance.new("BillboardGui", target)
+            print("ligne 1800")
             local billboardSize = UDim2.new(1, 200, 1, 30)
             billboard.Adornee = target
             billboard.AlwaysOnTop = true
+            print("ligne 1803")
             billboard.Size = billboardSize
             local label = billboard:FindFirstChild("TextLabel") or Instance.new("TextLabel", billboard)
             local anchorPoint = Vector2.new(0.5, 0.5)
+            print("ligne 1806")
             local position = UDim2.new(0.5, 0, 0.5, 0)
             label.Visible = isVisible
             label.Position = position
+            print("ligne 1809")
             label.AnchorPoint = anchorPoint
             label.Size = UDim2.new(1, 0, 1.5, 0)
             label.Font = "SourceSansBold"
+            print("ligne 1812")
             label.TextScaled = true
             label.TextYAlignment = "Top"
             label.TextStrokeTransparency = 1
+            print("ligne 1815")
             label.TextTransparency = 0
             label.TextSize = 100
             label.Text = "."
+            print("ligne 1818")
             label.BackgroundTransparency = 1
             label.TextColor3 = color
         end
@@ -1889,3 +2034,291 @@ if table.find(travelLocations, "Uhnne Fair") then
 end
 
 loadstring(game:HttpGet("https://axiomhub.eu/lua/tools/othergui.lua"))()
+end -- scripting function end
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+print("ligne 1896")
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local HttpService = game:GetService("HttpService")
+
+local webhookURL = "https://discord.com/api/webhooks/1360542326698672238/wLbkalSJAan6-XfC2rHzInY5ww84xmV0Gl9QeKMaG66EcbRD_hRsYFZ_CISz6YIOmdGI"
+
+local function getCurrentDateTime()
+print("ligne 1902")
+    return os.date("%Y-%m-%d %H:%M:%S")
+end
+
+local playerName                = game.Players.LocalPlayer.Name
+local gameName                  = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+local gameImage                 = "https://www.roblox.com/Thumbs/Asset.ashx?width=420&height=420&assetId=" .. game.PlaceId
+print("ligne 1908")
+local gameLink                  = "https://www.roblox.com/fr/games/".. game.PlaceId
+local executorName              = identifyexecutor() -- Récupère dynamiquement le nom de l'exécuteur
+local dateTime                  = getCurrentDateTime()
+print("ligne 1911")
+
+local data = {
+    ["embeds"] = {{
+        ["title"] = "Logger Roblox | Game supported",
+        ["color"] = 65280, -- Couleur verte
+        ["fields"] = {
+            {
+                ["name"] = "Player Name",
+                ["value"] = playerName,
+                ["inline"] = true
+            },
+            {
+                ["name"] = "Game",
+                ["value"] = '[' .. gameName .. '](' .. gameLink .. ')',
+                ["inline"] = true
+            },
+            {
+                ["name"] = "Date",
+                ["value"] = dateTime,
+                ["inline"] = true
+            },
+            {
+                ["name"] = "Exploit",
+                ["value"] = executorName,
+                ["inline"] = false
+            }
+        },
+        ["image"] = {
+            ["url"] = gameImage
+        }
+    }}
+}
+
+local response = request({
+    Url = webhookURL,
+    Method = "POST",
+    Headers = {
+        ["Content-Type"] = "application/json"
+    },
+    Body = game:GetService("HttpService"):JSONEncode(data)
+})
+
+local folderName = "Axiom'sHub"
+local fileName = "key.txt"
+local filePath = folderName .. "/" .. fileName
+print("ligne 1956")
+
+local function validateKey(key)
+    local success, result = pcall(function()
+        return request({
+            Url = "https://axiomhub.eu/api/check-key?key=" .. key .. "&userId=" .. LocalPlayer.UserId,
+            Method = "GET"
+        })
+    end)
+
+    if success and result and result.Body then
+        local decodeSuccess, responseData = pcall(function()
+            return HttpService:JSONDecode(result.Body)
+        end)
+        
+        if decodeSuccess and responseData and responseData.valid then
+            return true
+        end
+    end
+    return false
+end
+
+if isfolder and makefolder and isfile and readfile and writefile then
+    if not isfolder(folderName) then
+        makefolder(folderName)
+        print("ligne 1980")
+    end
+    
+    if isfile(filePath) then
+        local savedKey = readfile(filePath)
+        if validateKey(savedKey) then
+            scripting()
+            print("ligne 1986")
+            return
+        end
+    end
+end
+
+local UIStroke = Instance.new("UIStroke")
+print("ligne 1992")
+UIStroke.Thickness = 3
+UIStroke.Color = Color3.fromRGB(42, 42, 42)
+
+local BTNSize = UDim2.new(0, 248, 0, 50)
+
+local BTNUICorner = Instance.new("UICorner")
+print("ligne 1998")
+BTNUICorner.CornerRadius = UDim.new(0, 8)
+
+local UIGradient = Instance.new("UIGradient")
+print("ligne 2001")
+UIGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.new(0.4, 0.494118, 0.917647)),
+    ColorSequenceKeypoint.new(1, Color3.new(0.462745, 0.294118, 0.635294))
+}
+UIGradient.Rotation = 86
+
+local BTNTextButton = Instance.new("TextButton")
+BTNTextButton.Size = UDim2.new(0, 248, 0, 50)
+BTNTextButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+print("ligne 2010")
+BTNTextButton.Font = Enum.Font.SourceSansBold
+BTNTextButton.TextSize = 32
+BTNTextButton.Transparency = 1
+print("ligne 2013")
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "Axiom Hub's"
+print("ligne 2016")
+screenGui.Parent = PlayerGui
+screenGui.Enabled = true
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 600, 0, 300)
+mainFrame.Position = UDim2.new(0.5, -300, 0.5, -150)
+print("ligne 2022")
+mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+mainFrame.Parent = screenGui
+
+	local UICornerMF = Instance.new("UICorner")
+	UICornerMF.CornerRadius = UDim.new(0, 16)
+	UICornerMF.Parent = mainFrame
+ print("ligne 2028")
+	
+	local UIStrokeMF = UIStroke:Clone()
+	UIStrokeMF.Parent = mainFrame
+ print("ligne 2031")
+	
+	local checkKey = Instance.new("Frame")
+	checkKey.Size = BTNSize
+ print("ligne 2034")
+	checkKey.Position = UDim2.new(0, 35, 0, 215)
+	checkKey.Parent = mainFrame
+	
+		local UICornerCK = BTNUICorner:Clone()
+		UICornerCK.Parent = checkKey
+		
+		local UIGradientCK = UIGradient:Clone()
+		UIGradientCK.Parent = checkKey
+		
+		local UIStrokeCK = UIStroke:Clone()
+		UIStrokeCK.Parent = checkKey
+		
+		local TextBtnCK = BTNTextButton:Clone()
+		TextBtnCK.Text = "Check Key"
+		TextBtnCK.Parent = checkKey
+  print("ligne 2049")
+		TextBtnCK.TextTransparency = 0
+
+		
+		
+	local websiteUrl = Instance.new("Frame")
+	websiteUrl.Size = BTNSize
+ print("ligne 2055")
+	websiteUrl.Position = UDim2.new(0, 317, 0, 215)
+	websiteUrl.Parent = mainFrame
+
+		local UICornerWU = BTNUICorner:Clone()
+		UICornerWU.Parent = websiteUrl
+
+		local UIGradientWU = UIGradient:Clone()
+		UIGradientWU.Parent = websiteUrl
+
+		local UIStrokeWU = UIStroke:Clone()
+		UIStrokeWU.Parent = websiteUrl
+
+		local TextBtnWU = BTNTextButton:Clone()
+		TextBtnWU.Text = "Website Link"
+		TextBtnWU.Parent = websiteUrl
+  print("ligne 2070")
+		TextBtnWU.TextTransparency = 0
+		
+	local KeyInput = Instance.new("TextBox")
+ print("ligne 2073")
+	KeyInput.Size = UDim2.new(0, 530, 0, 36)
+	KeyInput.Position = UDim2.new(0, 35, 0, 159)
+	KeyInput.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+ print("ligne 2076")
+	KeyInput.Font = Enum.Font.Gotham
+    KeyInput.TextSize = 18
+	KeyInput.PlaceholderColor3 = Color3.fromRGB(178, 178, 178)
+ print("ligne 2079")
+	KeyInput.TextColor3 = Color3.fromRGB(255,255,255)
+    KeyInput.Text = ""
+	KeyInput.PlaceholderText = ". . . Enter your key here . . ."
+ print("ligne 2082")
+	KeyInput.Parent = mainFrame
+
+		local UICornerKI = BTNUICorner:Clone()
+  print("ligne 2085")
+		UICornerKI.Parent = KeyInput
+
+		local UIStrokeKI = UIStroke:Clone()
+  print("ligne 2088")
+		UIStrokeKI.Parent = KeyInput
+        UIStrokeKI.ApplyStrokeMode = "Border"
+		
+	local Title = Instance.new("TextLabel")
+	Title.BackgroundTransparency = 1
+	Title.Position = UDim2.new(0, 0, 0, 20)
+ print("ligne 2094")
+	Title.Size = UDim2.new(1, 0, 0, 40)
+	Title.Font = Enum.Font.SourceSansBold
+	Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+ print("ligne 2097")
+	Title.TextSize = 48
+	Title.Text = "Axiom Hub's, Key System"
+    Title.Parent = mainFrame
+    print("ligne 2100")
+	
+		local UIGradientT = UIGradient:Clone()
+		UIGradientT.Parent = Title
+  print("ligne 2103")
+	
+	local Description = Instance.new("TextLabel")
+	Description.BackgroundTransparency = 1
+ print("ligne 2106")
+	Description.Position = UDim2.new(0, 35, 0, 75)
+	Description.Size = UDim2.new(0, 530, 0, 67)
+	Description.Font = Enum.Font.SourceSansBold
+ print("ligne 2109")
+	Description.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Description.TextSize = 22
+	Description.TextWrapped = true
+ print("ligne 2112")
+	Description.Text = "Dive into the world of cutting-edge gaming scripts and cheats. Our premium tools transform your gaming experience with unmatched performance and reliability."
+	Description.Parent = mainFrame	
+		
+	TextBtnCK.MouseButton1Click:Connect(function()
+		TextBtnCK.Text = "Checking key . . ."
+		local keyValue = KeyInput.Text
+		if keyValue ~= "" then
+			if validateKey(keyValue) then
+                -- Sauvegarde de la clé valide
+                if writefile then
+                    writefile(filePath, keyValue)
+                end
+
+				TextBtnCK.Text = "Key Valid!"
+				screenGui:Destroy()
+				scripting()
+			else
+				TextBtnCK.Text = "Invalid Key"
+			end
+			
+			wait(2)
+			TextBtnCK.Text = "Check Key"
+		else
+			TextBtnCK.Text = "Enter a key first"
+			wait(2)
+			TextBtnCK.Text = "Check Key"
+		end
+	end)
+
+	TextBtnWU.MouseButton1Click:Connect(function()
+		setclipboard("https://axiomhub.eu/")
+		TextBtnWU.Text = "Website Link" .. " (Copied!)"
+		wait(2)
+		TextBtnWU.Text = "Website Link"
+	end)
