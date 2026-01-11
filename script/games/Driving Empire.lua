@@ -29,6 +29,10 @@ function scripting()
     --#Players
     local player                    = Players.LocalPlayer
 
+    local character                 = player.Character or player.CharacterAdded:Wait()
+    local humanoid                  = character:WaitForChild("Humanoid")
+    local humanoidRootPart          = character:WaitForChild("HumanoidRootPart")
+
     --#RunService
     local RunService                = game:GetService("RunService")
     local workspace                 = game:GetService("Workspace")
@@ -64,6 +68,14 @@ function scripting()
 
     -- notify https://raw.githubusercontent.com/Eazvy/UILibs/refs/heads/main/Notifications/Jxereas/Preview
     --#AutoFarm
+
+    --#Player was killed
+    player.CharacterAdded:Connect(function(newCharacter)
+        character = newCharacter
+        humanoid = character:WaitForChild("Humanoid", 5)
+        humanoidRootPart = character:WaitForChild("HumanoidRootPart", 5)
+    end)
+
     local heightY = 31
     local endFarmPos = Vector3.new(-34548, heightY, -32808)
     local startFarmPos = Vector3.new(-18223, heightY, -494)
@@ -73,7 +85,14 @@ function scripting()
     end
 
     function TP(cframe)
-        GetCurrentVehicle():SetPrimaryPartCFrame(cframe)
+        local car = GetCurrentVehicle()
+        if not car then return end
+        if not car.PrimaryPart then
+            car.PrimaryPart = car:FindFirstChildWhichIsA("BasePart")
+        end
+        if car.PrimaryPart then
+            car:SetPrimaryPartCFrame(cframe)
+        end
     end
 
     function VelocityTP(cframe, speed)
@@ -140,17 +159,17 @@ function scripting()
             task.wait()
         end
 
-        Notification.new("info", "AutoFarm", "Stopped.", 3)
+        Notification.new("message", "AutoFarm", "Stopped.", 3)
     end
 
     function FuncAutoRace(name)
         while getgenv().Settings.AutoFarmRace do
-            print("[AutoRace] Checking vehicle...")
+            Notification.new("info", "AutoRace", "Checking vehicle...", 2)
             if not GetCurrentVehicle() then
-                print("[AutoRace] No vehicle found, attempting to spawn...")
+                Notification.new("info", "AutoRace", "No vehicle found, attempting to spawn...", 2)
                 local vehiclelist = player.PlayerGui.VehicleInventoryHolder.Vehicles.Container.List:GetChildren()
                 local vehicleName = vehiclelist[#vehiclelist].Name
-                print("[AutoRace] Spawning vehicle:", vehicleName)
+                Notification.new("info", "AutoRace", "Spawning vehicle: " .. vehicleName, 2)
 
                 local args = {
                     "Spawn",
@@ -160,15 +179,14 @@ function scripting()
                 VehicleEvent:FireServer(unpack(args))
                 task.wait(1)
                 if not GetCurrentVehicle() then
-                    print("[AutoRace] Failed to spawn vehicle.")
-                    Notification.new("error", "AutoFarm", "Failed to spawn vehicle.", 3)
+                    Notification.new("error", "AutoRace", "Failed to spawn vehicle.", 3)
                     getgenv().Settings.AutoFarmRace = false
                     break
                 end
-                print("[AutoRace] Vehicle spawned successfully.")
+                Notification.new("success", "AutoRace", "Vehicle spawned successfully.", 3)
             end
 
-            print("[AutoRace] Starting race:", name)
+            Notification.new("info", "AutoRace", "Starting race: " .. name, 2)
             local args = {
                 name,
                 "RaceGoal"
@@ -187,7 +205,7 @@ function scripting()
                 task.wait()
             end
 
-            print("[AutoRace] Race started!")
+            Notification.new("success", "AutoRace", "Race started!", 3)
             
             local Race = LocalSessionRace:WaitForChild(name)
             local RaceInfo = AutoRaceInfo[name]
@@ -202,12 +220,11 @@ function scripting()
 
             local totalLaps = RaceInfo[2]
             for lap = 1, totalLaps do
-                print("Starting lap " .. lap .. " of " .. totalLaps)
+                Notification.new("info", "AutoRace", "Starting lap " .. lap .. " of " .. totalLaps, 1)
                 for i = 1, checkpointscount do
                     if not getgenv().Settings.AutoFarmRace then
                         break
                     end
-                    print("checkpoint " .. i)
                     local checkpoint = Race.Checkpoints:FindFirstChild(tostring(i))
                     if checkpoint then
                         local checkpointPos = checkpoint.CFrame
@@ -269,43 +286,71 @@ function scripting()
         return criminals
     end
 
+    local function slideToPosition(targetCFrame, time)
+        local tweenInfo = TweenInfo.new(
+            time, -- Durée
+            Enum.EasingStyle.Linear, -- Mouvement linéaire
+            Enum.EasingDirection.Out,
+            0, -- Pas de répétition
+            false, -- Pas d'aller-retour
+            0 -- Pas de délai
+        )
+        
+        local tween = TweenService:Create(humanoidRootPart, tweenInfo, {
+            CFrame = targetCFrame
+        })
+        
+        tween:Play()
+        tween.Completed:Wait()
+    end
+
     function FuncAutoArrest()
         StartSecurityJob()
-        Notification.new("info", "AutoArrest", "Security job started.", 3)
-        task.wait(2)
-
-        if not GetCurrentVehicle() then
-            local vehiclelist = player.PlayerGui.VehicleInventoryHolder.Vehicles.Container.List:GetChildren()
-            local vehicleName = vehiclelist[#vehiclelist].Name
-
-            local args = {
-                "Spawn",
-                vehicleName
-            }
-
-            VehicleEvent:FireServer(unpack(args))
-            task.wait(1)
-            if not GetCurrentVehicle() then
-                Notification.new("error", "AutoArrest", "Failed to spawn vehicle.", 3)
-                return
-            end
-        end
+        Notification.new("info", "AutoArrest", "Security job started.", 2)
+        task.wait(1)
 
         local criminals = FindCriminals()
         if #criminals > 0 then
-            print("[AutoArrest] Found " .. #criminals .. " criminal(s)")
-            for _, criminal in ipairs(criminals) do
-                if not getgenv().Settings.AutoArrest then break end
+            Notification.new("success", "AutoArrest", "Criminals found: " .. #criminals, 3)
+            local arrested = 0
+            
+            for i, criminal in ipairs(criminals) do
+                if not criminal.billboard or not criminal.billboard.Parent then
+                    Notification.new("info", "AutoArrest", "Criminal " .. i .. " escaped.", 2)
+                end
                 
-                local criminalPos = criminal.billboard.Part.Position
-                local targetCFrame = CFrame.new(criminalPos.X, criminalPos.Y + 5, criminalPos.Z)
+                Notification.new("info", "AutoArrest", "["..i.."/"..#criminals.."] Targeting: " .. criminal.bounty, 2)
+                local pursuitStart = tick()
+                local pursuitDuration = 10
                 
-                print("[AutoArrest] Targeting criminal with bounty: " .. criminal.bounty)
-                TP(targetCFrame)
-                task.wait(2)
+                while tick() - pursuitStart < pursuitDuration do
+                    -- Check if criminal still exists
+                    if not criminal.billboard or not criminal.billboard.Parent or not criminal.billboard.Part then
+                        Notification.new("success", "AutoArrest", "Criminal arrested!", 2)
+                        arrested = arrested + 1
+                        break
+                    end
+                    
+                    -- Move player to criminal position with offset
+                    local criminalPos = criminal.billboard.Part.Position
+                    local targetCFrame = CFrame.new(criminalPos.X, criminalPos.Y + 3, criminalPos.Z)
+                    
+                    -- Direct TP for smooth pursuit
+                    if humanoidRootPart then
+                        humanoidRootPart.CFrame = targetCFrame
+                    end
+                    
+                    task.wait(0.05) -- Smoother updates
+                end
+                
+                task.wait(0.5)
+            end
+            
+            if arrested > 0 then
+                Notification.new("success", "AutoArrest", "Arrested " .. arrested .. " criminal(s)!", 3)
             end
         else
-            Notification.new("info", "AutoArrest", "No criminals found.", 3)
+            Notification.new("error", "AutoArrest", "No criminals found.", 3)
         end
     end
 
@@ -359,14 +404,10 @@ function scripting()
         end
     })
 
-    local AutoArrestToggle = AutoFarm.Toggle({
+    local AutoArrestButton = AutoFarm.Button({
         Text = "Auto Arrest Criminals",
-        Callback = function(value)
-            getgenv().Settings.AutoArrest = value
-            SaveSettings()
-            if value then
-                spawn(function() FuncAutoArrest() end)
-            end
+        Callback = function()
+            FuncAutoArrest()
         end
     })
 
