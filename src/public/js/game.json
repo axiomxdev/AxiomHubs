@@ -7,7 +7,10 @@
             "AutoQuest: Farms specific quests based on user-chosen levels.",
             "AutoRebirth & Super Rebirth: Automates the rebirth processes to increase stats.",
             "AutoTrain: Continuously trains your character to gain stats.",
-            "Anti-AFK: Keeps you active to avoid being kicked."
+            "Anti-AFK: Keeps you active to avoid being kicked.",
+            "Server Hop: Automatically switches to a different public server.",
+            "Find Empty Server: Locates and joins an empty server.",
+            "Rejoin: Instantly rejoins the current server."
         ]
     },
     {
@@ -20,6 +23,21 @@
             "Auto-spawn Vehicle: The script automatically spawns your vehicle if needed.",
             "Anti-AFK: Prevents automatic disconnection.",
             "Server Hop: Automatically switches to a different public server.",
+            "Find Empty Server: Locates and joins an empty server.",
+            "Rejoin: Instantly rejoins the current server."
+        ]
+    },
+    {
+        "placeId": 306964494,
+        "name": "Loomian Legacy",
+        "features": [
+            "AutoFarm Quests: Automatically completes quests by targeting NPCs.",
+            "AutoBattle: Engages in battles automatically based on user settings.",
+            "AutoCatch Loomians: Automatically catches Loomians during battles.",
+            "AutoTrain Loomians: Trains your Loomians to increase their stats.",
+            "Anti-AFK: Keeps you active to avoid being kicked.",
+            "Server Hop: Automatically switches to a different public server.",
+            "Find Empty Server: Locates and joins an empty server.",
             "Rejoin: Instantly rejoins the current server."
         ]
     }
