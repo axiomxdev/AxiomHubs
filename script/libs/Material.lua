@@ -736,15 +736,28 @@ function Material.Load(Config)
     end;
 
     local ProtectFunctions = {};
-    ProtectFunctions.Synapse = function(GuiObject) syn.protect_gui(GuiObject); GuiObject.Parent = CoreGuiService; end;
-    ProtectFunctions.ProtoSmasher = function(GuiObject) GuiObject.Parent = get_hidden_gui(); end;
-    ProtectFunctions.Sentinel = function(GuiObject) GuiObject.Parent = CoreGuiService; end;
-    ProtectFunctions.ScriptWare = function(GuiObject) GuiObject.Parent = gethui(); end;
-    ProtectFunctions.Undefined = function(GuiObject) GuiObject.Parent = CoreGuiService; end;
+    ProtectFunctions.Synapse = function(GuiObject) 
+        pcall(function() syn.protect_gui(GuiObject) end)
+        GuiObject.Parent = CoreGuiService
+    end
+    ProtectFunctions.ProtoSmasher = function(GuiObject) 
+        local success = pcall(function() GuiObject.Parent = get_hidden_gui() end)
+        if not success then GuiObject.Parent = CoreGuiService end
+    end
+    ProtectFunctions.Sentinel = function(GuiObject) 
+        GuiObject.Parent = CoreGuiService
+    end
+    ProtectFunctions.ScriptWare = function(GuiObject) 
+        local success = pcall(function() GuiObject.Parent = gethui() end)
+        if not success then GuiObject.Parent = CoreGuiService end
+    end
+    ProtectFunctions.Undefined = function(GuiObject) 
+        GuiObject.Parent = CoreGuiService
+    end
 
 	local NewInstance = Objects.new("ScreenGui")
 	NewInstance.Name = Title
-    ProtectFunctions[GetExploit()](NewInstance);
+    pcall(function() ProtectFunctions[GetExploit()](NewInstance) end)
 
     getgenv().OldInstance = NewInstance;
 
