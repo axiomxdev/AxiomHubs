@@ -62,7 +62,7 @@ end
 local advancedExploitAvailable = false
 
 pcall(function()
-    userSettings = GetSavedSettings("MrJack Settings/" .. GAME_NAME .. ".json", tostring(client.UserId))
+    userSettings = GetSavedSettings("Axiom'sHub Settings/" .. GAME_NAME .. ".json", tostring(client.UserId))
 end)
 
 local function locateClientState()

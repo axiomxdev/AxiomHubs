@@ -39,12 +39,13 @@ local IrisNotificationUserMrJack = {
 local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
 
 if not Material then
-    warn("❌ Material UI Load Failed!")
+    game.Players.LocalPlayer:Kick("Executor not supported")
     return
 end
 
 if not (getgc or debug.getregistry) then
-    return warn("❌ Executor not Supported! Missing getgc/debug.getregistry")
+    game.Players.LocalPlayer:Kick("Executor not supported")
+    return
 end
 
 local userSettings = {}
@@ -63,7 +64,7 @@ end
 local advancedExploitAvailable = false
 
 pcall(function()
-    userSettings = GetSavedSettings("MrJack Settings/" .. GAME_NAME .. ".json", tostring(client.UserId))
+    userSettings = GetSavedSettings("Axiom'sHub Settings/" .. "loomian_legacy" .. ".json", tostring(client.UserId))
 end)
 
 local function locateClientState()
