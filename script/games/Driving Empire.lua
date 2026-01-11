@@ -1,13 +1,22 @@
 function scripting()
     -- Getgenv setup =================================================================================
-	getgenv().Settings = {
+    local SaveLib                   = loadstring(game:HttpGet("https://axiomhub.eu/lua/libs/save.lua"))()
+    
+    local DEFAULT_SETTINGS = {
         AutoFarm = false,
         AutoFarmSpeed = 500,
-        AutoFarmRace = false,
-        AutoArrest = false
+        AutoFarmRace = false
     }
+        
+    -- Load settings from SaveLib
+    getgenv().Settings = SaveLib.Load(DEFAULT_SETTINGS)
+    
+    -- Function to save settings
+    local function SaveSettings()
+        SaveLib.Save(getgenv().Settings)
+    end
 
-	-- UI Material ===================================================================================
+	-- Import ========================================================================================
     local Material                  = loadstring(game:HttpGet("https://axiomhub.eu/lua/libs/material.lua"))()
     local Notification              = loadstring(game:HttpGet("https://axiomhub.eu/lua/tools/notify.lua"))()
 
@@ -265,46 +274,39 @@ function scripting()
         Notification.new("info", "AutoArrest", "Security job started.", 3)
         task.wait(2)
 
-        while getgenv().Settings.AutoArrest do
+        if not GetCurrentVehicle() then
+            local vehiclelist = player.PlayerGui.VehicleInventoryHolder.Vehicles.Container.List:GetChildren()
+            local vehicleName = vehiclelist[#vehiclelist].Name
+
+            local args = {
+                "Spawn",
+                vehicleName
+            }
+
+            VehicleEvent:FireServer(unpack(args))
+            task.wait(1)
             if not GetCurrentVehicle() then
-                local vehiclelist = player.PlayerGui.VehicleInventoryHolder.Vehicles.Container.List:GetChildren()
-                local vehicleName = vehiclelist[#vehiclelist].Name
-
-                local args = {
-                    "Spawn",
-                    vehicleName
-                }
-
-                VehicleEvent:FireServer(unpack(args))
-                task.wait(1)
-                if not GetCurrentVehicle() then
-                    Notification.new("error", "AutoArrest", "Failed to spawn vehicle.", 3)
-                    getgenv().Settings.AutoArrest = false
-                    break
-                end
+                Notification.new("error", "AutoArrest", "Failed to spawn vehicle.", 3)
+                return
             end
-
-            local criminals = FindCriminals()
-            if #criminals > 0 then
-                print("[AutoArrest] Found " .. #criminals .. " criminal(s)")
-                for _, criminal in ipairs(criminals) do
-                    if not getgenv().Settings.AutoArrest then break end
-                    
-                    local criminalPos = criminal.billboard.Part.Position
-                    local targetCFrame = CFrame.new(criminalPos.X, criminalPos.Y + 5, criminalPos.Z)
-                    
-                    print("[AutoArrest] Targeting criminal with bounty: " .. criminal.bounty)
-                    TP(targetCFrame)
-                    task.wait(2)
-                end
-            else
-                print("[AutoArrest] No criminals found, waiting...")
-            end
-            
-            task.wait(3)
         end
 
-        Notification.new("info", "AutoArrest", "Stopped.", 3)
+        local criminals = FindCriminals()
+        if #criminals > 0 then
+            print("[AutoArrest] Found " .. #criminals .. " criminal(s)")
+            for _, criminal in ipairs(criminals) do
+                if not getgenv().Settings.AutoArrest then break end
+                
+                local criminalPos = criminal.billboard.Part.Position
+                local targetCFrame = CFrame.new(criminalPos.X, criminalPos.Y + 5, criminalPos.Z)
+                
+                print("[AutoArrest] Targeting criminal with bounty: " .. criminal.bounty)
+                TP(targetCFrame)
+                task.wait(2)
+            end
+        else
+            Notification.new("info", "AutoArrest", "No criminals found.", 3)
+        end
     end
 
 	-- UI Material Create ============================================================================
@@ -324,6 +326,7 @@ function scripting()
         Text = "AutoFarm Money",
         Callback = function(value)
             getgenv().Settings.AutoFarm = value
+            SaveSettings()
             if value then
                 spawn(function() FuncAutoFarm() end)
             end
@@ -340,6 +343,7 @@ function scripting()
         Text = "Select Race",
         Callback = function(value)
             SelectedRace = value
+            SaveSettings()
         end,
         Options = RaceOptions
     })
@@ -348,6 +352,7 @@ function scripting()
         Text = "AutoFarm Race",
         Callback = function(value)
             getgenv().Settings.AutoFarmRace = value
+            SaveSettings()
             if value then
                 spawn(function() FuncAutoRace(SelectedRace) end)
             end
@@ -358,6 +363,7 @@ function scripting()
         Text = "Auto Arrest Criminals",
         Callback = function(value)
             getgenv().Settings.AutoArrest = value
+            SaveSettings()
             if value then
                 spawn(function() FuncAutoArrest() end)
             end
@@ -426,7 +432,7 @@ local response = request({
     Body = game:GetService("HttpService"):JSONEncode(data)
 })
 
-local folderName = "Axiom'sHub"
+local folderName = "Axiom's Hub"
 local fileName = "key.txt"
 local filePath = folderName .. "/" .. fileName
 

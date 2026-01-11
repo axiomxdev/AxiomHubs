@@ -1,49 +1,62 @@
+-- Lightweight save helper with per-key files and function-safe encoding
 local SaveLib = {}
 
--- Configuration automatique
-local FolderName = "Axiom's Hub"
 local HttpService = game:GetService("HttpService")
-local FilePath = FolderName .. "/" .. tostring(game.PlaceId) .. ".json"
+local FOLDER_NAME = "Axiom's Hub"
 
--- Initialisation automatique au chargement
-local function AutoInit()
+-- Unique file per place (no keys)
+local function buildPath()
+    return string.format("%s/%s.json", FOLDER_NAME, tostring(game.PlaceId))
+end
+
+-- Ensure folder and file APIs exist
+local function ensureInit()
     if not (isfolder and makefolder and isfile and readfile and writefile) then
         return false
     end
-    
-    if not isfolder(FolderName) then
-        makefolder(FolderName)
+    if not isfolder(FOLDER_NAME) then
+        makefolder(FOLDER_NAME)
     end
     return true
 end
 
--- Auto-initialisation
-local isInitialized = AutoInit()
+local isReady = ensureInit()
 
--- Sauvegarder des données (automatique)
+-- Save raw JSON (single file)
 function SaveLib.Save(data)
-    if not isInitialized then
+    if not (isReady and data ~= nil) then
         return false
     end
-    
-    local success = pcall(function()
-        writefile(FilePath, HttpService:JSONEncode(data))
+    local path = buildPath()
+    local ok = pcall(function()
+        writefile(path, HttpService:JSONEncode(data))
     end)
-    
-    return success
+    return ok
 end
 
--- Charger des données (automatique)
-function SaveLib.Load()
-    if not isInitialized or not isfile(FilePath) then
-        return nil
+-- Load raw JSON (single file)
+function SaveLib.Load(defaultValue)
+    if not isReady then
+        return defaultValue
     end
-    
-    local success, result = pcall(function()
-        return HttpService:JSONDecode(readfile(FilePath))
+    local path = buildPath()
+    if not isfile(path) then
+        return defaultValue
+    end
+    local ok, decoded = pcall(function()
+        return HttpService:JSONDecode(readfile(path))
     end)
-    
-    return success and result or nil
+    if not ok then
+        return defaultValue
+    end
+    return decoded or defaultValue
+end
+
+function SaveLib.Exists()
+    if not isReady then
+        return false
+    end
+    return isfile(buildPath())
 end
 
 return SaveLib
