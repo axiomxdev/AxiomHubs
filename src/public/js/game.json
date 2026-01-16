@@ -32,7 +32,6 @@
         "placeId": 306964494,
         "name": "Loomian Legacy",
         "features": [
-            "AutoFarm Quests: Automatically completes quests by targeting NPCs.",
             "AutoBattle: Engages in battles automatically based on user settings.",
             "AutoCatch Loomians: Automatically catches Loomians during battles.",
             "AutoTrain Loomians: Trains your Loomians to increase their stats.",
