@@ -24,8 +24,7 @@ export async function startEmailListener() {
             auth: {
                 user: String(emailUser),
                 pass: String(emailPass)
-            },
-            logger: false // Désactiver les logs verbeux
+            }
         });
 
         await client.connect();
