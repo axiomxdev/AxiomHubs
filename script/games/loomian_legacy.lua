@@ -1,4 +1,4 @@
-function scripting()
+getgenv().scripting = function()
     -- Helper Functions
 local client = game:GetService("Players").LocalPlayer
 
