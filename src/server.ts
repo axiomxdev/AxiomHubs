@@ -38,6 +38,9 @@ app.set('views', path.join(__dirname, 'views'));
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Serve LuaCatalyst images
+app.use('/lua/luacatalyst', express.static(path.join(__dirname, '..', 'script', 'LuaCatalyst', 'images')));
+
 // middlewares init
 app.use(cookieParser());
 
