@@ -9,9 +9,11 @@ local Services = {
     UserInputService = game:GetService("UserInputService")
 }
 
-local version = "0.0.1"
-local folderpath = "LuaCatalyst"
-local folderpathID = folderpath .. "/" ..game.GameId
+ = folderpath
+
+_G.LuaCatalystVersion = "0.0.1"
+_G.LuaCatalystFolderPath = "LuaCatalyst"
+_G.LuaCatalystFolderPathID = _G.LuaCatalystFolderPath .. "/" ..game.GameId
 
 local LocalPlayer = Services.Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
@@ -25,11 +27,12 @@ end
 
 local function InitFiles()
     local folders = {
-        folderpath,
-        folderpath .. "/Images",
-        folderpathID,
-        folderpathID .. "/Scripts",
-        folderpathID .. "/Workspaces"
+        _G.LuaCatalystFolderPath,
+        _G.LuaCatalystFolderPath .. "/Sources",
+        _G.LuaCatalystFolderPath .. "/Sources/Images",
+        _G.LuaCatalystFolderPathID,
+        _G.LuaCatalystFolderPathID .. "/Scripts",
+        _G.LuaCatalystFolderPathID .. "/Workspaces"
     }
     
     for _, folder in ipairs(folders) do
@@ -40,34 +43,38 @@ local function InitFiles()
 	
     -- Fetch and save images
     local images = {
-        {name = "ai.png", url = "https://axiomhub.eu/lua/LuaCatalyst/images/ai.png"},
+        {name = "GameSettingsTab.png", url = "https://axiomhub.eu/lua/LuaCatalyst/images/GameSettingsTab.png"},
         {name = "script.png", url = "https://axiomhub.eu/lua/LuaCatalyst/images/script.png"}
     }
     
     for _, img in ipairs(images) do
         local data = Request(img.url)
         if data then
-            writefile(folderpath .. "/Images/" .. img.name, data)
+            writefile(_G.LuaCatalystFolderPath .. "/Sources/Images/" .. img.name, data)
         end
     end
     
     print("LuaCatalyst files initialized.")
 end
 
-if not isfolder(folderpath) then
+if not isfolder(_G.LuaCatalystFolderPath) then
     InitFiles()
 end
 
 -- Screen setup
-_G.ScreenGUII = Instance.new("ScreenGui", PlayerGui)
+_G.ScreenGUII = Instance.new("ScreenGui", Services.CoreGui)
 
 local X = _G.ScreenGUII.AbsoluteSize.x
 local Y = _G.ScreenGUII.AbsoluteSize.y
 
-local ImageLabel = Instance.new("ImageLabel", _G.ScreenGUII)
-ImageLabel.Size = UDim2.new(0, X, 0, Y + 50)
+_G.ScreenSubGUI = Instance.new("Frame", _G.ScreenGUII)
+_G.ScreenSubGUI.Size = UDim2.new(0, X, 0, Y + 70)
+_G.ScreenSubGUI.Position = UDim2.new(0, 0, 0, -70)
+_G.ScreenSubGUI.BackgroundTransparency = 1
+
+local ImageLabel = Instance.new("ImageLabel", _G.ScreenSubGUI)
+ImageLabel.Size = UDim2.new(1, 0, 1, 0)
 ImageLabel.BackgroundColor3 = Color3.new(0, 0, 0)
-ImageLabel.Position = UDim2.new(0, 0, 0, -50)
 ImageLabel.Image = "rbxasset://textures/AvatarEditorImages/AvatarEditor.png"
 
 -- Get references
@@ -81,33 +88,6 @@ SizedGui = {
 }
 
 local MenuSwapBool = true
-
--- Input handling functions
-local function HandleMenuSwap()
-    if MenuSwapBool then
-        MenuSwapBool = false
-        local MenuSwap = menuFrames.MenuSwap
-        local rotationTween = Services.TweenService:Create(
-            MenuSwap.Background.Icon, 
-            TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), 
-            {Rotation = MenuSwap.Background.Icon.Rotation + 180}
-        )
-        rotationTween:Play()
-        
-        local currentY = tonumber(string.sub(tostring(ImageLabel.Position.Y.Scale), 1, 5)) or 0
-        local targetY = (currentY == -0.03) and (-50 - X) or (-50)
-        
-        local positionTween = Services.TweenService:Create(
-            ImageLabel, 
-            TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), 
-            {Position = UDim2.new(0, 0, 0, targetY)}
-        )
-        positionTween:Play()
-        
-        task.wait(0.5)
-        MenuSwapBool = true
-    end
-end
 
 local function LoadModule(name, url)
     if not _G[name .. "Boolean"] then
@@ -141,18 +121,20 @@ local function CreateMenuItem(name, Order, icon, onClick)
 
     button[("IconHitArea_" .. button.Name)].AutoButtonColor = false
     button[("IconHitArea_" .. button.Name)].BackgroundColor3 = Color3.new(208, 217, 251)
+    button[("IconHitArea_" .. button.Name)].Name = "IconHitArea"
+    button.Name = "button"
 
     local isHovering = false
     
     -- Hover effect
     item.MouseEnter:Connect(function()
         isHovering = true
-        button[("IconHitArea_" .. button.Name)].BackgroundTransparency = 0.85
+        button["IconHitArea"].BackgroundTransparency = 0.85
     end)
     
     item.MouseLeave:Connect(function()
         isHovering = false
-        button[("IconHitArea_" .. button.Name)].BackgroundTransparency = 1
+        button["IconHitArea"].BackgroundTransparency = 1
     end)
     
     -- Click handling
@@ -169,13 +151,48 @@ end
 
 -- Forward declare for HandleMenuSwap
 local menuFrames = {}
+local rotationTween = 180
+
+-- Input handling functions
+local function HandleMenuSwap()
+    if not MenuSwapBool then 
+        return 
+    end
+    MenuSwapBool = false
+
+    local MenuSwap = menuFrames.MenuSwap
+    local icon = MenuSwap.button.Icon
+
+    local tween = Services.TweenService:Create(
+        icon,
+        TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {Rotation = icon.Rotation + rotationTween}
+    )
+    tween:Play()
+
+    rotationTween = -rotationTween
+
+    -- Toggle Y position between visible and hidden
+    local currentY = _G.ScreenSubGUI.Position.Y.Offset
+    local targetY = (currentY < -70) and -70 or -(_G.ScreenSubGUI.Size.Y.Offset + 70)
+
+    local positionTween = Services.TweenService:Create(
+        _G.ScreenSubGUI,
+        TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {Position = UDim2.new(0, 0, 0, targetY)}
+    )
+    positionTween:Play()
+
+    task.wait(0.5)
+    MenuSwapBool = true
+end
 
 -- Create menu items
 local menuItems = {
     {
         name = "SettingsModule", 
         order = 1, 
-        icon = "rbxasset://textures/ui/Settings/MenuBarIcons/GameSettingsTab.png",
+        icon = getcustomasset(_G.LuaCatalystFolderPath .. "/Sources/Images/GameSettingsTab.png"),
         onClick = function()
             LoadModule("SettingsModule", "https://raw.githubusercontent.com/OuiSom89/ScriptTool/main/Modules/SettingsModule.lua")
         end
@@ -183,7 +200,7 @@ local menuItems = {
     {
         name = "ScriptWritter", 
         order = 2, 
-        icon = getcustomasset(folderpath .. "/Images/script.png"),
+        icon = getcustomasset(_G.LuaCatalystFolderPath .. "/Sources/Images/script.png"),
         onClick = function()
             LoadModule("ScriptWritter", "https://raw.githubusercontent.com/OuiSom89/ScriptTool/main/Modules/ScriptWritter.lua")
         end
@@ -192,10 +209,14 @@ local menuItems = {
         name = "MenuSwap", 
         order = 3, 
         icon = "rbxasset://textures/WindControl/ArrowDown.png",
-        onClick = HandleMenuSwap
+        onClick = function()
+            HandleMenuSwap()
+        end
     }
 }
 
 for _, itemConfig in ipairs(menuItems) do
     menuFrames[itemConfig.name] = CreateMenuItem(itemConfig.name, itemConfig.order, itemConfig.icon, itemConfig.onClick)
 end
+
+_G.LuaCatalystInitialized = true
