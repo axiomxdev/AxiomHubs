@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résultat de la Coloration Syntaxique - AxiomHub</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+        }
+        .demo-section {
+            background-color: #252526;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .demo-title {
+            color: #569cd6;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #569cd6;
+            padding-bottom: 5px;
+        }
+        .code-editor {
+            background-color: #1e1e1e;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .legend-item {
+            background-color: #2d2d30;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 3px solid;
+        }
+        .legend-item .type {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .legend-item .example {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+        }
+        
+        /* Syntax colors */
+        .keyword { color: rgb(86, 156, 214); }
+        .string { color: rgb(206, 145, 120); }
+        .number { color: rgb(181, 206, 168); }
+        .comment { color: rgb(106, 153, 85); }
+        .operator { color: rgb(212, 212, 212); }
+        .builtin { color: rgb(78, 201, 176); }
+        .default { color: rgb(220, 220, 220); }
+        
+        .instruction {
+            background-color: #264f78;
+            border-left: 4px solid #569cd6;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .instruction strong {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Résultat de la Coloration Syntaxique</h1>
+        <p class="subtitle">Implémentation complète pour ScreenBuilder.lua - AxiomHub</p>
+        
+        <div class="instruction">
+            <strong>📍 Où voir le résultat ?</strong><br>
+            Le résultat est visible lorsque vous utilisez <code>ScreenBuilder.CodeEditor.Create()</code> dans Roblox.<br>
+            Cette page montre à quoi ressemble visuellement la coloration syntaxique implémentée.
+        </div>
+
+        <!-- Lua Example -->
+        <div class="demo-section">
+            <div class="demo-title">✅ Exemple 1 : Code Lua avec Coloration Syntaxique</div>
+            <div class="code-editor">
+<span class="comment">-- Fonction d'exemple avec coloration syntaxique</span>
+<span class="keyword">local</span> <span class="keyword">function</span> <span class="default">calculer</span><span class="operator">(</span><span class="default">a</span><span class="operator">,</span> <span class="default">b</span><span class="operator">)</span>
+    <span class="comment">-- Addition de deux nombres</span>
+    <span class="keyword">local</span> <span class="default">resultat</span> <span class="operator">=</span> <span class="default">a</span> <span class="operator">+</span> <span class="default">b</span>
+    
+    <span class="keyword">if</span> <span class="default">resultat</span> <span class="operator">&gt;</span> <span class="number">100</span> <span class="keyword">then</span>
+        <span class="builtin">print</span><span class="operator">(</span><span class="string">"Résultat élevé : "</span> <span class="operator">..</span> <span class="default">resultat</span><span class="operator">)</span>
+        <span class="keyword">return</span> <span class="keyword">true</span>
+    <span class="keyword">else</span>
+        <span class="builtin">print</span><span class="operator">(</span><span class="string">"Résultat normal"</span><span class="operator">)</span>
+        <span class="keyword">return</span> <span class="keyword">false</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">-- Variables</span>
+<span class="keyword">local</span> <span class="default">x</span> <span class="operator">=</span> <span class="number">42</span>
+<span class="keyword">local</span> <span class="default">y</span> <span class="operator">=</span> <span class="number">58</span>
+<span class="keyword">local</span> <span class="default">nom</span> <span class="operator">=</span> <span class="string">"AxiomHub"</span>
+
+<span class="comment">-- Appel de fonction</span>
+<span class="default">calculer</span><span class="operator">(</span><span class="default">x</span><span class="operator">,</span> <span class="default">y</span><span class="operator">)</span>
+
+<span class="comment">-- Boucle</span>
+<span class="keyword">for</span> <span class="default">i</span> <span class="operator">=</span> <span class="number">1</span><span class="operator">,</span> <span class="number">10</span> <span class="keyword">do</span>
+    <span class="builtin">print</span><span class="operator">(</span><span class="default">i</span><span class="operator">)</span>
+<span class="keyword">end</span>
+            </div>
+        </div>
+
+        <!-- JSON Example -->
+        <div class="demo-section">
+            <div class="demo-title">✅ Exemple 2 : Code JSON avec Coloration Syntaxique</div>
+            <div class="code-editor">
+<span class="operator">{</span>
+    <span class="string">"projet"</span><span class="operator">:</span> <span class="string">"AxiomHub"</span><span class="operator">,</span>
+    <span class="string">"version"</span><span class="operator">:</span> <span class="string">"1.0.0"</span><span class="operator">,</span>
+    <span class="string">"actif"</span><span class="operator">:</span> <span class="keyword">true</span><span class="operator">,</span>
+    <span class="string">"utilisateurs"</span><span class="operator">:</span> <span class="number">150</span><span class="operator">,</span>
+    <span class="string">"fonctionnalites"</span><span class="operator">:</span> <span class="operator">[</span>
+        <span class="string">"Coloration syntaxique"</span><span class="operator">,</span>
+        <span class="string">"Editeur de code"</span><span class="operator">,</span>
+        <span class="string">"Support Lua et JSON"</span>
+    <span class="operator">]</span><span class="operator">,</span>
+    <span class="string">"configuration"</span><span class="operator">:</span> <span class="operator">{</span>
+        <span class="string">"theme"</span><span class="operator">:</span> <span class="string">"dark"</span><span class="operator">,</span>
+        <span class="string">"taille"</span><span class="operator">:</span> <span class="number">16</span><span class="operator">,</span>
+        <span class="string">"police"</span><span class="operator">:</span> <span class="string">"Code"</span>
+    <span class="operator">}</span><span class="operator">,</span>
+    <span class="string">"donnees"</span><span class="operator">:</span> <span class="keyword">null</span>
+<span class="operator">}</span>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="demo-section">
+            <div class="demo-title">🎨 Légende des Couleurs</div>
+            <div class="legend">
+                <div class="legend-item" style="border-color: rgb(86, 156, 214)">
+                    <div class="type keyword">Mots-clés</div>
+                    <div class="example">local, function, if, then, true, false</div>
+                </div>
+                <div class="legend-item" style="border-color: rgb(206, 145, 120)">
+                    <div class="type string">Chaînes de caractères</div>
+                    <div class="example">"texte", 'texte'</div>
+                </div>
+                <div class="legend-item" style="border-color: rgb(181, 206, 168)">
+                    <div class="type number">Nombres</div>
+                    <div class="example">42, 3.14, -10</div>
+                </div>
+                <div class="legend-item" style="border-color: rgb(106, 153, 85)">
+                    <div class="type comment">Commentaires</div>
+                    <div class="example">-- commentaire</div>
+                </div>
+                <div class="legend-item" style="border-color: rgb(78, 201, 176)">
+                    <div class="type builtin">Fonctions natives</div>
+                    <div class="example">print, pairs, ipairs, tonumber</div>
+                </div>
+                <div class="legend-item" style="border-color: rgb(212, 212, 212)">
+                    <div class="type operator">Opérateurs</div>
+                    <div class="example">+, -, =, {, }, (, ), ..</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usage -->
+        <div class="demo-section">
+            <div class="demo-title">📖 Comment utiliser dans Roblox</div>
+            <div class="code-editor">
+<span class="comment">-- Charger la librairie</span>
+<span class="keyword">local</span> <span class="default">ScreenBuilder</span> <span class="operator">=</span> <span class="builtin">loadstring</span><span class="operator">(</span><span class="builtin">readfile</span><span class="operator">(</span><span class="string">"script/LuaCatalyst/libs/ScreenBuilder.lua"</span><span class="operator">)</span><span class="operator">)</span><span class="operator">(</span><span class="operator">)</span>
+
+<span class="comment">-- Créer l'éditeur avec coloration syntaxique</span>
+<span class="keyword">local</span> <span class="default">editorFrame</span><span class="operator">,</span> <span class="default">textBox</span> <span class="operator">=</span> <span class="default">ScreenBuilder</span><span class="operator">.</span><span class="default">CodeEditor</span><span class="operator">.</span><span class="default">Create</span><span class="operator">(</span><span class="operator">{</span>
+    <span class="default">Parent</span> <span class="operator">=</span> <span class="default">votreGUI</span><span class="operator">,</span>
+    <span class="default">Size</span> <span class="operator">=</span> <span class="default">UDim2</span><span class="operator">.</span><span class="builtin">new</span><span class="operator">(</span><span class="number">0</span><span class="operator">,</span> <span class="number">700</span><span class="operator">,</span> <span class="number">0</span><span class="operator">,</span> <span class="number">500</span><span class="operator">)</span><span class="operator">,</span>
+    <span class="default">BackgroundColor3</span> <span class="operator">=</span> <span class="default">Color3</span><span class="operator">.</span><span class="default">fromRGB</span><span class="operator">(</span><span class="number">30</span><span class="operator">,</span> <span class="number">30</span><span class="operator">,</span> <span class="number">30</span><span class="operator">)</span><span class="operator">,</span>
+    <span class="default">Text</span> <span class="operator">=</span> <span class="string">"local x = 42"</span>
+<span class="operator">}</span><span class="operator">)</span>
+
+<span class="comment">-- La coloration s'applique automatiquement !</span>
+<span class="comment">-- Vous pouvez aussi forcer manuellement :</span>
+<span class="default">textBox</span><span class="operator">:</span><span class="default">Highlight</span><span class="operator">(</span><span class="string">"lua"</span><span class="operator">)</span>   <span class="comment">-- Pour Lua</span>
+<span class="default">textBox</span><span class="operator">:</span><span class="default">Highlight</span><span class="operator">(</span><span class="string">"json"</span><span class="operator">)</span>  <span class="comment">-- Pour JSON</span>
+            </div>
+        </div>
+
+        <div class="instruction">
+            <strong>🚀 Pour tester rapidement :</strong><br>
+            Exécutez le script <code>script/LuaCatalyst/demo_coloration_syntaxique.lua</code> dans Roblox pour voir une démonstration interactive complète !
+        </div>
+    </div>
+</body>
+</html>
