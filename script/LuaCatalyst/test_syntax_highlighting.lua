@@ -57,7 +57,7 @@ local sampleJSONCode = [[
 ]]
 
 -- Wait a bit, then switch to JSON example
-wait(5)
+task.wait(5)
 textBox.Text = sampleJSONCode
 textBox:Highlight("json")
 print("Switched to JSON syntax highlighting")

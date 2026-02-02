@@ -160,13 +160,13 @@ local function highlightJSON(code)
 			result = result .. colorToTag(SyntaxColors.number) .. num .. "</font>"
 			i = j
 		-- Mots-clés JSON (true, false, null)
-		elseif code:sub(i, i+3) == "true" then
+		elseif code:sub(i, i+3) == "true" and (i+4 > len or not code:sub(i+4, i+4):match("[%w_]")) then
 			result = result .. colorToTag(SyntaxColors.keyword) .. "true" .. "</font>"
 			i = i + 4
-		elseif code:sub(i, i+4) == "false" then
+		elseif code:sub(i, i+4) == "false" and (i+5 > len or not code:sub(i+5, i+5):match("[%w_]")) then
 			result = result .. colorToTag(SyntaxColors.keyword) .. "false" .. "</font>"
 			i = i + 5
-		elseif code:sub(i, i+3) == "null" then
+		elseif code:sub(i, i+3) == "null" and (i+4 > len or not code:sub(i+4, i+4):match("[%w_]")) then
 			result = result .. colorToTag(SyntaxColors.keyword) .. "null" .. "</font>"
 			i = i + 4
 		-- Autres caractères (ponctuations, espaces, etc.)
@@ -180,6 +180,14 @@ local function highlightJSON(code)
 end
 
 -- Crée un éditeur de code (Frame + TextBox + coloration syntaxique)
+-- @param props : table contenant les propriétés du Frame parent et le texte initial
+--   - Toutes les propriétés d'un Frame (Parent, Size, Position, BackgroundColor3, etc.)
+--   - Text : string optionnel contenant le code initial
+-- @return editorFrame : Frame conteneur de l'éditeur
+-- @return textBox : TextBox permettant d'éditer le code avec la méthode :Highlight(language)
+--   - textBox:Highlight("lua") : applique la coloration Lua
+--   - textBox:Highlight("json") : applique la coloration JSON
+--   - La coloration Lua est appliquée automatiquement lors de la saisie
 function ScreenBuilder.CodeEditor.Create(props)
 	local editorFrame = createInstance("Frame", props)
 	
@@ -194,7 +202,6 @@ function ScreenBuilder.CodeEditor.Create(props)
 		MultiLine = true,
 		Font = Enum.Font.Code,
 		Text = props.Text or "",
-		TextColor3 = Color3.fromRGB(0,0,0),  -- Texte invisible pour masquer le texte non coloré
 		TextTransparency = 1,  -- Rendre le texte complètement transparent
 		TextSize = 16,
 		ZIndex = 2
