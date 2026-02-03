@@ -16,4 +16,24 @@ function ScreenBuilder.CreateInstance(className, props)
 	return createInstance(className, props)
 end
 
+function ScreenBuilder.CreateButton(props)
+	return createInstance("TextButton", props)
+end
+
+function ScreenBuilder.CreateLabel(props)
+	return createInstance("TextLabel", props)
+end
+
+function ScreenBuilder.CreateFrame(props)
+	return createInstance("Frame", props)
+end
+
+function ScreenBuilder.CreateScrollingFrame(props)
+	return createInstance("ScrollingFrame", props)
+end
+
+function ScreenBuilder.CreateUIListLayout(props)
+	return createInstance("UIListLayout", props)
+end
+
 return ScreenBuilder

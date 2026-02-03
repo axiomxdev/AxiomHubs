@@ -1,3 +1,4 @@
+-- Librairie ScreenBuilderIDE : Extension de ScreenBuilder pour les fonctionnalités d'IDE (Éditeur de code, etc.)
 local ScreenBuilderIDE = {}
 
 local SyntaxColors = {
@@ -168,11 +169,62 @@ end
 ScreenBuilderIDE.CodeEditor = {}
 
 function ScreenBuilderIDE.CodeEditor.Create(props)
-	local editorFrame = createInstance("Frame", props)
-	
+	-- Conteneur principal (avec la bordure et le fond)
+	local mainContainer = createInstance("Frame", props)
+	mainContainer.ClipsDescendants = true
+
+	-- ScrollingFrame pour le contenu (Scroll vertical et horizontal)
+	local scroller = createInstance("ScrollingFrame", {
+		Parent = mainContainer,
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 1,
+		ScrollBarThickness = 12,
+		BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png",
+		MidImage = "rbxasset://textures/ui/Scroll/scroll-middle.png",
+		TopImage = "rbxasset://textures/ui/Scroll/scroll-middle.png",
+		CanvasSize = UDim2.new(0, 0, 0, 0), -- Sera ajusté dynamiquement
+		AutomaticCanvasSize = Enum.AutomaticSize.XY -- Auto ajustement
+	})
+
+	-- Layout pour aligner les numéros de ligne et l'éditeur
+	local layout = createInstance("UIListLayout", {
+		Parent = scroller,
+		FillDirection = Enum.FillDirection.Horizontal,
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Padding = UDim.new(0, 5)
+	})
+
+	-- Colonne des numéros de ligne
+	local lineNumbersLabel = createInstance("TextLabel", {
+		Parent = scroller,
+		LayoutOrder = 1,
+		Size = UDim2.new(0, 30, 1, 0), -- Largeur fixe initiale
+		AutomaticSize = Enum.AutomaticSize.Y,
+		BackgroundTransparency = 1,
+		Text = "1",
+		TextColor3 = Color3.fromRGB(150, 150, 150),
+		TextSize = 16,
+		Font = Enum.Font.Code,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		LineHeight = 1.0
+	})
+
+	-- Séparateur (Padding géré par UIListLayout)
+
+	-- Conteneur de l'éditeur (TextBox + Highlight)
+	local editorContainer = createInstance("Frame", {
+		Parent = scroller,
+		LayoutOrder = 2,
+		Size = UDim2.new(1, -40, 1, 0), -- Largeur restante approx
+		AutomaticSize = Enum.AutomaticSize.XY,
+		BackgroundTransparency = 1
+	})
+
 	local textBox = createInstance("TextBox", {
-		Parent = editorFrame,
-		Size = UDim2.new(1,0,1,0),
+		Parent = editorContainer,
+		Size = UDim2.new(0, 2000, 0, 2000), -- Grande taille pour le scroll, ajustée par AutomaticSize si possible ou manuellement
+		AutomaticSize = Enum.AutomaticSize.XY,
 		BackgroundTransparency = 1,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Top,
@@ -182,12 +234,13 @@ function ScreenBuilderIDE.CodeEditor.Create(props)
 		Text = props.Text or "",
 		TextTransparency = 1,
 		TextSize = 16,
-		ZIndex = 2
+		ZIndex = 2,
+		RichText = false
 	})
 	
 	local highlightLabel = createInstance("TextLabel", {
-		Parent = editorFrame,
-		Size = UDim2.new(1,0,1,0),
+		Parent = editorContainer,
+		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundTransparency = 1,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Top,
@@ -199,6 +252,11 @@ function ScreenBuilderIDE.CodeEditor.Create(props)
 		ZIndex = 1
 	})
 	
+	-- Synchroniser la taille du label avec la textbox
+	textBox:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		highlightLabel.Size = UDim2.new(0, textBox.AbsoluteSize.X, 0, textBox.AbsoluteSize.Y)
+	end)
+
 	function textBox:Highlight(language)
 		local text = self.Text
 		if language == "lua" then
@@ -208,6 +266,20 @@ function ScreenBuilderIDE.CodeEditor.Create(props)
 		else
 			highlightLabel.Text = escapeXML(text)
 		end
+		
+		-- Mise à jour des numéros de ligne
+		local _, count = text:gsub("\n", "\n")
+		count = count + 1
+		local lines = ""
+		for i = 1, count do
+			lines = lines .. i .. "\n"
+		end
+		lineNumbersLabel.Text = lines
+		
+		-- Ajuster la largeur de la colonne des numéros si nécessaire (ex: > 99 lignes)
+		local numWidth = math.max(30, (#tostring(count)) * 10)
+		lineNumbersLabel.Size = UDim2.new(0, numWidth, 1, 0)
+		editorContainer.Size = UDim2.new(1, -(numWidth + 10), 1, 0)
 	end
 	
 	textBox:GetPropertyChangedSignal("Text"):Connect(function()
@@ -217,8 +289,38 @@ function ScreenBuilderIDE.CodeEditor.Create(props)
 	if props.Text and props.Text ~= "" then
 		textBox:Highlight("lua")
 	end
+
+	-- Gestion simplifiée de l'indentation (Tabulation) via UserInputService si le client est local
+	-- Note: Cela nécessite que ce code tourne dans un contexte LocalScript/ModuleScript côté client
+	local UserInputService = game:GetService("UserInputService")
 	
-	return editorFrame, textBox
+	textBox.Focused:Connect(function()
+		-- Connexion temporaire aux inputs quand la textbox a le focus
+		local connection
+		connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+			if not textBox:IsFocused() then 
+				connection:Disconnect() 
+				return 
+			end
+			
+			if input.KeyCode == Enum.KeyCode.Tab then
+				-- Insérer une tabulation (4 espaces)
+				-- Note: TextBox natives Roblox ne bloquent pas toujours le focus change sur Tab
+				-- Il faut parfois ruser. Si 'Tab' change le focus, c'est dur à empêcher sans ContextActionService
+				
+				-- Astuce simple : Remplacer la sélection ou insérer au curseur
+				local cursor = textBox.CursorPosition
+				local text = textBox.Text
+				local before = text:sub(1, cursor - 1)
+				local after = text:sub(cursor)
+				
+				textBox.Text = before .. "    " .. after
+				textBox.CursorPosition = cursor + 4
+			end
+		end)
+	end)
+
+	return mainContainer, textBox
 end
 
 return ScreenBuilderIDE

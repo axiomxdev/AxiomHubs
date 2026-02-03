@@ -9,8 +9,6 @@ local Services = {
     UserInputService = game:GetService("UserInputService")
 }
 
- = folderpath
-
 _G.LuaCatalystVersion = "0.0.1"
 _G.LuaCatalystFolderPath = "LuaCatalyst"
 _G.LuaCatalystFolderPathID = _G.LuaCatalystFolderPath .. "/" ..game.GameId
@@ -88,12 +86,6 @@ SizedGui = {
 }
 
 local MenuSwapBool = true
-
-local function LoadModule(name, url)
-    if not _G[name .. "Boolean"] then
-        loadstring(game:HttpGet(url))()
-    end
-end
 
 -- Helper to create and setup menu items
 local function CreateMenuItem(name, Order, icon, onClick)
@@ -194,15 +186,15 @@ local menuItems = {
         order = 1, 
         icon = getcustomasset(_G.LuaCatalystFolderPath .. "/Sources/Images/GameSettingsTab.png"),
         onClick = function()
-            LoadModule("SettingsModule", "https://raw.githubusercontent.com/OuiSom89/ScriptTool/main/Modules/SettingsModule.lua")
+            _G.SettingsModuleBoolean = not _G.SettingsModuleBoolean
         end
     },
     {
-        name = "ScriptWritter", 
+        name = "IDE", 
         order = 2, 
         icon = getcustomasset(_G.LuaCatalystFolderPath .. "/Sources/Images/script.png"),
         onClick = function()
-            LoadModule("ScriptWritter", "https://raw.githubusercontent.com/OuiSom89/ScriptTool/main/Modules/ScriptWritter.lua")
+            _G.IDEBoolean = not _G.IDEBoolean
         end
     },
     {
@@ -210,13 +202,56 @@ local menuItems = {
         order = 3, 
         icon = "rbxasset://textures/WindControl/ArrowDown.png",
         onClick = function()
-            HandleMenuSwap()
+            _G.MenuSwapBoolean = not _G.MenuSwapBoolean
         end
     }
 }
 
 for _, itemConfig in ipairs(menuItems) do
     menuFrames[itemConfig.name] = CreateMenuItem(itemConfig.name, itemConfig.order, itemConfig.icon, itemConfig.onClick)
+end
+
+_G.DestroyLuaCatalyst = function()
+    _G.ScreenGUII:Destroy()
+    for _, item in pairs(menuFrames) do
+        item:Destroy()
+    end
+    
+    _G.LuaCatalystVersion = nil
+    _G.LuaCatalystFolderPath = nil
+    _G.LuaCatalystFolderPathID = nil
+    _G.ScreenGUII = nil
+    _G.ScreenSubGUI = nil
+    _G.LuaCatalystInitialized = nil
+    _G.DestroyLuaCatalyst = nil
+    _G.SettingsModuleBoolean = nil
+    _G.ScriptWritterBoolean = nil
+    
+    print("LuaCatalyst destroyed and reset.")
+end
+
+-- load libs
+local libs = {
+    {"ScreenBuilder", "https://axiomhub.eu/lua/LuaCatalyst/libs/ScreenBuilder.lua"},
+    {"ScreenBuilderIDE", "https://axiomhub.eu/lua/LuaCatalyst/libs/ScreenBuilderIDE.lua"}
+}
+
+for _, lib in ipairs(libs) do
+    pcall(function()
+        _G[lib[1]] = loadstring(game:HttpGet(lib[2]))()
+    end)
+end
+
+-- load modules
+local modules = {
+    "https://axiomhub.eu/lua/LuaCatalyst/modules/SettingsModule.lua",
+    "https://axiomhub.eu/lua/LuaCatalyst/modules/ScriptWritter.lua"
+}
+
+for _, mdle in ipairs(modules) do
+    pcall(function()
+        loadstring(game:HttpGet(mdle))()
+    end)
 end
 
 _G.LuaCatalystInitialized = true
