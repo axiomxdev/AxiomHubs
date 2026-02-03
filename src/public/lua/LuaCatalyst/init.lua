@@ -219,4 +219,23 @@ for _, itemConfig in ipairs(menuItems) do
     menuFrames[itemConfig.name] = CreateMenuItem(itemConfig.name, itemConfig.order, itemConfig.icon, itemConfig.onClick)
 end
 
+_G.DestroyLuaCatalyst = function()
+    _G.ScreenGUII:Destroy()
+    for _, item in pairs(menuFrames) do
+        item:Destroy()
+    end
+    
+    _G.LuaCatalystVersion = nil
+    _G.LuaCatalystFolderPath = nil
+    _G.LuaCatalystFolderPathID = nil
+    _G.ScreenGUII = nil
+    _G.ScreenSubGUI = nil
+    _G.LuaCatalystInitialized = nil
+    _G.DestroyLuaCatalyst = nil
+    _G.SettingsModuleBoolean = nil
+    _G.ScriptWritterBoolean = nil
+    
+    print("LuaCatalyst destroyed and reset.")
+end
+
 _G.LuaCatalystInitialized = true
