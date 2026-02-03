@@ -238,4 +238,15 @@ _G.DestroyLuaCatalyst = function()
     print("LuaCatalyst destroyed and reset.")
 end
 
+-- load libs
+local libs = {
+        "https://raw.githubusercontent.com/OuiSom89/ScriptTool/main/Libs/ScreenBuilder.lua",
+        "https://raw.githubusercontent.com/OuiSom89/ScriptTool/main/Libs/JSON.lua"
+    }
+    
+    for _, libUrl in ipairs(libs) do
+        pcall(function()
+            loadstring(game:HttpGet(libUrl))()
+        end)
+    end
 _G.LuaCatalystInitialized = true
